@@ -1,0 +1,55 @@
+{
+    "name": "vendor-placeholder/independent-crm",
+    "description": "Standalone, self-hosted, white-label CRM — single-tenant, resellable PHP/Laravel product. NOT SaaS, NOT multi-tenant.",
+    "keywords": ["crm", "laravel", "self-hosted", "white-label", "standalone"],
+    "license": "proprietary",
+    "type": "project",
+    "require": {
+        "php": "^8.2",
+        "bacon/bacon-qr-code": "^3.1",
+        "laravel/framework": "^12.0",
+        "laravel/sanctum": "^4.0",
+        "razorpay/razorpay": "^2.9"
+    },
+    "require-dev": {
+        "fakerphp/faker": "^1.23",
+        "laravel/pint": "^1.0",
+        "laravel/tinker": "^3.0",
+        "phpunit/phpunit": "^11.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/",
+            "Modules\\": "modules/",
+            "Database\\Factories\\": "database/factories/",
+            "Database\\Seeders\\": "database/seeders/"
+        },
+        "files": [
+            "app/helpers.php"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "post-autoload-dump": [
+            "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
+            "@php artisan package:discover --ansi"
+        ],
+        "post-install-cmd": [
+            "@php artisan key:generate --ansi --force"
+        ]
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true,
+    "config": {
+        "optimize-autoloader": true,
+        "preferred-install": "dist",
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    }
+}

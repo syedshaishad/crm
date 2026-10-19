@@ -1,0 +1,7 @@
+# If the app root itself is web-accessible (not recommended), block sensitive files.
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteRule ^\.env - [F]
+RewriteRule ^storage/ - [F]
+RewriteRule ^vendor/ - [F]
+</IfModule>

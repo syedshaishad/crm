@@ -1,0 +1,22 @@
+# cPanel / shared hosting (Apache) — if the domain points at public_html:
+# 1. Upload the whole app to /home/USER/crm-app
+# 2. Copy public/* into /home/USER/public_html/
+# 3. Edit public_html/index.php: set APP_BASE_PATH to /home/USER/crm-app
+# 4. Visit https://yourdomain/install
+# 5. Cron (cPanel → Cron Jobs, once per minute):
+#    php /home/USER/crm-app/artisan schedule:run >> /dev/null 2>&1
+
+# Nginx (VPS) example:
+# server {
+#     listen 80;
+#     server_name crm.example.com;
+#     root /var/www/crm/public;
+#     index index.php;
+#     location / { try_files $uri $uri/ /index.php?$query_string; }
+#     location ~ \.php$ {
+#         fastcgi_pass unix:/run/php/php8.2-fpm.sock;
+#         fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
+#         include fastcgi_params;
+#     }
+#     location ~ /\.(?!well-known) { deny all; }
+# }

@@ -1,0 +1,2 @@
+@foreach(array_slice($items, 0, 2) as $it)<a class="ev {{ $it->status === 'done' ? 'is-done' : '' }}" draggable="true" data-id="{{ $it->id }}" href="{{ route('tasks.edit', $it->id) }}" title="{{ $it->title }}">{{ \Str::limit($it->title, 18) }}</a>@endforeach
+@if(count($items) > 2)<a class="hint" href="{{ route('tasks.index', ['view' => 'list', 'day' => $date]) }}">+{{ count($items) - 2 }} more</a>@endif
