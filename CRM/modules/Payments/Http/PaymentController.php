@@ -36,7 +36,18 @@ class PaymentController extends Controller
             $q->where('method', $r->method);
         }
 
-        return view('payments.index', ['payments' => $q->paginate(perPage())->withQueryString(), 'q' => $r->q, 'method' => $r->method]);
+        $base = Payment::query();
+        $count = (clone $base)->count();
+        $sum = (float) (clone $base)->sum('amount');
+        $stats = [
+            'total' => $count,
+            'received' => $sum,
+            'month' => (float) (clone $base)->whereBetween('paid_on', [now()->startOfMonth()->toDateString(), now()->endOfMonth()->toDateString()])->sum('amount'),
+            'average' => $count > 0 ? $sum / $count : 0.0,
+            'methods' => (clone $base)->selectRaw('method, COUNT(*) as c')->groupBy('method')->pluck('c', 'method')->all(),
+        ];
+
+        return view('payments.index', ['payments' => $q->paginate(perPage())->withQueryString(), 'q' => $r->q, 'method' => $r->method, 'stats' => $stats]);
     }
 
     public function create(Request $r)

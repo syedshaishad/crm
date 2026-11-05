@@ -24,9 +24,23 @@ class ArticleController extends Controller
             $q->where('category', $r->category);
         }
 
+        $counts = Article::query()
+            ->selectRaw('category, COUNT(*) as aggregate')
+            ->groupBy('category')
+            ->pluck('aggregate', 'category');
+        $kinds = collect(Article::categories())
+            ->merge($counts->keys())
+            ->unique()
+            ->values();
+
         return view('knowledge.index', [
             'rows' => $q->paginate(perPage())->withQueryString(),
-            'q' => $r->q, 'category' => $r->category,
+            'q' => $r->q,
+            'category' => $r->category,
+            'counts' => $counts,
+            'kinds' => $kinds,
+            'total' => (int) $counts->sum(),
+            'pinned' => Article::query()->where('pinned', true)->orderByDesc('updated_at')->limit(4)->get(),
         ]);
     }
 
@@ -34,7 +48,7 @@ class ArticleController extends Controller
     {
         $data = $r->validate([
             'title' => 'required|string|max:255',
-            'category' => 'required|in:SOP,Guide,Checklist,Policy,Notes',
+            'category' => 'required|in:'.implode(',', Article::categories()),
             'body' => 'required|string',
         ]);
         $a = Article::create([...$data, 'created_by' => auth()->id()]);
@@ -51,7 +65,7 @@ class ArticleController extends Controller
     {
         $data = $r->validate([
             'title' => 'required|string|max:255',
-            'category' => 'required|in:SOP,Guide,Checklist,Policy,Notes',
+            'category' => 'required|in:'.implode(',', Article::categories()),
             'body' => 'required|string',
         ]);
         $article->update($data);

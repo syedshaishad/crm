@@ -52,7 +52,7 @@ class SettingsController extends Controller
             'reminders_enabled' => 'nullable|boolean',
             'reminders_clients' => 'nullable|boolean',
             'company_monthly_target' => 'nullable|numeric|min:0',
-            'backups_retain_count' => 'nullable|integer|min:1|max:30',
+            'backups_retain_count' => 'nullable|integer|min:1|max:3',
             'reminders_recipients' => 'nullable|string|max:2000',
         ]);
         $s->set('app.currency', strtoupper($data['app_currency']), 'app');
@@ -70,7 +70,7 @@ class SettingsController extends Controller
         $s->set('leave.earned', $data['leave_earned'] ?? 12, 'leave');
         $s->set('reminders.enabled', isset($data['reminders_enabled']) ? '1' : '0', 'reminders');
         $s->set('reminders.clients', isset($data['reminders_clients']) ? '1' : '0', 'reminders');
-        $s->set('backups.retain_count', $data['backups_retain_count'] ?? 7, 'backups');
+        $s->set('backups.retain_count', $data['backups_retain_count'] ?? 3, 'backups');
         $s->set('reminders.recipients', $data['reminders_recipients'] ?? '', 'reminders');
         $s->set('company.monthly_target', $data['company_monthly_target'] ?? 0, 'company');
         app(EnvWriter::class)->write(['APP_TIMEZONE' => $data['app_timezone']]);

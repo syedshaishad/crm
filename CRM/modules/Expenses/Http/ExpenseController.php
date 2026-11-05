@@ -36,9 +36,19 @@ class ExpenseController extends Controller
         }
         $pending = Expense::where('status', 'pending')->count();
 
+        $base = Expense::query();
+        $stats = [
+            'total' => (clone $base)->count(),
+            'pending' => $pending,
+            'approved' => (float) (clone $base)->where('status', 'approved')->sum('amount'),
+            'approved_count' => (clone $base)->where('status', 'approved')->count(),
+            'rejected' => (clone $base)->where('status', 'rejected')->count(),
+            'month' => (float) (clone $base)->whereBetween('spent_on', [now()->startOfMonth()->toDateString(), now()->endOfMonth()->toDateString()])->sum('amount'),
+        ];
+
         return view('expenses.index', [
             'expenses' => $q->paginate(perPage())->withQueryString(),
-            'q' => $r->q, 'category' => $r->category, 'project_id' => $r->project_id, 'status' => $r->status, 'pending' => $pending,
+            'q' => $r->q, 'category' => $r->category, 'project_id' => $r->project_id, 'status' => $r->status, 'pending' => $pending, 'stats' => $stats,
             'categories' => Expense::select('category')->distinct()->orderBy('category')->pluck('category'),
             'projects' => Project::orderBy('name')->get(['id', 'name']),
         ]);

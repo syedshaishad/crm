@@ -6,7 +6,7 @@
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <title>@yield('title', 'Dashboard') — {{ $brand['company_name'] ?? $brand['app_name'] ?? config('app.name') }}</title>
 @if(!empty($brand['favicon_path']))<link rel="icon" href="{{ asset('storage/'.$brand['favicon_path']) }}">@else<link rel="icon" href="{{ asset('favicon.ico') }}">@endif
-<link rel="stylesheet" href="{{ asset('assets/css/app.css').'?v=107' }}">
+<link rel="stylesheet" href="{{ asset('assets/css/app.css').'?v=130' }}">
 @include('brand.theme')
 @yield('head')
 </head>
@@ -32,25 +32,6 @@ $nav = [
     ['Knowledge','knowledge.index',['knowledge.*'],'<path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2z"/>'],
     ['Quality','quality.index',['quality.*'],'<path d="M12 22s8-3.5 8-10V5l-8-3-8 3v7c0 6.5 8 10 8 10z"/><path d="m9 11.5 2 2 4-4.5"/>'],
     ['Automations','automations.index',['automations.*'],'<path d="M13 2 4.5 13.5H11L10 22l8.5-11.5H12z"/>'],
-  ]],
-  ['HR',null,['attendance.*','leaves.*','shifts.*','holidays.*','overtime.*','reimbursements.*','appraisals.*','exits.*','salary.*','payroll.*','structures.*','loans.*','bonuses.*','team.*','skills.*','field.*','voice.*'],'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.5 3.4-5 6.5-5s5.7 1.5 6.5 5"/><path d="m16 8 2 2 4-4"/>',[
-    ['Workload','team.load',['team.*'],'<path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/>'],
-    ['Skills','skills.index',['skills.*'],'<circle cx="12" cy="8" r="3.5"/><path d="M5 20c.9-3.8 3.7-5.5 7-5.5s6.1 1.7 7 5.5"/>'],
-    ['Site Visits','field.index',['field.*'],'<path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/>'],
-    ['Employee Voice','voice.index',['voice.*'],'<path d="M21 11.5a8.5 8.5 0 0 1-12.4 7.5L3 21l2-5.4A8.5 8.5 0 1 1 21 11.5z"/>'],
-    ['Attendance','attendance.index',['attendance.*'],'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/>'],
-    ['Leave','leaves.index',['leaves.*'],'<path d="M12 21c-5 0-8-3-8-8 0-6 5-9 14-10-.5 9-1.5 18-6 18z"/><path d="M12 21c0-6 2-10 6-13"/>'],
-    ['Shifts','shifts.index',['shifts.*'],'<rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 10h18"/>'],
-    ['Holidays','holidays.index',['holidays.*'],'<path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/>'],
-    ['Overtime','overtime.index',['overtime.*'],'<circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6"/>'],
-    ['Reimbursements','reimbursements.index',['reimbursements.*'],'<rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h4"/>'],
-    ['Appraisals','appraisals.index',['appraisals.*'],'<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/>'],
-    ['Employee Exits','exits.index',['exits.*'],'<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5M21 12H9"/>'],
-    ['Advances','salary.index',['salary.*'],'<rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.6"/><path d="M6 12h.01M18 12h.01"/>'],
-    ['Payroll','payroll.index',['payroll.*'],'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 4v5"/>'],
-    ['Pay Structures','structures.index',['structures.*'],'<path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/>'],
-    ['Loans','loans.index',['loans.*'],'<path d="M12 2v20M17 6.5c0-2-2.2-3-5-3s-5 1-5 3 2.2 2.6 5 3.2 5 1.3 5 3.3-2.2 3-5 3-5-1-5-3"/>'],
-    ['Bonuses','bonuses.index',['bonuses.*'],'<circle cx="12" cy="9" r="6"/><path d="m8.5 14-2 8 5.5-3 5.5 3-2-8"/>'],
   ]],
   ['Accounting',null,['invoices.*','payments.*','expenses.*','credits.*'],'<ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6"/><path d="M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"/>',[
     ['Invoices','invoices.index',['invoices.*'],'<path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h7M9 17h7"/>'],
@@ -80,6 +61,25 @@ $nav = [
   ['Documents','documents.index',['documents.*'],'<path d="M5 3h11l3 3v15H5z"/><path d="M15 3v6h4"/>'],
   ['Statutory Compliance','expiry.index',['expiry.*'],'<rect x="4" y="4" width="16" height="16" rx="2"/><path d="m8.5 12.5 2.5 2.5 5-5.5"/><path d="M8 2v4M16 2v4"/>'],
   ['Data Import & Export','import.index',['import.*','export.*'],'<path d="M12 3v12m0 0 4-4m-4 4-4-4"/><path d="M4 17v3h16v-3"/>',[]],
+  ['HR',null,['attendance.*','leaves.*','shifts.*','holidays.*','overtime.*','reimbursements.*','appraisals.*','exits.*','salary.*','payroll.*','structures.*','loans.*','bonuses.*','team.*','skills.*','field.*','voice.*'],'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.5 3.4-5 6.5-5s5.7 1.5 6.5 5"/><path d="m16 8 2 2 4-4"/>',[
+    ['Workload','team.load',['team.*'],'<path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/>'],
+    ['Skills','skills.index',['skills.*'],'<circle cx="12" cy="8" r="3.5"/><path d="M5 20c.9-3.8 3.7-5.5 7-5.5s6.1 1.7 7 5.5"/>'],
+    ['Site Visits','field.index',['field.*'],'<path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/>'],
+    ['Employee Voice','voice.index',['voice.*'],'<path d="M21 11.5a8.5 8.5 0 0 1-12.4 7.5L3 21l2-5.4A8.5 8.5 0 1 1 21 11.5z"/>'],
+    ['Attendance','attendance.index',['attendance.*'],'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/>'],
+    ['Leave','leaves.index',['leaves.*'],'<path d="M12 21c-5 0-8-3-8-8 0-6 5-9 14-10-.5 9-1.5 18-6 18z"/><path d="M12 21c0-6 2-10 6-13"/>'],
+    ['Shifts','shifts.index',['shifts.*'],'<rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 10h18"/>'],
+    ['Holidays','holidays.index',['holidays.*'],'<path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/>'],
+    ['Overtime','overtime.index',['overtime.*'],'<circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6"/>'],
+    ['Reimbursements','reimbursements.index',['reimbursements.*'],'<rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h4"/>'],
+    ['Appraisals','appraisals.index',['appraisals.*'],'<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/>'],
+    ['Employee Exits','exits.index',['exits.*'],'<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5M21 12H9"/>'],
+    ['Advances','salary.index',['salary.*'],'<rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.6"/><path d="M6 12h.01M18 12h.01"/>'],
+    ['Payroll','payroll.index',['payroll.*'],'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 4v5"/>'],
+    ['Pay Structures','structures.index',['structures.*'],'<path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/>'],
+    ['Loans','loans.index',['loans.*'],'<path d="M12 2v20M17 6.5c0-2-2.2-3-5-3s-5 1-5 3 2.2 2.6 5 3.2 5 1.3 5 3.3-2.2 3-5 3-5-1-5-3"/>'],
+    ['Bonuses','bonuses.index',['bonuses.*'],'<circle cx="12" cy="9" r="6"/><path d="m8.5 14-2 8 5.5-3 5.5 3-2-8"/>'],
+  ]],
 ];
 $admin = [
   ['General','settings.general',null,'<path d="M4 6h16M4 12h16M4 18h10"/>'],
@@ -96,17 +96,17 @@ $admin = [
 @endphp
 @php
 try { $lm = app(\Modules\Licensing\LicenseManager::class); } catch (\Throwable $e) { $lm = null; }
-$canSee = function ($route) use ($lm) {
+$canSeeCache = [];
+$canSee = function ($route) use ($lm, &$canSeeCache) {
   if (! $route) return false;
+  if (array_key_exists($route, $canSeeCache)) return $canSeeCache[$route];
   $mod = $lm ? $lm->moduleForRoute($route) : null;
-  if ($mod && function_exists('module_enabled') && ! module_enabled($mod)) return false;
-  if ($mod && $lm && function_exists('module_visible') && ! $lm->moduleAllowed($mod)) return false;
-  if (function_exists('user_can') && ($pm = perm_module_for_route($route)) && ! user_can($pm, 'view')) return false;
-  if ($mod && $lm) return $lm->moduleAllowed($mod);
-  return true;
+  if ($mod && function_exists('module_enabled') && ! module_enabled($mod)) return $canSeeCache[$route] = false;
+  if ($mod && $lm && ! $lm->moduleAllowed($mod)) return $canSeeCache[$route] = false;
+  if (function_exists('user_can') && ($pm = perm_module_for_route($route)) && ! user_can($pm, 'view')) return $canSeeCache[$route] = false;
+  return $canSeeCache[$route] = true;
 };
-$sideGroups = [];
-$sysLinks = [];
+$sideItems = [];
 foreach ($nav as $item) {
   $label = $item[0];
   $route = $item[1];
@@ -114,21 +114,25 @@ foreach ($nav as $item) {
   $kids = $item[4] ?? [];
   if ($route === 'dashboard') continue;
   if (empty($kids)) {
-    if ($canSee($route)) $sysLinks[] = [$label, $route, $match, $item[3]];
+    if ($canSee($route)) $sideItems[] = ['link', [$label, $route, $match, $item[3]]];
     continue;
   }
   $kids = array_values(array_filter($kids, function ($k) use ($canSee) {
     return $canSee($k[1] ?? null);
   }));
-  if (count($kids)) $sideGroups[] = [$label, $match, $item[3], $kids];
+  if (count($kids)) $sideItems[] = ['group', [$label, $match, $item[3], $kids]];
 }
 @endphp
 <div class="dc-app">
   <div class="dc-shell">
     <div class="dc-tb noprint">
-      <a class="dc-logo" href="{{ route('dashboard') }}" title="{{ $brand['company_name'] ?? config('app.name') }}">
-        <span class="dc-mark" aria-hidden="true">{{ strtoupper(mb_substr($brand['company_name'] ?? $brand['app_name'] ?? config('app.name'), 0, 1)) }}</span>
-        <span class="dc-ws">{{ $brand['company_name'] ?? $brand['app_name'] ?? config('app.name') }}</span>
+      <a class="dc-logo" href="{{ route('dashboard') }}" title="{{ $brand['company_name'] ?? config('app.name') }}" aria-label="{{ $brand['company_name'] ?? $brand['app_name'] ?? config('app.name') }}">
+        @if(!empty($brand['logo_path']) || !empty($brand['logo_dark_path']))
+          @include('brand.logo', ['cls' => 'dc-brand-img'])
+        @else
+          <span class="dc-mark" aria-hidden="true">{{ strtoupper(mb_substr($brand['company_name'] ?? $brand['app_name'] ?? config('app.name'), 0, 1)) }}</span>
+          <span class="dc-ws">{{ $brand['company_name'] ?? $brand['app_name'] ?? config('app.name') }}</span>
+        @endif
       </a>
       @auth
       <button type="button" class="dc-search" data-spot-open title="Search (Ctrl/⌘ K)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="width:14px;height:14px"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span class="dc-search-txt">Try searching “invoices”</span><kbd>⌘K</kbd></button>
@@ -138,7 +142,7 @@ foreach ($nav as $item) {
         @auth
         @php $canCreate = function ($mod) { return function_exists('user_can') ? user_can($mod, 'create') : true; }; @endphp
         <div class="has-drop">
-          <button type="button" class="dc-new" data-drop-toggle aria-haspopup="menu" title="Quick create"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" style="width:14px;height:14px"><path d="M12 5v14M5 12h14"/></svg><span>New</span><span aria-hidden="true">⌄</span></button>
+          <button type="button" class="dc-new" data-drop-toggle aria-haspopup="menu" title="Quick create"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" style="width:14px;height:14px"><path d="M12 5v14M5 12h14"/></svg><span>New</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;opacity:.85" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
           <div class="drop" role="menu" aria-label="Quick create">
             @if($canSee('leads.index') && $canCreate('sales'))<a href="{{ route('leads.create') }}" role="menuitem">New lead</a>@endif
             @if($canSee('clients.index') && $canCreate('sales'))<a href="{{ route('clients.create') }}" role="menuitem">New client</a>@endif
@@ -176,9 +180,9 @@ foreach ($nav as $item) {
           </div>
         </div>
         <div class="has-drop acct-drop">
-          <button type="button" class="dc-ibtn" data-drop-toggle aria-haspopup="menu" aria-label="Account menu" title="{{ auth()->user()->name }}"><span class="avatar sm">{{ strtoupper(substr(auth()->user()->name,0,1)) }}</span>@if(auth()->user()->isAdmin() && ($unreadCount ?? 0) > 0)<span class="bell-badge">•</span>@endif</button>
+          <button type="button" class="dc-ibtn" data-drop-toggle aria-haspopup="menu" aria-label="Account menu" title="{{ auth()->user()->name }}">@include('partials.avatar', ['user' => auth()->user(), 'class' => 'avatar sm'])@if(auth()->user()->isAdmin() && ($unreadCount ?? 0) > 0)<span class="bell-badge">•</span>@endif</button>
           <div class="drop" role="menu" aria-label="Account">
-            <div class="acct-head"><b>{{ auth()->user()->name }}</b><span>{{ auth()->user()->email }}</span></div>
+            <div class="acct-head"><div class="acct-id">@include('partials.avatar', ['user' => auth()->user(), 'class' => 'avatar'])<div><b>{{ auth()->user()->name }}</b><span>{{ auth()->user()->email }}</span></div></div></div>
             <a href="{{ route('settings.account') }}" role="menuitem">My account</a>
             @if(auth()->user()->isAdmin())<a href="{{ route('settings.index') }}" role="menuitem">Settings</a>@endif
             <form method="POST" action="{{ route('logout') }}">@csrf<button type="submit" role="menuitem" style="width:100%;text-align:left">Log out</button></form>
@@ -204,11 +208,11 @@ foreach ($nav as $item) {
         @endforeach
         <div class="dc-rx">
           @if($canSee('notifications.index'))
-          <a class="dc-rb{{ request()->routeIs('notifications.*') ? ' on' : '' }}" href="{{ route('notifications.index') }}" title="Notifications" aria-label="Notifications" style="position:relative"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5h14v10H10l-5 4z"/></svg>@if(($unreadCount ?? 0) > 0)<span style="position:absolute;top:8px;right:8px;width:8px;height:8px;border-radius:50%;background:var(--dc-accent,#d63a5c)"></span>@endif</a>
+          <a class="dc-rb{{ request()->routeIs('notifications.*') ? ' on' : '' }}" href="{{ route('notifications.index') }}" title="Notifications" aria-label="Notifications"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>@if(($unreadCount ?? 0) > 0)<span class="dc-dot" aria-hidden="true"></span>@endif</a>
           @endif
           @auth
           @if(auth()->user()->isAdmin())
-          <a class="dc-rb{{ request()->routeIs('settings.*') ? ' on' : '' }}" href="{{ route('settings.index') }}" title="Settings" aria-label="Settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/></svg></a>
+          <a class="dc-rb{{ request()->routeIs('settings.*') ? ' on' : '' }}" href="{{ route('settings.index') }}" title="Settings" aria-label="Settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></a>
           @endif
           @endauth
         </div>
@@ -221,20 +225,9 @@ foreach ($nav as $item) {
             <a class="dc-t1{{ request()->routeIs('dashboard.work') ? ' on' : '' }}" href="{{ route('dashboard.work') }}" @if(request()->routeIs('dashboard.work')) aria-current="page" @endif>Work</a>
           </div>
         </div>
-        @if($canSee('leads.index') || $canSee('tasks.index'))
-        <div class="dc-tsec open" data-side-group="Views">
-          <button type="button" class="dc-t0" data-side-toggle aria-expanded="true"><span>Views</span><span class="dc-pm" aria-hidden="true"></span></button>
-          <div class="dc-tkids">
-            @if($canSee('leads.index'))
-            <a class="dc-t1{{ request()->routeIs('leads.index') && request('view') === 'board' ? ' on' : '' }}" href="{{ route('leads.index', ['view' => 'board']) }}">Leads kanban</a>
-            @endif
-            @if($canSee('tasks.index'))
-            <a class="dc-t1{{ request()->routeIs('tasks.index') && request('view') === 'calendar' ? ' on' : '' }}" href="{{ route('tasks.index', ['view' => 'calendar']) }}">Tasks calendar</a>
-            @endif
-          </div>
-        </div>
-        @endif
-        @foreach($sideGroups as $g)
+        @foreach($sideItems as $si)
+        @if($si[0] === 'group')
+        @php $g = $si[1]; @endphp
         <div class="dc-tsec {{ request()->routeIs(...$g[1]) ? 'open' : '' }}" data-side-group="{{ $g[0] }}">
           <button type="button" class="dc-t0 b" data-side-toggle aria-expanded="{{ request()->routeIs(...$g[1]) ? 'true' : 'false' }}"><span>{{ $g[0] }}</span><span class="dc-pm" aria-hidden="true"></span></button>
           <div class="dc-tkids">
@@ -243,9 +236,10 @@ foreach ($nav as $item) {
           @endforeach
           </div>
         </div>
-        @endforeach
-        @foreach($sysLinks as $s)
+        @else
+        @php $s = $si[1]; @endphp
         <a class="dc-t0 link{{ request()->routeIs($s[1], ...$s[2]) ? ' on' : '' }}" href="{{ route($s[1]) }}" @if(request()->routeIs($s[1], ...$s[2])) aria-current="page" @endif>{{ $s[0] }}</a>
+        @endif
         @endforeach
       </nav>
       <div class="side-backdrop noprint" data-nav-toggle aria-hidden="true"></div>
@@ -292,6 +286,6 @@ foreach ($nav as $item) {
     <div class="spot-foot"><span><kbd>↑↓</kbd> navigate</span><span><kbd>↵</kbd> open</span><span><kbd>esc</kbd> close</span></div>
   </div>
 </div>
-<script src="{{ asset('assets/js/app.js').'?v=74' }}"></script>
+<script src="{{ asset('assets/js/app.js').'?v=79' }}"></script>
 </body>
 </html>

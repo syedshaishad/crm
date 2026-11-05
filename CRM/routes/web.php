@@ -6,6 +6,7 @@ use App\Http\Controllers\ClientUserController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ImportExportController;
 use App\Http\Controllers\NotificationsController;
+use App\Http\Controllers\PushSubscriptionController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\TrashController;
 use Illuminate\Support\Facades\Route;
@@ -77,6 +78,10 @@ Route::middleware(['installed', 'license'])->group(function () {
         Route::get('notifications', [NotificationsController::class, 'index'])->name('notifications.index');
         Route::post('notifications/{id}/read', [NotificationsController::class, 'markRead'])->name('notifications.read');
         Route::post('notifications/read-all', [NotificationsController::class, 'markAllRead'])->name('notifications.readAll');
+        Route::get('push/public-key', [PushSubscriptionController::class, 'publicKey'])->name('push.publicKey');
+        Route::post('push/subscriptions', [PushSubscriptionController::class, 'store'])->name('push.subscribe');
+        Route::delete('push/subscriptions', [PushSubscriptionController::class, 'destroy'])->name('push.unsubscribe');
+        Route::post('push/test', [PushSubscriptionController::class, 'test'])->name('push.test');
         Route::get('import', [ImportExportController::class, 'importForm'])->name('import.index');
         Route::post('import', [ImportExportController::class, 'importStore'])->name('import.store');
         Route::get('export/{type}', [ImportExportController::class, 'export'])->name('export.csv');

@@ -12,5 +12,5 @@ return [
     'key' => env('APP_KEY'),
     'cipher' => 'AES-256-CBC',
     'installed' => env('APP_INSTALLED', false),
-    'version' => env('APP_VERSION', '1.0.3'),
+    'version' => env('APP_VERSION', '1.0.0'),
 ];

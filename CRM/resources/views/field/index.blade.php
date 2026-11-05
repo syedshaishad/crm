@@ -22,7 +22,7 @@
 <td class="nowrap">{{ d($v->check_in_at,'j M, h:i A') }}@if($v->mapsUrl())<div><a class="hint" href="{{ $v->mapsUrl() }}" target="_blank">📍 map</a></div>@endif</td>
 <td class="nowrap">@if($v->check_out_at){{ d($v->check_out_at,'h:i A') }}@else<span class="badge b-green">on site</span>@endif</td>
 <td class="nowrap">@if($v->minutes())<b>{{ \Modules\Tasks\TaskTime::fmt($v->minutes()) }}</b>@else<span class="hint">—</span>@endif</td>
-<td>{{ $v->task->title ? \Str::limit($v->task->title,40) : '—' }}</td>
+<td>{{ $v->task ? \Str::limit($v->task->title,40) : '—' }}</td>
 <td>@if(!$v->check_out_at && ($v->user_id === auth()->id() || $canAll))<form method="POST" action="{{ route('field.checkout',$v) }}" style="display:inline">@csrf<button class="icon-btn">Check out</button></form>@endif</td></tr>
 @empty<tr><td colspan="6"><div class="empty">No site visits logged.</div></td></tr>@endforelse</table></div>
 {{ $rows->links() }}</div></div>

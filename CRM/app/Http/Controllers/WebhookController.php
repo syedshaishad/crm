@@ -60,9 +60,17 @@ class WebhookController extends Controller
 
     public function deliveries(Webhook $webhook)
     {
+        $stats = [
+            'total' => $webhook->deliveries()->count(),
+            'sent' => $webhook->deliveries()->where('status', 'sent')->count(),
+            'failed' => $webhook->deliveries()->where('status', 'failed')->count(),
+            'last' => $webhook->deliveries()->max('created_at'),
+        ];
+
         return view('settings.webhook-deliveries', [
             'webhook' => $webhook,
             'rows' => $webhook->deliveries()->orderByDesc('id')->paginate(perPage()),
+            'stats' => $stats,
         ]);
     }
 }

@@ -1,0 +1,330 @@
+[
+    {
+        "file": "01-dashboard.png",
+        "width": 3200,
+        "height": 2000,
+        "png_bytes": 640035,
+        "webp": "web/01-dashboard.webp",
+        "webp_bytes": 86648
+    },
+    {
+        "file": "02-money-dashboard.png",
+        "width": 3200,
+        "height": 2000,
+        "png_bytes": 410357,
+        "webp": "web/02-money-dashboard.webp",
+        "webp_bytes": 58832
+    },
+    {
+        "file": "03-clients.png",
+        "width": 3200,
+        "height": 2000,
+        "png_bytes": 451604,
+        "webp": "web/03-clients.webp",
+        "webp_bytes": 66494
+    },
+    {
+        "file": "04-client-profile.png",
+        "width": 3200,
+        "height": 2000,
+        "png_bytes": 541364,
+        "webp": "web/04-client-profile.webp",
+        "webp_bytes": 58322
+    },
+    {
+        "file": "05-client-ledger.png",
+        "width": 3200,
+        "height": 2000,
+        "png_bytes": 393229,
+        "webp": "web/05-client-ledger.webp",
+        "webp_bytes": 70678
+    },
+    {
+        "file": "06-leads.png",
+        "width": 3200,
+        "height": 2000,
+        "png_bytes": 477867,
+        "webp": "web/06-leads.webp",
+        "webp_bytes": 72330
+    },
+    {
+        "file": "07-proposals.png",
+        "width": 3200,
+        "height": 2000,
+        "png_bytes": 522073,
+        "webp": "web/07-proposals.webp",
+        "webp_bytes": 83136
+    },
+    {
+        "file": "08-proposal-detail.png",
+        "width": 3200,
+        "height": 2000,
+        "png_bytes": 392491,
+        "webp": "web/08-proposal-detail.webp",
+        "webp_bytes": 63816
+    },
+    {
+        "file": "09-projects.png",
+        "width": 3200,
+        "height": 2000,
+        "png_bytes": 553690,
+        "webp": "web/09-projects.webp",
+        "webp_bytes": 88210
+    },
+    {
+        "file": "10-project-overview.png",
+        "width": 3200,
+        "height": 2000,
+        "png_bytes": 414468,
+        "webp": "web/10-project-overview.webp",
+        "webp_bytes": 72908
+    },
+    {
+        "file": "11-tasks.png",
+        "width": 3200,
+        "height": 2000,
+        "png_bytes": 522113,
+        "webp": "web/11-tasks.webp",
+        "webp_bytes": 79700
+    },
+    {
+        "file": "12-invoices.png",
+        "width": 3200,
+        "height": 2000,
+        "png_bytes": 523609,
+        "webp": "web/12-invoices.webp",
+        "webp_bytes": 81990
+    },
+    {
+        "file": "13-invoice-detail.png",
+        "width": 3200,
+        "height": 2000,
+        "png_bytes": 381747,
+        "webp": "web/13-invoice-detail.webp",
+        "webp_bytes": 62364
+    },
+    {
+        "file": "14-public-invoice.png",
+        "width": 3200,
+        "height": 2000,
+        "png_bytes": 304649,
+        "webp": "web/14-public-invoice.webp",
+        "webp_bytes": 51864
+    },
+    {
+        "file": "15-public-receipt.png",
+        "width": 3200,
+        "height": 2000,
+        "png_bytes": 241126,
+        "webp": "web/15-public-receipt.webp",
+        "webp_bytes": 39714
+    },
+    {
+        "file": "16-payments.png",
+        "width": 3200,
+        "height": 2000,
+        "png_bytes": 487668,
+        "webp": "web/16-payments.webp",
+        "webp_bytes": 75926
+    },
+    {
+        "file": "17-expenses.png",
+        "width": 3200,
+        "height": 2000,
+        "png_bytes": 509848,
+        "webp": "web/17-expenses.webp",
+        "webp_bytes": 77170
+    },
+    {
+        "file": "18-products.png",
+        "width": 3200,
+        "height": 2000,
+        "png_bytes": 503796,
+        "webp": "web/18-products.webp",
+        "webp_bytes": 77858
+    },
+    {
+        "file": "19-purchase-orders.png",
+        "width": 3200,
+        "height": 2000,
+        "png_bytes": 471531,
+        "webp": "web/19-purchase-orders.webp",
+        "webp_bytes": 72250
+    },
+    {
+        "file": "20-cheques.png",
+        "width": 3200,
+        "height": 2000,
+        "png_bytes": 482083,
+        "webp": "web/20-cheques.webp",
+        "webp_bytes": 72826
+    },
+    {
+        "file": "21-credit-notes.png",
+        "width": 3200,
+        "height": 2000,
+        "png_bytes": 369798,
+        "webp": "web/21-credit-notes.webp",
+        "webp_bytes": 56384
+    },
+    {
+        "file": "22-delivery-challans.png",
+        "width": 3200,
+        "height": 2000,
+        "png_bytes": 423993,
+        "webp": "web/22-delivery-challans.webp",
+        "webp_bytes": 63320
+    },
+    {
+        "file": "23-delivery-routes.png",
+        "width": 3200,
+        "height": 2000,
+        "png_bytes": 324594,
+        "webp": "web/23-delivery-routes.webp",
+        "webp_bytes": 47380
+    },
+    {
+        "file": "24-amc-warranty.png",
+        "width": 3200,
+        "height": 2000,
+        "png_bytes": 467996,
+        "webp": "web/24-amc-warranty.webp",
+        "webp_bytes": 71362
+    },
+    {
+        "file": "25-reports-overview.png",
+        "width": 3200,
+        "height": 2000,
+        "png_bytes": 318939,
+        "webp": "web/25-reports-overview.webp",
+        "webp_bytes": 52432
+    },
+    {
+        "file": "26-profit-and-loss.png",
+        "width": 3200,
+        "height": 2000,
+        "png_bytes": 286433,
+        "webp": "web/26-profit-and-loss.webp",
+        "webp_bytes": 43460
+    },
+    {
+        "file": "27-receivables-ageing.png",
+        "width": 3200,
+        "height": 2000,
+        "png_bytes": 341620,
+        "webp": "web/27-receivables-ageing.webp",
+        "webp_bytes": 57164
+    },
+    {
+        "file": "28-gst-returns.png",
+        "width": 3200,
+        "height": 2000,
+        "png_bytes": 354926,
+        "webp": "web/28-gst-returns.webp",
+        "webp_bytes": 66270
+    },
+    {
+        "file": "29-client-profitability.png",
+        "width": 3200,
+        "height": 2000,
+        "png_bytes": 380142,
+        "webp": "web/29-client-profitability.webp",
+        "webp_bytes": 67000
+    },
+    {
+        "file": "30-hr-overview.png",
+        "width": 3200,
+        "height": 2000,
+        "png_bytes": 297830,
+        "webp": "web/30-hr-overview.webp",
+        "webp_bytes": 42606
+    },
+    {
+        "file": "31-payroll-run.png",
+        "width": 3200,
+        "height": 2000,
+        "png_bytes": 430341,
+        "webp": "web/31-payroll-run.webp",
+        "webp_bytes": 69946
+    },
+    {
+        "file": "32-attendance.png",
+        "width": 3200,
+        "height": 2000,
+        "png_bytes": 290547,
+        "webp": "web/32-attendance.webp",
+        "webp_bytes": 43678
+    },
+    {
+        "file": "33-documents.png",
+        "width": 3200,
+        "height": 2000,
+        "png_bytes": 408750,
+        "webp": "web/33-documents.webp",
+        "webp_bytes": 59566
+    },
+    {
+        "file": "34-knowledge-base.png",
+        "width": 3200,
+        "height": 2000,
+        "png_bytes": 442075,
+        "webp": "web/34-knowledge-base.webp",
+        "webp_bytes": 69362
+    },
+    {
+        "file": "35-automations.png",
+        "width": 3200,
+        "height": 2000,
+        "png_bytes": 394837,
+        "webp": "web/35-automations.webp",
+        "webp_bytes": 60452
+    },
+    {
+        "file": "36-quality-loop.png",
+        "width": 3200,
+        "height": 2000,
+        "png_bytes": 437571,
+        "webp": "web/36-quality-loop.webp",
+        "webp_bytes": 65812
+    },
+    {
+        "file": "37-global-search.png",
+        "width": 3200,
+        "height": 2000,
+        "png_bytes": 267447,
+        "webp": "web/37-global-search.webp",
+        "webp_bytes": 39144
+    },
+    {
+        "file": "38-settings.png",
+        "width": 3200,
+        "height": 2000,
+        "png_bytes": 343778,
+        "webp": "web/38-settings.webp",
+        "webp_bytes": 55048
+    },
+    {
+        "file": "39-branding.png",
+        "width": 3200,
+        "height": 2000,
+        "png_bytes": 386751,
+        "webp": "web/39-branding.webp",
+        "webp_bytes": 63162
+    },
+    {
+        "file": "40-client-portal.png",
+        "width": 2880,
+        "height": 1800,
+        "png_bytes": 167751,
+        "webp": "web/40-client-portal.webp",
+        "webp_bytes": 36900
+    },
+    {
+        "file": "41-login.png",
+        "width": 3200,
+        "height": 2000,
+        "png_bytes": 207585,
+        "webp": "web/41-login.webp",
+        "webp_bytes": 20152
+    }
+]

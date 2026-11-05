@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Modules\Licensing\LicenseManager;
 
@@ -25,7 +26,14 @@ class UsersController extends Controller
             $q->where('is_active', $r->status === 'active');
         }
 
-        return view('settings.users', ['users' => $q->paginate(perPage())->withQueryString(), 'q' => $r->q, 'role' => $r->role, 'status' => $r->status]);
+        $stats = [
+            'total' => User::count(),
+            'active' => User::where('is_active', true)->count(),
+            'admins' => User::where('role', 'admin')->count(),
+            'disabled' => User::where('is_active', false)->count(),
+        ];
+
+        return view('settings.users', ['users' => $q->paginate(perPage())->withQueryString(), 'q' => $r->q, 'role' => $r->role, 'status' => $r->status, 'stats' => $stats]);
     }
 
     public function create()
@@ -53,9 +61,13 @@ class UsersController extends Controller
             'capacity_hours' => 'nullable|integer|min:1|max:168',
             'permissions' => 'nullable|array',
             'permissions.*' => 'nullable|in:inherit,full,view,none',
+            'avatar' => 'nullable|image|mimes:jpeg,jpg,png,gif,webp|max:4096',
+            'remove_avatar' => 'nullable|boolean',
         ]);
         $perms = collect($data['permissions'] ?? [])->filter(fn ($v) => in_array($v, ['full', 'view', 'none'], true))->all();
-        User::create(['name' => $data['name'], 'email' => $data['email'], 'password' => Hash::make($data['password']), 'role' => $data['role'], 'is_active' => $r->boolean('is_active', true), 'monthly_target' => $data['monthly_target'] ?? 0, 'commission_rate' => $data['commission_rate'] ?? 0, 'designation' => $data['designation'] ?? null, 'department' => $data['department'] ?? null, 'phone' => $data['phone'] ?? null, 'address' => $data['address'] ?? null, 'joining_date' => $data['joining_date'] ?? null, 'capacity_hours' => $data['capacity_hours'] ?? null, 'permissions' => $data['role'] === 'admin' ? null : ($perms ?: null)]);
+        $user = User::create(['name' => $data['name'], 'email' => $data['email'], 'password' => Hash::make($data['password']), 'role' => $data['role'], 'is_active' => $r->boolean('is_active', true), 'monthly_target' => $data['monthly_target'] ?? 0, 'commission_rate' => $data['commission_rate'] ?? 0, 'designation' => $data['designation'] ?? null, 'department' => $data['department'] ?? null, 'phone' => $data['phone'] ?? null, 'address' => $data['address'] ?? null, 'joining_date' => $data['joining_date'] ?? null, 'capacity_hours' => $data['capacity_hours'] ?? null, 'permissions' => $data['role'] === 'admin' ? null : ($perms ?: null)]);
+        $this->applyAvatar($r, $user);
+        $user->save();
 
         return redirect()->route('settings.users.index')->with('ok', 'User created.');
     }
@@ -81,6 +93,8 @@ class UsersController extends Controller
             'capacity_hours' => 'nullable|integer|min:1|max:168',
             'permissions' => 'nullable|array',
             'permissions.*' => 'nullable|in:inherit,full,view,none',
+            'avatar' => 'nullable|image|mimes:jpeg,jpg,png,gif,webp|max:4096',
+            'remove_avatar' => 'nullable|boolean',
         ]);
         if ($user->id === auth()->id() && ($data['role'] !== 'admin' || ! $r->boolean('is_active', true))) {
             return back()->withErrors(['role' => 'You cannot demote or deactivate your own admin account.']);
@@ -105,6 +119,7 @@ class UsersController extends Controller
         if (! empty($data['password'])) {
             $user->password = Hash::make($data['password']);
         }
+        $this->applyAvatar($r, $user);
         $user->save();
 
         return redirect()->route('settings.users.index')->with('ok', 'User updated.');
@@ -175,6 +190,8 @@ class UsersController extends Controller
             'email' => ['required', 'email', Rule::unique('users')->ignore($user->id)],
             'password' => 'nullable|min:8|confirmed',
             'current_password' => 'required_with:password|string',
+            'avatar' => 'nullable|image|mimes:jpeg,jpg,png,gif,webp|max:4096',
+            'remove_avatar' => 'nullable|boolean',
         ]);
         if (! empty($data['password']) && ! Hash::check($data['current_password'] ?? '', $user->password)) {
             return back()->withErrors(['current_password' => 'Current password is incorrect.']);
@@ -184,8 +201,24 @@ class UsersController extends Controller
         if (! empty($data['password'])) {
             $user->password = Hash::make($data['password']);
         }
+        $this->applyAvatar($r, $user);
         $user->save();
 
         return back()->with('ok', 'Profile updated.');
+    }
+
+    private function applyAvatar(Request $r, User $user): void
+    {
+        if ($r->boolean('remove_avatar') && $user->avatar_path) {
+            Storage::disk('public')->delete($user->avatar_path);
+            $user->avatar_path = null;
+        }
+
+        if ($r->hasFile('avatar')) {
+            if ($user->avatar_path) {
+                Storage::disk('public')->delete($user->avatar_path);
+            }
+            $user->avatar_path = $r->file('avatar')->store('avatars', 'public');
+        }
     }
 }

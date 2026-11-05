@@ -22,7 +22,7 @@ class ClientController extends Controller
 
     public function index(Request $r)
     {
-        $q = Client::withSum('invoices as billed', 'total')->withSum('invoices as collected', 'paid_amount')->orderByDesc('id');
+        $q = Client::withSum('invoices as billed', 'total')->withSum('invoices as collected', 'paid_amount')->withCount('projects')->orderByDesc('id');
         if ($r->filled('q')) {
             $s = '%'.$r->q.'%';
             $q->where(fn ($w) => $w->where('name', 'like', $s)->orWhere('company', 'like', $s)->orWhere('email', 'like', $s)->orWhere('phone', 'like', $s));

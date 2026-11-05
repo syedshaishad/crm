@@ -5,7 +5,10 @@ install: own files, own MySQL database, own users/data. There is **no SaaS, no
 multi-tenancy, no shared database, and no dependency on any vendor server**.
 
 ## 1. Sell / deliver
-- Zip this folder (exclude `vendor/`, `node_modules/`, `.env`) as `crm-v1.0.0.zip`.
+- Ship the release zip (`crm-v1.0.0.zip`). It bundles `vendor/` and excludes
+  `.env*`, `database/*.sqlite`, logs/backups, generated caches and every
+  install/licence identity file (`storage/app/.installation_id`, `.license_*`,
+  `license.key`).
 - Buyer uploads to their hosting (cPanel shared, VPS, any PHP 8.2+ + MySQL/MariaDB host).
 
 ## 2. Install on cPanel shared hosting
@@ -28,19 +31,18 @@ Set one cron entry so `invoices:mark-overdue` runs daily (cPanel → Cron Jobs):
 Settings → Branding: company name, logo, favicon, brand colors, address, GSTIN,
 invoice prefix/footer/logo, mail sender, login heading. Nothing is hard-coded.
 
-## 4. Licensing (offline-first, signed)
-- Default `LICENSE_DRIVER=null` = no enforcement; sell and deploy freely.
-- To enforce: buyer sends you their install secret (Settings → License shows
-  the fingerprint); you mint offline with
-  `php artisan license:make --to="Acme" --type=annual --users=10 --modules=Invoices,Payments --secret=THEIR-SECRET`
-  and hand them the file (or `--key` for a `LICENSE_KEY` string).
-- Buyer sets `LICENSE_DRIVER=file` (+ `LICENSE_SECRET`) or `LICENSE_DRIVER=key`
-  (+ `LICENSE_KEY`), uploads the file in Settings → License. Tampered files are
-  refused; expiry/user/module limits enforced; expiry never locks the admin out
-  of dashboard, settings, or updates. `LICENSE_ENFORCE_USERS=true` /
-  `LICENSE_ENFORCE_MODULES=true` turn on the two limiters.
-- No phone-home. See `storage/app/license.json.example` and Settings → License.
-  Note the honest limit: whoever roots the server can re-sign — deterrent, not DRM.
+## 4. Licensing (Licensify server)
+- Activation is mandatory in the installer's final step. The app activates
+  against `LICENSE_SERVER_URL` (default `https://license.shaishad.com`) with
+  the product code and the reseller's API credentials; there is no open mode.
+- The server returns an Ed25519-signed certificate with a bounded offline grace
+  window, cached in `storage/app/.license_certificate.json`. Every install
+  mints its own `storage/app/.installation_id` on first run — never ship it.
+- Settings → License shows status, certificate and a Check now action;
+  `php artisan license:check|activate|deactivate` are available over SSH.
+- The app, token API and client portal fail closed when the licence is invalid.
+  Note the honest limit: whoever roots the server can tamper with the code —
+  this is a deterrent, not DRM.
 
 ## 5. Updates
 - Settings → Updates. Drop `update-*.zip` (with `update.php` + `files/` + `migrations/`)
@@ -50,8 +52,8 @@ invoice prefix/footer/logo, mail sender, login heading. Nothing is hard-coded.
 ## 6. Module toggles
 `config/modules.php` lists the bundled modules (Clients/Projects/Tasks/Leads/
 Proposals/Invoices/Payments/Expenses/Reports/Documents/Settings/Branding).
-It is informational in v1.0.0 — hiding a module is done by removing its nav
-entry, not by config alone.
+It is informational — hiding a module is done by removing its nav entry, not
+by config alone.
 
 ## 7. Requirements
 PHP ≥ 8.2, extensions: openssl, pdo(+mysql), mbstring, tokenizer, xml, ctype,

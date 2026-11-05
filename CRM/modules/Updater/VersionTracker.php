@@ -2,25 +2,21 @@
 
 namespace Modules\Updater;
 
-use Illuminate\Support\Facades\DB;
+use Modules\Settings\SettingStore;
 
 class VersionTracker
 {
     public static function current(): string
     {
         try {
-            $v = DB::table('settings')->where('key', 'app.version')->first();
-            if ($v) {
-                return $v->value;
-            }
+            return (string) app(SettingStore::class)->get('app.version', config('version.version', '1.0.0'));
         } catch (\Throwable $e) {
+            return config('version.version', '1.0.0');
         }
-
-        return config('version.version', '1.0.0');
     }
 
     public static function set(string $version): void
     {
-        DB::table('settings')->updateOrInsert(['key' => 'app.version'], ['value' => $version, 'group' => 'system', 'updated_at' => now(), 'created_at' => now()]);
+        app(SettingStore::class)->set('app.version', $version, 'system');
     }
 }

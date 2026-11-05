@@ -9,31 +9,32 @@ class SettingStore
     /** Per-request memo: once the DB proves unreachable, stop re-dialling it. */
     protected static bool $dead = false;
 
+    /** All settings are loaded once, so views do not trigger hundreds of queries. */
+    protected ?array $values = null;
+
     public function get(string $key, $default = null)
     {
         if (static::$dead) {
             return $default ?? $this->envFallback($key);
         }
-        try {
-            $row = DB::table('settings')->where('key', $key)->first();
-            if (! $row) {
-                return $default ?? $this->envFallback($key);
-            }
-
-            return $row->value;
-        } catch (\Throwable $e) {
-            static::$dead = true;
-
+        $this->load();
+        if (! array_key_exists($key, $this->values ?? [])) {
             return $default ?? $this->envFallback($key);
         }
+
+        return $this->values[$key];
     }
 
     public function set(string $key, $value, string $group = 'general'): void
     {
+        $stored = is_scalar($value) || $value === null ? (string) $value : json_encode($value);
         \DB::table('settings')->updateOrInsert(
             ['key' => $key],
-            ['value' => is_scalar($value) || $value === null ? (string) $value : json_encode($value), 'group' => $group, 'updated_at' => now(), 'created_at' => now()]
+            ['value' => $stored, 'group' => $group, 'updated_at' => now(), 'created_at' => now()]
         );
+        if ($this->values !== null) {
+            $this->values[$key] = $stored;
+        }
     }
 
     public function all(?string $group = null): array
@@ -41,18 +42,38 @@ class SettingStore
         if (static::$dead) {
             return [];
         }
-        try {
-            $q = \DB::table('settings');
-            if ($group) {
-                $q->where('group', $group);
-            }
+        if ($group === null) {
+            $this->load();
 
-            return $q->pluck('value', 'key')->all();
+            return $this->values ?? [];
+        }
+        try {
+            return DB::table('settings')->where('group', $group)->pluck('value', 'key')->all();
         } catch (\Throwable $e) {
             static::$dead = true;
 
             return [];
         }
+    }
+
+    protected function load(): void
+    {
+        if ($this->values !== null || static::$dead) {
+            return;
+        }
+        try {
+            $this->values = DB::table('settings')->pluck('value', 'key')->all();
+        } catch (\Throwable $e) {
+            static::$dead = true;
+            $this->values = [];
+        }
+    }
+
+    /** Drop the in-memory snapshot between requests/jobs in long-running workers. */
+    public function flush(): void
+    {
+        $this->values = null;
+        static::$dead = false;
     }
 
     protected function envFallback(string $key)

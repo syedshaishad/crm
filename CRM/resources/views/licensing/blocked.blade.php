@@ -1,5 +1,5 @@
 <!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">@php $b = isset($brand) && is_array($brand) ? $brand : []; @endphp<title>License required{{ !empty($b['company_name']) ? ' — '.$b['company_name'] : '' }}</title>@if(!empty($b['favicon_path']))<link rel="icon" href="{{ asset('storage/'.$b['favicon_path']) }}">@else<link rel="icon" href="{{ asset('favicon.ico') }}">@endif
-<link rel="stylesheet" href="{{ asset('assets/css/app.css').'?v=107' }}"></head>
+<link rel="stylesheet" href="{{ asset('assets/css/app.css').'?v=130' }}"></head>
 <body><div class="inst"><div class="inst-box">
 @if(!empty($b['logo_path']) || !empty($b['logo_dark_path']))@include('brand.logo', ['brand' => $b])@endif
 <h1 style="margin-top:0">License required (402)</h1>

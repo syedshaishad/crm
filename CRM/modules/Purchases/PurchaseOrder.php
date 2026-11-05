@@ -24,6 +24,11 @@ class PurchaseOrder extends Model
         return $this->belongsTo(\Modules\Expenses\Expense::class, 'converted_expense_id');
     }
 
+    public function project()
+    {
+        return $this->belongsTo(\Modules\Projects\Project::class);
+    }
+
     public static function statuses(): array
     {
         return ['draft' => 'Draft', 'sent' => 'Sent', 'received' => 'Received', 'cancelled' => 'Cancelled'];

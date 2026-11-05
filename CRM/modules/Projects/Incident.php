@@ -16,6 +16,11 @@ class Incident extends Model
         return ['low' => 'Low', 'medium' => 'Medium', 'high' => 'High', 'critical' => 'Critical'];
     }
 
+    public static function statuses(): array
+    {
+        return ['open' => 'Open', 'fixing' => 'Fixing', 'fixed' => 'Fixed'];
+    }
+
     public function project()
     {
         return $this->belongsTo(Project::class);

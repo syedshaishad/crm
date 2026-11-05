@@ -30,8 +30,14 @@ class PdcChequeController extends Controller
         }
         $stats = [
             'held' => (float) PdcCheque::where('status', 'held')->sum('amount'),
+            'held_count' => PdcCheque::where('status', 'held')->count(),
             'due' => PdcCheque::where('status', 'held')->whereDate('cheque_date', '<=', now()->toDateString())->count(),
+            'due_value' => (float) PdcCheque::where('status', 'held')->whereDate('cheque_date', '<=', now()->toDateString())->sum('amount'),
             'bounced' => PdcCheque::where('status', 'bounced')->count(),
+            'cleared' => PdcCheque::where('status', 'cleared')->count(),
+            'cleared_value' => (float) PdcCheque::where('status', 'cleared')->sum('amount'),
+            'counts' => PdcCheque::selectRaw('status, COUNT(*) as c')->groupBy('status')->pluck('c', 'status')->all(),
+            'total' => PdcCheque::count(),
         ];
 
         return view('cheques.index', ['cheques' => $q->paginate(perPage())->withQueryString(), 'q' => $r->q, 'status' => $r->status, 'stats' => $stats]);

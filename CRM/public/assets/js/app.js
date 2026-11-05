@@ -39,6 +39,18 @@
     }
     if (!e.target.closest('.has-drop')) document.querySelectorAll('.has-drop.open').forEach(function (o) { o.classList.remove('open'); });
   });
+  // Hover menus: keep the panel open while the pointer crosses the trigger gap.
+  document.querySelectorAll('.has-drop').forEach(function (wrap) {
+    var hoverTimer = null;
+    wrap.addEventListener('mouseenter', function () {
+      if (hoverTimer) { clearTimeout(hoverTimer); hoverTimer = null; }
+      wrap.classList.add('hovering');
+    });
+    wrap.addEventListener('mouseleave', function () {
+      if (hoverTimer) clearTimeout(hoverTimer);
+      hoverTimer = setTimeout(function () { wrap.classList.remove('hovering'); hoverTimer = null; }, 220);
+    });
+  });
   // Auto-dismiss flash messages
   setTimeout(function () {
     document.querySelectorAll('[data-flash]').forEach(function (el) {
@@ -140,6 +152,7 @@
     host.appendChild(div);
     toastDismiss(div);
   }
+  window.crmFlash = ajaxFlash;
   // Server-rendered flashes (shown right after a redirect) ride along as toasts
   // too, so confirmations look the same whether or not the action was AJAX.
   // Validation error lists (with a <ul>) stay inline — they need to be read.
@@ -161,6 +174,7 @@
     var tokenInput = form.querySelector('input[name=_token]');
     var token = tokenInput ? tokenInput.value : '';
     var row = form.closest('tr, .file-tile, .kan-card');
+    var refresh = form.getAttribute('data-refresh');
     if (row) row.classList.add('row-pending');
     fetch(form.action, {
       method: 'POST',
@@ -178,6 +192,13 @@
       }
       var flash = tmp.querySelector('[data-flash]') || tmp.querySelector('.alert');
       ajaxFlash(flash ? flash.innerText.trim().slice(0, 220) : 'Deleted.');
+      if (refresh) {
+        // Pages that show counters/empty states around the list ask for the
+        // whole region back so the tallies stay in step with the rows.
+        if (row) row.classList.remove('row-pending');
+        refreshSelectors(refresh);
+        return;
+      }
       if (!row) {
         // Show page etc: follow where the server went (usually the index).
         setTimeout(function () {
@@ -578,6 +599,120 @@
     });
   }
   document.querySelectorAll('input[list]').forEach(enhanceCombobox);
+  // Themed <select> dropdowns: swap the OS option popup for an in-app panel.
+  // The native <select> stays in the DOM (value, form submit, no-JS fallback);
+  // only the pointer is intercepted, so dynamic rows/filters keep working.
+  (function () {
+    var fine = true;
+    try { fine = window.matchMedia('(hover: hover) and (pointer: fine)').matches; } catch (e) {}
+    if (!fine) return; // touch devices keep their native picker
+    var pop = null, cur = null, list = [], hot = -1;
+    function can(sel) {
+      return sel && !sel.disabled && !sel.multiple && (sel.size || 0) <= 1
+        && !sel.hasAttribute('data-native') && sel.getAttribute('data-ui-sel') !== 'off';
+    }
+    function label(o) { return (o.label || o.textContent || '').replace(/\s+/g, ' ').trim(); }
+    function flat(sel) {
+      var out = [];
+      Array.prototype.forEach.call(sel.children, function (n) {
+        if (n.tagName === 'OPTGROUP') Array.prototype.forEach.call(n.children, function (o) { out.push({ el: o, group: n.label }); });
+        else if (n.tagName === 'OPTION') out.push({ el: n, group: '' });
+      });
+      return out;
+    }
+    function close() {
+      if (pop && pop.parentNode) pop.parentNode.removeChild(pop);
+      pop = null; cur = null; list = []; hot = -1;
+    }
+    function paint() {
+      Array.prototype.forEach.call(pop.querySelectorAll('button'), function (b, i) {
+        var on = i === hot;
+        b.classList.toggle('hot', on);
+        if (on) b.scrollIntoView({ block: 'nearest' });
+      });
+    }
+    function move(d) { if (list.length) { hot = (hot + d + list.length) % list.length; paint(); } }
+    function commit(i) {
+      var o = list[i];
+      if (!o || o.el.disabled || !cur) return;
+      cur.value = o.el.value;
+      cur.dispatchEvent(new Event('input', { bubbles: true }));
+      cur.dispatchEvent(new Event('change', { bubbles: true }));
+      close();
+    }
+    function open(sel) {
+      close();
+      cur = sel; list = flat(sel);
+      pop = document.createElement('div');
+      pop.className = 'combo-pop sel-pop open';
+      pop.setAttribute('role', 'listbox');
+      var lastGroup = null;
+      list.forEach(function (o, i) {
+        if (o.group && o.group !== lastGroup) {
+          var g = document.createElement('div');
+          g.className = 'combo-group'; g.textContent = o.group;
+          pop.appendChild(g); lastGroup = o.group;
+        }
+        var b = document.createElement('button');
+        b.type = 'button'; b.setAttribute('role', 'option');
+        b.setAttribute('data-sel-idx', i);
+        b.className = o.el.selected ? 'on' : '';
+        b.disabled = !!o.el.disabled;
+        b.setAttribute('aria-selected', o.el.selected ? 'true' : 'false');
+        var t = document.createElement('span');
+        t.textContent = label(o.el);
+        var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.setAttribute('viewBox', '0 0 24 24'); svg.setAttribute('class', 'sel-tick');
+        svg.setAttribute('fill', 'none'); svg.setAttribute('stroke', 'currentColor');
+        svg.setAttribute('stroke-width', '2.6'); svg.setAttribute('stroke-linecap', 'round'); svg.setAttribute('stroke-linejoin', 'round');
+        var path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('d', 'm5 12 5 5 9-10');
+        svg.appendChild(path);
+        b.appendChild(t); b.appendChild(svg);
+        if (o.el.selected && hot < 0) hot = i;
+        b.addEventListener('mousedown', function (e) { e.preventDefault(); commit(i); });
+        b.addEventListener('mousemove', function () { hot = i; paint(); });
+        pop.appendChild(b);
+      });
+      document.body.appendChild(pop);
+      var r = sel.getBoundingClientRect();
+      var w = Math.max(r.width, 170);
+      pop.style.width = w + 'px';
+      pop.style.left = Math.max(8, Math.min(r.left, window.innerWidth - 8 - w)) + 'px';
+      pop.style.top = (r.bottom + 6) + 'px';
+      var ph = pop.offsetHeight;
+      if (r.bottom + 6 + ph > window.innerHeight - 8 && r.top - 6 - ph > 8) pop.style.top = (r.top - 6 - ph) + 'px';
+      if (hot < 0) hot = 0;
+      paint();
+      try { sel.focus({ preventScroll: true }); } catch (e) { sel.focus(); }
+    }
+    document.addEventListener('mousedown', function (e) {
+      var t = e.target;
+      if (!t || !t.closest) { if (pop) close(); return; }
+      if (pop && t.closest('.sel-pop')) { if (!t.closest('button')) e.preventDefault(); return; }
+      var sel = t.closest('select');
+      if (can(sel)) {
+        e.preventDefault();
+        if (cur === sel && pop) close(); else open(sel);
+        return;
+      }
+      if (pop) close();
+    }, true);
+    document.addEventListener('keydown', function (e) {
+      if (!cur || document.activeElement !== cur) return;
+      if (e.key === 'ArrowDown') { e.preventDefault(); move(1); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); move(-1); }
+      else if (e.key === 'Home') { e.preventDefault(); hot = 0; paint(); }
+      else if (e.key === 'End') { e.preventDefault(); hot = list.length - 1; paint(); }
+      else if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); commit(hot); }
+      else if (e.key === 'Escape' || e.key === 'Tab') close();
+    }, true);
+    window.addEventListener('resize', close);
+    window.addEventListener('scroll', function (e) {
+      if (pop && (e.target === pop || (e.target.closest && e.target.closest('.sel-pop')))) return;
+      close();
+    }, true);
+  })();
   // Payment form: picking an invoice fills client + balance
   var invSel = document.getElementById('pay-invoice');
   if (invSel) {
@@ -991,6 +1126,7 @@
     var fl = tmp.querySelector('[data-flash]') || tmp.querySelector('.alert');
     return {ok: true, msg: fl ? fl.innerText.trim().slice(0, 220) : ''};
   }
+  function formAction(f) { return f.getAttribute('action') || window.location.href; }
   function regionEl(name) {
     return name === 'page' ? document.querySelector('.page') : document.querySelector('[data-ajax-region="' + name + '"]');
   }
@@ -1032,7 +1168,7 @@
     var spinBtn = form.querySelector('button[type=submit],button.btn,input[type=submit]');
     if (spinBtn) spinBtn.classList.add('is-loading');
     var doneSpin = function () { if (spinBtn) spinBtn.classList.remove('is-loading'); };
-    fetch(form.action, {method: 'POST', body: fd, headers: {'X-Requested-With': 'XMLHttpRequest', 'Accept': 'text/html'}})
+    fetch(formAction(form), {method: 'POST', body: fd, headers: {'X-Requested-With': 'XMLHttpRequest', 'Accept': 'text/html'}})
       .then(function (res) { return res.text().then(function (html) { return {status: res.status, html: html}; }); })
       .then(function (out) {
         form.classList.remove('ajax-busy'); doneSpin();
@@ -1056,7 +1192,7 @@
     if (f.matches('form[data-ajax-filter]')) {
       e.preventDefault();
       var name = f.getAttribute('data-region') || 'list';
-      var url = new URL(f.action, window.location.origin);
+      var url = new URL(formAction(f), window.location.origin);
       new FormData(f).forEach(function (v, k) { url.searchParams.set(k, v); });
       url.searchParams.delete('page');
       regionSwap(name, url.href, true);
@@ -1065,7 +1201,7 @@
       e.preventDefault();
       var addRegion = f.getAttribute('data-region');
       f.classList.add('ajax-busy');
-      fetch(f.action, {method: 'POST', body: new FormData(f), headers: {'X-Requested-With': 'XMLHttpRequest', 'Accept': 'text/html'}})
+      fetch(formAction(f), {method: 'POST', body: new FormData(f), headers: {'X-Requested-With': 'XMLHttpRequest', 'Accept': 'text/html'}})
         .then(function (res) { return res.text().then(function (html) { return {html: html}; }); })
         .then(function (out) {
           f.classList.remove('ajax-busy');
@@ -1082,7 +1218,7 @@
       var btn = f.querySelector('.rowcheck');
       var was = btn && btn.classList.contains('done');
       if (btn) { btn.classList.toggle('done'); btn.innerHTML = was ? '' : '✓'; }
-      fetch(f.action, {method: 'POST', body: new FormData(f), headers: {'X-Requested-With': 'XMLHttpRequest', 'Accept': 'text/html'}})
+      fetch(formAction(f), {method: 'POST', body: new FormData(f), headers: {'X-Requested-With': 'XMLHttpRequest', 'Accept': 'text/html'}})
         .then(function (res) { if (!res.ok) throw new Error('toggle'); })
         .catch(function () {
           if (btn) { btn.classList.toggle('done'); btn.innerHTML = was ? '✓' : ''; }
@@ -1362,4 +1498,184 @@ try {
   });
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', apply);
   else apply();
+})();
+(function () {
+  var audioCtx = null;
+  function ensureAudio() {
+    var Ctx = window.AudioContext || window.webkitAudioContext;
+    if (!Ctx) return null;
+    if (!audioCtx) {
+      try { audioCtx = new Ctx(); } catch (e) { return null; }
+    }
+    if (audioCtx.state === 'suspended') { try { audioCtx.resume(); } catch (e) {} }
+    return audioCtx;
+  }
+  function tone(ctx, freq, start, duration, volume) {
+    var osc = ctx.createOscillator();
+    var gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(freq, start);
+    gain.gain.setValueAtTime(0.0001, start);
+    gain.gain.exponentialRampToValueAtTime(volume, start + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(start);
+    osc.stop(start + duration + 0.02);
+  }
+  function playChime() {
+    var ctx = ensureAudio();
+    if (!ctx) return;
+    var now = ctx.currentTime;
+    tone(ctx, 880, now, 0.16, 0.12);
+    tone(ctx, 1318.5, now + 0.13, 0.22, 0.09);
+  }
+  document.addEventListener('pointerdown', function () { ensureAudio(); }, { once: true, passive: true });
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.addEventListener('message', function (e) {
+      var data = e.data || {};
+      if (data.type !== 'crm-push') return;
+      playChime();
+      if (window.crmFlash) window.crmFlash((data.title || 'New notification') + (data.body ? ' � ' + data.body : ''));
+    });
+  }
+
+  var box = document.querySelector('[data-push-settings]');
+  if (!box) return;
+  var statusEl = box.querySelector('[data-push-status]');
+  var enableBtn = box.querySelector('[data-push-enable]');
+  var disableBtn = box.querySelector('[data-push-disable]');
+  var testBtn = box.querySelector('[data-push-test]');
+  var csrf = box.getAttribute('data-csrf') || '';
+  var swUrl = box.getAttribute('data-sw-url');
+  var supported = 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
+
+  function setStatus(text, err) {
+    if (!statusEl) return;
+    statusEl.textContent = text;
+    statusEl.style.color = err ? 'var(--danger)' : '';
+  }
+  function api(url, options) {
+    options = options || {};
+    options.credentials = 'same-origin';
+    options.headers = Object.assign({ 'Accept': 'application/json', 'X-CSRF-TOKEN': csrf }, options.headers || {});
+    return fetch(url, options).then(function (res) {
+      return res.json().catch(function () { return {}; }).then(function (data) {
+        if (!res.ok) throw new Error(data.message || (data.errors ? Object.values(data.errors)[0][0] : 'Request failed.'));
+        return data;
+      });
+    });
+  }
+  function keyToBase64(buffer) {
+    var bytes = new Uint8Array(buffer);
+    var out = '';
+    for (var i = 0; i < bytes.length; i++) out += String.fromCharCode(bytes[i]);
+    return btoa(out).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  }
+  function urlBase64ToUint8Array(base64) {
+    var padding = '='.repeat((4 - base64.length % 4) % 4);
+    var raw = atob((base64 + padding).replace(/-/g, '+').replace(/_/g, '/'));
+    var out = new Uint8Array(raw.length);
+    for (var i = 0; i < raw.length; i++) out[i] = raw.charCodeAt(i);
+    return out;
+  }
+  function saveSubscription(sub) {
+    var json = sub.toJSON();
+    json.contentEncoding = 'aes128gcm';
+    return api(box.getAttribute('data-subscribe-url'), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(json)
+    });
+  }
+  function paint(sub) {
+    enableBtn.style.display = sub ? 'none' : '';
+    disableBtn.style.display = sub ? '' : 'none';
+    testBtn.style.display = sub ? '' : 'none';
+    setStatus(sub ? 'On for this device � system notifications use your device sound.' : 'Off for this device.');
+  }
+  function registerWorker() {
+    return navigator.serviceWorker.register(swUrl, { updateViaCache: 'none' }).then(function (reg) {
+      return navigator.serviceWorker.ready.then(function () { return reg; });
+    });
+  }
+  function refresh() {
+    if (!supported) {
+      setStatus('This browser does not support push notifications.', true);
+      enableBtn.style.display = 'none';
+      disableBtn.style.display = 'none';
+      testBtn.style.display = 'none';
+      return;
+    }
+    navigator.serviceWorker.getRegistration().then(function (reg) {
+      if (!reg) { paint(null); return null; }
+      return reg.pushManager.getSubscription().then(function (sub) {
+        paint(sub);
+        if (sub && Notification.permission === 'granted') return saveSubscription(sub).catch(function () {});
+        return null;
+      });
+    });
+  }
+  enableBtn.addEventListener('click', function () {
+    if (!supported) return;
+    if (!window.isSecureContext) {
+      setStatus('Push needs HTTPS (or localhost). Open the site over a secure connection.', true);
+      return;
+    }
+    enableBtn.disabled = true;
+    Notification.requestPermission().then(function (permission) {
+      if (permission !== 'granted') {
+        throw new Error('Notification permission was not granted.');
+      }
+      return registerWorker();
+    }).then(function (reg) {
+      return api(box.getAttribute('data-public-key-url'), { method: 'GET' }).then(function (data) {
+        if (!data.publicKey) throw new Error('Push key is missing on the server.');
+        return reg.pushManager.getSubscription().then(function (old) {
+          var opts = { userVisibleOnly: true, applicationServerKey: urlBase64ToUint8Array(data.publicKey) };
+          if (!old) return reg.pushManager.subscribe(opts);
+          return old.unsubscribe().then(function () { return reg.pushManager.subscribe(opts); });
+        });
+      });
+    }).then(function (sub) {
+      return saveSubscription(sub).then(function () {
+        paint(sub);
+        setStatus('Enabled. Send a test to check sound and picture.');
+        if (window.crmFlash) window.crmFlash('Push notifications enabled.');
+      });
+    }).catch(function (err) {
+      setStatus(err && err.message ? err.message : 'Could not enable push notifications.', true);
+    }).then(function () {
+      enableBtn.disabled = false;
+    });
+  });
+  disableBtn.addEventListener('click', function () {
+    navigator.serviceWorker.getRegistration().then(function (reg) {
+      return reg ? reg.pushManager.getSubscription() : null;
+    }).then(function (sub) {
+      if (!sub) return null;
+      return api(box.getAttribute('data-unsubscribe-url'), {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ endpoint: sub.endpoint })
+      }).then(function () { return sub.unsubscribe(); });
+    }).then(function () {
+      paint(null);
+      setStatus('Push notifications are off on this device.');
+    }).catch(function (err) {
+      setStatus(err && err.message ? err.message : 'Could not disable push notifications.', true);
+    });
+  });
+  testBtn.addEventListener('click', function () {
+    testBtn.disabled = true;
+    api(box.getAttribute('data-test-url'), { method: 'POST' }).then(function () {
+      setStatus('Test sent. Check your notifications.');
+    }).catch(function (err) {
+      setStatus(err && err.message ? err.message : 'Could not send the test.', true);
+    }).then(function () {
+      testBtn.disabled = false;
+    });
+  });
+  refresh();
 })();

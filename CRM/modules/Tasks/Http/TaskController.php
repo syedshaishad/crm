@@ -144,11 +144,30 @@ class TaskController extends Controller
     }
 
     /** Template library: reusable task + checklist starters. */
-    public function templates()
+    public function templates(Request $r)
     {
+        $q = trim((string) $r->query('q', ''));
+        $allTask = TaskTemplate::orderBy('name')->get();
+        $allChecklist = ChecklistTemplate::orderBy('name')->get();
+
+        $taskTemplates = $allTask;
+        $checklistTemplates = $allChecklist;
+
+        if ($q !== '') {
+            $taskTemplates = $taskTemplates->filter(fn ($t) => mb_stripos($t->name, $q) !== false || mb_stripos((string) $t->title, $q) !== false)->values();
+            $checklistTemplates = $checklistTemplates->filter(fn ($t) => mb_stripos($t->name, $q) !== false)->values();
+        }
+
         return view('tasks.templates', [
-            'taskTemplates' => TaskTemplate::orderBy('name')->get(),
-            'checklistTemplates' => ChecklistTemplate::orderBy('name')->get(),
+            'taskTemplates' => $taskTemplates,
+            'checklistTemplates' => $checklistTemplates,
+            'stats' => [
+                'starters' => $allTask->count(),
+                'starter_steps' => $allTask->sum(fn ($t) => count($t->lines())),
+                'packs' => $allChecklist->count(),
+                'pack_steps' => $allChecklist->sum(fn ($t) => count($t->lines())),
+            ],
+            'q' => $q,
         ]);
     }
 

@@ -22,19 +22,10 @@ class RunBackups extends Command
             return self::FAILURE;
         }
         $this->info('Backup created: '.$result['file']);
-        $this->mailBackup($result);
-        $keep = max(1, min(30, (int) app(SettingStore::class)->get('backups.retain_count', 7)));
-        $keep = max(1, min(30, (int) app(SettingStore::class)->get('backups.retain_count', 7)));
-        $dir = storage_path('app/backups');
-        $zips = glob($dir.'/crm-backup-*.zip') ?: [];
-        usort($zips, fn ($a, $b) => filemtime($b) <=> filemtime($a));
-        foreach (array_slice($zips, $keep) as $old) {
-            @unlink($old);
-            $stamp = basename($old, '.zip');
-            $stamp = preg_replace('/^crm-backup-/', '', $stamp);
-            $this->rmdir(storage_path('app/backups/'.$stamp));
-            $this->info('Pruned '.basename($old));
+        if (($result['pruned'] ?? 0) > 0) {
+            $this->info('Pruned '.$result['pruned'].' old backup(s).');
         }
+        $this->mailBackup($result);
 
         return self::SUCCESS;
     }
@@ -84,20 +75,5 @@ class RunBackups extends Command
         } catch (\Throwable $e) {
             $warn('Backup email failed: '.$e->getMessage());
         }
-    }
-
-    protected function rmdir(string $dir): void
-    {
-        if (! is_dir($dir)) {
-            return;
-        }
-        $it = new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator($dir, \FilesystemIterator::SKIP_DOTS),
-            \RecursiveIteratorIterator::CHILD_FIRST
-        );
-        foreach ($it as $f) {
-            $f->isDir() ? @rmdir($f->getPathname()) : @unlink($f->getPathname());
-        }
-        @rmdir($dir);
     }
 }

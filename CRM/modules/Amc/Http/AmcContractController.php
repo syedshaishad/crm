@@ -23,22 +23,28 @@ class AmcContractController extends Controller
             $s = '%'.$r->q.'%';
             $q->where(fn ($w) => $w->where('number', 'like', $s)->orWhere('title', 'like', $s)->orWhereHas('client', fn ($c) => $c->where('name', 'like', $s)->orWhere('company', 'like', $s)));
         }
-        if ($r->filled('state') && in_array($r->state, ['active', 'expiring', 'expired'], true)) {
+        if ($r->filled('state') && in_array($r->state, ['active', 'expiring', 'expired', 'unscheduled'], true)) {
             $today = now()->toDateString();
             $edge = now()->addDays(30)->toDateString();
-            $q->whereNotNull('end_date');
-            if ($r->state === 'expired') {
-                $q->where('end_date', '<', $today);
-            } elseif ($r->state === 'expiring') {
-                $q->where('end_date', '>=', $today)->where('end_date', '<=', $edge);
+            if ($r->state === 'unscheduled') {
+                $q->whereNull('end_date');
             } else {
-                $q->where('end_date', '>', $edge);
+                $q->whereNotNull('end_date');
+                if ($r->state === 'expired') {
+                    $q->where('end_date', '<', $today);
+                } elseif ($r->state === 'expiring') {
+                    $q->where('end_date', '>=', $today)->where('end_date', '<=', $edge);
+                } else {
+                    $q->where('end_date', '>', $edge);
+                }
             }
         }
         $stats = [
+            'total' => AmcContract::count(),
             'active' => AmcContract::whereNotNull('end_date')->where('end_date', '>', now()->addDays(30)->toDateString())->count(),
             'expiring' => AmcContract::whereNotNull('end_date')->where('end_date', '>=', now()->toDateString())->where('end_date', '<=', now()->addDays(30)->toDateString())->count(),
             'expired' => AmcContract::whereNotNull('end_date')->where('end_date', '<', now()->toDateString())->count(),
+            'unscheduled' => AmcContract::whereNull('end_date')->count(),
         ];
 
         return view('amc.index', ['contracts' => $q->paginate(perPage())->withQueryString(), 'q' => $r->q, 'state' => $r->state, 'stats' => $stats]);

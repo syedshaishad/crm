@@ -9,6 +9,7 @@ use App\Console\Commands\RunBackups;
 use App\Console\Commands\SendReminders;
 use App\Models\User;
 use App\Observers\ActivityObserver;
+use App\Services\WebPushService;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Mail\Events\MessageSent;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -38,6 +39,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(SettingStore::class);
         $this->app->singleton(Brand::class);
         $this->app->singleton(LicenseManager::class);
+        $this->app->singleton(WebPushService::class);
     }
 
     public function boot(): void
@@ -134,6 +136,13 @@ class AppServiceProvider extends ServiceProvider
                 $view->with('brand', app(Brand::class)->all());
             } catch (\Throwable $e) {
                 $view->with('brand', config('branding'));
+            }
+        });
+        // Keep the per-request settings snapshot fresh in queue/Octane workers.
+        $this->app->terminating(function () {
+            try {
+                $this->app->make(SettingStore::class)->flush();
+            } catch (\Throwable $e) {
             }
         });
     }

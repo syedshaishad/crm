@@ -18,6 +18,7 @@ class BootstrapInstallerEnv
     public function handle(Request $request, Closure $next)
     {
         try {
+            $this->ensureRuntimeDirs();
             // Normal fresh upload: no lock file yet -> create .env, mint key.
             // Self-heal: a lock file with no key (stray lock shipped in the
             // zip, or a lost .env) would otherwise 500 every page with
@@ -33,6 +34,28 @@ class BootstrapInstallerEnv
         }
 
         return $next($request);
+    }
+
+    /**
+     * Releases no longer ship writable runtime directories (the licensing
+     * package validator rejects storage/logs, backups, sessions, views and
+     * cache). Create them before anything needs to write.
+     */
+    protected function ensureRuntimeDirs(): void
+    {
+        $dirs = [
+            storage_path('app/backups'),
+            storage_path('app/updates_tmp'),
+            storage_path('framework/cache/data'),
+            storage_path('framework/sessions'),
+            storage_path('framework/views'),
+            storage_path('logs'),
+        ];
+        foreach ($dirs as $dir) {
+            if (! is_dir($dir)) {
+                @mkdir($dir, 0755, true);
+            }
+        }
     }
 
     protected function bootstrapEnv(): void

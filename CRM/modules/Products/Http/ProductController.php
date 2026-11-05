@@ -30,6 +30,7 @@ class ProductController extends Controller
         $stats = [
             'total' => Product::count(),
             'active' => Product::where('status', 'active')->count(),
+            'archived' => Product::where('status', 'archived')->count(),
             'avg_rate' => round((float) Product::where('status', 'active')->avg('rate'), 2),
         ];
 

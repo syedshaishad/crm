@@ -1,0 +1,9 @@
+# Build artifacts (release packages are distributed separately)
+/*.zip
+
+# Stray capture artifact
+/CRM/Invoice
+
+# OS noise
+Thumbs.db
+.DS_Store

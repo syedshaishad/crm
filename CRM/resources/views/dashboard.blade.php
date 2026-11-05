@@ -1,13 +1,13 @@
 @extends('layouts.app')
 @section('title','Dashboard')
-@section('head')<link rel="stylesheet" href="{{ asset('assets/css/dc.css').'?v=2' }}">@endsection
+@section('head')<link rel="stylesheet" href="{{ asset('assets/css/dc.css').'?v=4' }}">@endsection
 @section('content')
 @php
   $hour = (int) date('H');
   $greet = $hour < 12 ? 'Good morning' : ($hour < 17 ? 'Good afternoon' : 'Good evening');
   $me = explode(' ', auth()->user()->name)[0] ?? 'there';
   $short = function ($n) { $n = (float) $n; if ($n >= 1000) return rtrim(rtrim(number_format($n / 1000, 1), '0'), '.').'k'; return (string) (int) round($n); };
-  $monRange = now()->startOfMonth()->format('M j').' - '.now()->endOfMonth()->format('M j, Y');
+  $monRange = $ref->format('M j').' - '.$ref->copy()->endOfMonth()->format('M j, Y');
   $chase = $overdue->first();
   $funnelPct = fn ($v) => $funnelTotal > 0 ? round($v / $funnelTotal * 100) : 0;
   $dueSoonCount = $dueSoon->count();
@@ -23,7 +23,7 @@
   $wonMonthTotal = collect($dealChart['months'])->sum('won');
   $recentInvoiceShown = $recentInvoices->count();
   $calBlanks = ($calStart - 1) % 7;
-  $todayKey = now()->format('Y-m-d');
+  $todayKey = $ref->isSameMonth(now()) ? now()->format('Y-m-d') : '';
 @endphp
 <div class="dc">
 
@@ -33,10 +33,17 @@
     <div style="flex:1"></div>
     <a class="dc-ib" href="{{ route('reports.index') }}" title="Filters and reports" aria-label="Filters"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg></a>
     <a class="dc-ib" href="{{ route('reports.export') }}" title="Download CSV" aria-label="Download"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></svg></a>
-    <button class="dc-ib" type="button" title="Share dashboard link" aria-label="Share" onclick="navigator.clipboard&&navigator.clipboard.writeText(location.href);this.style.borderColor='var(--dc-accent)'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V4M8 8l4-4 4 4M5 12v8h14v-8"/></svg></button>
   </div>
 
-  <div class="dc-ttl"><h1>{{ $greet }}, {{ $me }}</h1><div class="dc-tf"><span>{{ now()->format('l, j F Y') }}</span><span class="dc-dp">{{ $monRange }} &nbsp;⌄</span></div></div>
+  <div class="dc-ttl"><h1>{{ $greet }}, {{ $me }}</h1><div class="dc-tf"><span>{{ now()->format('l, j F Y') }}</span>
+    <form method="GET" action="{{ route('dashboard') }}" class="dc-dp-form">
+      <select name="month" class="dc-dp" onchange="this.form.submit()" aria-label="Dashboard month">
+        @foreach($monthOptions as $mo)
+          <option value="{{ $mo['value'] }}" {{ $selMonth === $mo['value'] ? 'selected' : '' }}>{{ $mo['label'] }}</option>
+        @endforeach
+      </select>
+    </form>
+  </div></div>
 
   <div class="dc-hr">
     <div style="flex:1 1 340px;min-width:0"><div class="dc-lb">Outstanding</div><div class="dc-hg">{{ money($outstanding) }}</div>
@@ -113,7 +120,7 @@
       @foreach($dueSoon->take(4 - $fiShown) as $t)<div class="dc-fi"><span class="dc-fd"></span><div><b>{{ \Str::limit($t->title, 42) }}</b><small>{{ ucfirst($t->priority ?? '') }} · due {{ d($t->due_date) }}</small></div><span class="dc-go">{{ ucfirst($t->priority ?? '') }}</span></div>@endforeach
       @if($fiShown === 0 && $dueSoon->isEmpty())<div class="dc-em">Nothing due soon.<small style="margin-top:4px">Overdue work is pinned in Today's focus.</small></div>@endif
     </section>
-    <section class="dc-gc" style="flex:1 1 440px;padding:16px"><div class="dc-sh2"><h3>{{ now()->format('F Y') }}</h3><a href="{{ route('tasks.index') }}">Tasks →</a></div>
+    <section class="dc-gc" style="flex:1 1 440px;padding:16px"><div class="dc-sh2"><h3>{{ $ref->format('F Y') }}</h3><a href="{{ route('tasks.index') }}">Tasks →</a></div>
       <div class="dc-cg"><div class="h">M</div><div class="h">T</div><div class="h">W</div><div class="h">T</div><div class="h">F</div><div class="h">S</div><div class="h">S</div>@for($b = 0; $b < $calBlanks; $b++)<div></div>@endfor @for($d = 1; $d <= $calDays; $d++)@php $dk = sprintf('%04d-%02d-%02d', $calY, $calM, $d); @endphp<div class="dc-cd{{ $dk === $todayKey ? ' td' : '' }}">{{ $d }}@if(!empty($dueMap[$dk]))<i></i>@endif</div>@endfor</div>
       <small style="margin-top:12px;font-weight:700;letter-spacing:.08em">COLLECTIONS THIS WEEK</small><div style="display:flex;gap:6px">@foreach($week as $wd)<div style="flex:1;text-align:center"><div class="dc-wb" style="@if($wd['value'] > 0)background:var(--dc-accent);@endif"></div><small>{{ $wd['label'] }}</small></div>@endforeach</div>
     </section>

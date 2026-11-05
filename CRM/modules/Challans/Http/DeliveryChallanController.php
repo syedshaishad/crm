@@ -18,7 +18,7 @@ class DeliveryChallanController extends Controller
 
     public function index(Request $r)
     {
-        $q = DeliveryChallan::with('client')->orderByDesc('id');
+        $q = DeliveryChallan::with(['client', 'invoice'])->withCount('items')->orderByDesc('id');
         if ($r->filled('q')) {
             $s = '%'.$r->q.'%';
             $q->where(fn ($w) => $w->where('number', 'like', $s)->orWhereHas('client', fn ($c) => $c->where('name', 'like', $s)->orWhere('company', 'like', $s)));
@@ -26,8 +26,15 @@ class DeliveryChallanController extends Controller
         if ($r->filled('status')) {
             $q->where('status', $r->status);
         }
+        $stats = [
+            'total' => DeliveryChallan::count(),
+            'draft' => DeliveryChallan::where('status', 'draft')->count(),
+            'issued' => DeliveryChallan::where('status', 'issued')->count(),
+            'cancelled' => DeliveryChallan::where('status', 'cancelled')->count(),
+            'issued_value' => (float) DeliveryChallan::where('status', 'issued')->sum('subtotal'),
+        ];
 
-        return view('challans.index', ['challans' => $q->paginate(perPage())->withQueryString(), 'q' => $r->q, 'status' => $r->status]);
+        return view('challans.index', ['challans' => $q->paginate(perPage())->withQueryString(), 'q' => $r->q, 'status' => $r->status, 'stats' => $stats]);
     }
 
     public function create(Request $r)

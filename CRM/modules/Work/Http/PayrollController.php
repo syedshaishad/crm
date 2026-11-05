@@ -13,7 +13,6 @@ use Modules\Work\Leave;
 use Modules\Work\LoanRepayment;
 use Modules\Work\OvertimeEntry;
 use Modules\Work\Payroll;
-use Modules\Work\Payslip;
 use Modules\Work\Reimbursement;
 use Modules\Work\SalaryAdvance;
 use Modules\Work\SalaryStructure;

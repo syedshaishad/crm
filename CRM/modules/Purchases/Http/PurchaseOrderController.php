@@ -28,7 +28,24 @@ class PurchaseOrderController extends Controller
             $q->where('status', $r->status);
         }
 
-        return view('purchase-orders.index', ['orders' => $q->paginate(perPage())->withQueryString(), 'q' => $r->q, 'status' => $r->status]);
+        $rows = PurchaseOrder::selectRaw('status, COUNT(*) as c, COALESCE(SUM(total), 0) as t')->groupBy('status')->get();
+        $counts = $rows->pluck('c', 'status');
+        $sums = $rows->pluck('t', 'status');
+        $stats = [
+            'total' => (int) $counts->sum(),
+            'draft' => (int) ($counts['draft'] ?? 0),
+            'sent' => (int) ($counts['sent'] ?? 0),
+            'received' => (int) ($counts['received'] ?? 0),
+            'cancelled' => (int) ($counts['cancelled'] ?? 0),
+            'draft_value' => (float) ($sums['draft'] ?? 0),
+            'sent_value' => (float) ($sums['sent'] ?? 0),
+            'received_value' => (float) ($sums['received'] ?? 0),
+        ];
+
+        return view('purchase-orders.index', [
+            'orders' => $q->with(['project'])->withCount('items')->paginate(perPage())->withQueryString(),
+            'q' => $r->q, 'status' => $r->status, 'stats' => $stats,
+        ]);
     }
 
     public function create()

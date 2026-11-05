@@ -38,7 +38,23 @@ class InvoiceController extends Controller
             $q->where('status', $r->status);
         }
 
-        return view('invoices.index', ['invoices' => $q->paginate(perPage())->withQueryString(), 'q' => $r->q, 'status' => $r->status]);
+        $base = Invoice::visibleTo(auth()->user());
+        $open = (clone $base)->whereIn('status', ['sent', 'partial', 'overdue']);
+        $stats = [
+            'total' => (clone $base)->count(),
+            'draft' => (clone $base)->where('status', 'draft')->count(),
+            'sent' => (clone $base)->where('status', 'sent')->count(),
+            'partial' => (clone $base)->where('status', 'partial')->count(),
+            'overdue' => (clone $base)->where('status', 'overdue')->count(),
+            'paid' => (clone $base)->where('status', 'paid')->count(),
+            'cancelled' => (clone $base)->where('status', 'cancelled')->count(),
+            'invoiced' => (float) (clone $base)->whereIn('status', ['sent', 'partial', 'paid', 'overdue'])->sum('total'),
+            'outstanding' => (float) ((clone $open)->whereRaw('total > paid_amount + COALESCE(writeoff_amount,0)')
+                ->selectRaw('COALESCE(SUM(total - paid_amount - COALESCE(writeoff_amount,0)),0) as v')->first()->v ?? 0),
+            'collected' => (float) (clone $base)->sum('paid_amount'),
+        ];
+
+        return view('invoices.index', ['invoices' => $q->paginate(perPage())->withQueryString(), 'q' => $r->q, 'status' => $r->status, 'stats' => $stats]);
     }
 
     protected function canView(Invoice $invoice): bool
@@ -480,7 +496,16 @@ class InvoiceController extends Controller
             ->orderByDesc('whatsapp_logs.id')->limit(100)
             ->get(['whatsapp_logs.*', 'invoices.number as invoice', 'clients.name as client']);
 
-        return view('reminders.index', compact('logs', 'followups', 'whatsapps'));
+        $stats = [
+            'logs' => DB::table('reminder_logs')->count(),
+            'failed' => DB::table('reminder_logs')->where('status', 'failed')->count(),
+            'auto' => DB::table('reminder_logs')->where('source', 'auto')->count(),
+            'followups' => DB::table('proposal_followup_logs')->count(),
+            'whatsapps' => DB::table('whatsapp_logs')->count(),
+            'wa_failed' => DB::table('whatsapp_logs')->where('status', 'failed')->count(),
+        ];
+
+        return view('reminders.index', compact('logs', 'followups', 'whatsapps', 'stats'));
     }
 
     /** (Re)generate the no-login public link for sharing with the client. */

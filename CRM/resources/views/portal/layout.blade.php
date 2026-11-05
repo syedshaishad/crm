@@ -5,7 +5,7 @@
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <title>@yield('title','Client portal') — {{ $brand['company_name'] ?? config('app.name') }}</title>
 @if(!empty($brand['favicon_path']))<link rel="icon" href="{{ asset('storage/'.$brand['favicon_path']) }}">@else<link rel="icon" href="{{ asset('favicon.ico') }}">@endif
-<link rel="stylesheet" href="{{ asset('assets/css/app.css').'?v=107' }}">
+<link rel="stylesheet" href="{{ asset('assets/css/app.css').'?v=130' }}">
 @include('brand.theme')
 <style>
 @media(max-width:820px){

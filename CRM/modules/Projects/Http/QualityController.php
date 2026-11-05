@@ -4,8 +4,8 @@ namespace Modules\Projects\Http;
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Modules\Projects\Incident;
 use Modules\Projects\Improvement;
+use Modules\Projects\Incident;
 use Modules\Projects\Project;
 use Modules\Tasks\Task;
 
@@ -19,8 +19,9 @@ class QualityController extends Controller
     public function index(Request $r)
     {
         $iq = Incident::with(['project', 'task'])->orderByDesc('occurred_on')->orderByDesc('id');
-        if ($r->filled('status')) {
-            $iq->where('status', $r->status);
+        $status = array_key_exists((string) $r->input('status'), Incident::statuses()) ? $r->input('status') : null;
+        if ($status !== null) {
+            $iq->where('status', $status);
         }
         $mq = Improvement::orderByDesc('id');
         if ($r->filled('mstatus')) {
@@ -28,9 +29,9 @@ class QualityController extends Controller
         }
 
         return view('quality.index', [
-            'incidents' => $iq->paginate(perPage(), ['*'], 'ipage')->withQueryString(),
+            'incidents' => $iq->paginate(perPage())->withQueryString(),
             'improvements' => $mq->orderBy('id')->get(),
-            'status' => $r->status, 'mstatus' => $r->mstatus,
+            'status' => $status, 'mstatus' => $r->mstatus,
             'projects' => Project::orderBy('name')->get(['id', 'name']),
             'tasks' => Task::whereNotIn('status', ['done'])->orderByDesc('id')->limit(200)->get(['id', 'title']),
         ]);
@@ -41,7 +42,7 @@ class QualityController extends Controller
         $data = $r->validate([
             'title' => 'required|string|max:255',
             'project_id' => 'nullable|exists:projects,id', 'task_id' => 'nullable|exists:tasks,id',
-            'severity' => 'required|in:low,medium,high,critical',
+            'severity' => 'required|in:'.implode(',', array_keys(Incident::severities())),
             'what_happened' => 'nullable|string', 'occurred_on' => 'nullable|date|before_or_equal:today',
         ]);
         Incident::create([...$data, 'status' => 'open', 'created_by' => auth()->id()]);
@@ -53,7 +54,7 @@ class QualityController extends Controller
     {
         $data = $r->validate([
             'root_cause' => 'nullable|string', 'fix' => 'nullable|string',
-            'status' => 'required|in:open,fixing,fixed',
+            'status' => 'required|in:'.implode(',', array_keys(Incident::statuses())),
         ]);
         $incident->update($data);
 
@@ -77,7 +78,7 @@ class QualityController extends Controller
 
     public function improvementMove(Request $r, Improvement $improvement)
     {
-        $data = $r->validate(['status' => 'required|in:proposed,doing,done']);
+        $data = $r->validate(['status' => 'required|in:'.implode(',', array_keys(Improvement::statuses()))]);
         $improvement->update(['status' => $data['status']]);
 
         return back()->with('ok', 'Moved to '.$data['status'].'.');

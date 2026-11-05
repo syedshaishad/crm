@@ -15,11 +15,26 @@ class DeliveryRouteController extends Controller
         $this->middleware('perm:sales');
     }
 
-    public function index()
+    public function index(Request $r)
     {
-        $routes = DeliveryRoute::withCount('stops')->orderByDesc('route_date')->orderByDesc('id')->paginate(perPage());
+        $q = DeliveryRoute::withCount(['stops', 'stops as stops_done_count' => fn ($w) => $w->whereNotNull('done_at')])
+            ->orderByDesc('route_date')->orderByDesc('id');
+        if ($r->filled('q')) {
+            $s = '%'.$r->q.'%';
+            $q->where(fn ($w) => $w->where('number', 'like', $s)->orWhere('vehicle_no', 'like', $s)->orWhere('driver', 'like', $s));
+        }
+        if ($r->filled('status') && in_array($r->status, ['planned', 'on_route', 'done'], true)) {
+            $q->where('status', $r->status);
+        }
+        $stats = [
+            'total' => DeliveryRoute::count(),
+            'planned' => DeliveryRoute::where('status', 'planned')->count(),
+            'on_route' => DeliveryRoute::where('status', 'on_route')->count(),
+            'done' => DeliveryRoute::where('status', 'done')->count(),
+            'today' => DeliveryRoute::whereDate('route_date', now()->toDateString())->count(),
+        ];
 
-        return view('routes.index', ['routes' => $routes]);
+        return view('routes.index', ['routes' => $q->paginate(perPage())->withQueryString(), 'q' => $r->q, 'status' => $r->status, 'stats' => $stats]);
     }
 
     public function create()

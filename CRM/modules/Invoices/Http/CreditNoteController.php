@@ -28,7 +28,17 @@ class CreditNoteController extends Controller
             $q->where('status', $r->status);
         }
 
-        return view('credits.index', ['notes' => $q->paginate(perPage())->withQueryString(), 'q' => $r->q, 'status' => $r->status]);
+        $base = CreditNote::query();
+        $stats = [
+            'total' => (clone $base)->count(),
+            'issued' => (float) (clone $base)->sum('amount'),
+            'applied' => (float) (clone $base)->sum('applied_amount'),
+            'open' => (clone $base)->where('status', 'open')->count(),
+            'open_value' => (float) ((clone $base)->where('status', 'open')
+                ->selectRaw('COALESCE(SUM(amount - COALESCE(applied_amount,0)),0) as v')->first()->v ?? 0),
+        ];
+
+        return view('credits.index', ['notes' => $q->paginate(perPage())->withQueryString(), 'q' => $r->q, 'status' => $r->status, 'stats' => $stats]);
     }
 
     public function create(Request $r)

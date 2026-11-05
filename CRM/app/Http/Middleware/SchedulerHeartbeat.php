@@ -15,6 +15,8 @@ use Illuminate\Support\Facades\Cache;
  */
 class SchedulerHeartbeat
 {
+    protected bool $due = false;
+
     public function handle(Request $request, Closure $next)
     {
         $response = $next($request);
@@ -22,7 +24,7 @@ class SchedulerHeartbeat
             $last = (int) Cache::get('scheduler.last_ping', 0);
             if (time() - $last >= 900) {
                 Cache::put('scheduler.last_ping', time(), 3600);
-                $this->spawn();
+                $this->due = true;
             }
         } catch (\Throwable $e) {
         }
@@ -30,12 +32,21 @@ class SchedulerHeartbeat
         return $response;
     }
 
+    /** Run after the response is sent so the visitor never waits for cron. */
+    public function terminate(Request $request, $response): void
+    {
+        if ($this->due) {
+            $this->spawn();
+        }
+    }
+
     protected function spawn(): void
     {
         $artisan = base_path('artisan');
         $php = PHP_BINARY ?: 'php';
         if (PHP_OS_FAMILY === 'Windows') {
-            @pclose(@popen('start /B "" "'.str_replace('"', '', $php).'" "'.$artisan.'" schedule:run', 'r'));
+            $cmd = 'start "" /B "'.str_replace('"', '', $php).'" "'.$artisan.'" schedule:run > NUL 2>&1';
+            @pclose(@popen($cmd, 'r'));
         } else {
             @exec(escapeshellarg($php).' '.escapeshellarg($artisan).' schedule:run > /dev/null 2>&1 &');
         }

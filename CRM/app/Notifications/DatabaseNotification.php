@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use App\Channels\WebPushChannel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 
@@ -22,10 +23,15 @@ abstract class DatabaseNotification extends Notification
 
     public function via($notifiable): array
     {
-        return ['database'];
+        return ['database', WebPushChannel::class];
     }
 
     public function toArray($notifiable): array
+    {
+        return ['title' => $this->title, 'body' => $this->body, 'url' => $this->url];
+    }
+
+    public function toWebPush($notifiable): array
     {
         return ['title' => $this->title, 'body' => $this->body, 'url' => $this->url];
     }

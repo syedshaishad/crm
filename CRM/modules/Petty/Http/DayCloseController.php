@@ -19,7 +19,7 @@ class DayCloseController extends Controller
     {
         $today = now()->toDateString();
         $closes = DayClose::with('closer')->orderByDesc('day')->limit(30)->get();
-        $done = DayClose::where('day', $today)->first();
+        $done = DayClose::whereDate('day', $today)->first();
         $expected = PettyEntry::balance();
         $cashToday = (float) DB::table('payments')->where('method', 'cash')->whereDate('paid_on', $today)->sum('amount');
         $openInvoices = (int) DB::table('invoices')->whereIn('status', ['sent', 'partial', 'overdue'])->whereRaw('total > paid_amount')->count();

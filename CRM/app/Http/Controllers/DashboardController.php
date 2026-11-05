@@ -13,6 +13,26 @@ class DashboardController extends Controller
     }
     public function index()
     {
+        // Selected reporting month (defaults to the current month, never future).
+        $selMonth = (string) request('month', '');
+        $ref = now()->startOfMonth();
+        if (preg_match('/^\d{4}-(0[1-9]|1[0-2])$/', $selMonth)) {
+            try {
+                $cand = \Carbon\Carbon::createFromFormat('Y-m-d', $selMonth.'-01')->startOfMonth();
+                if ($cand->gte(now()->startOfMonth()->subMonths(23)) && $cand->lte(now()->startOfMonth())) $ref = $cand;
+            } catch (\Throwable $e) {
+            }
+        }
+        $selMonth = $ref->format('Y-m');
+        $monthOptions = [];
+        for ($mi = 23; $mi >= 0; $mi--) {
+            $md = now()->startOfMonth()->subMonths($mi);
+            $monthOptions[] = [
+                'value' => $md->format('Y-m'),
+                'label' => $md->format('M j').' - '.$md->copy()->endOfMonth()->format('M j, Y'),
+            ];
+        }
+
         $stats = [
             'clients' => DB::table('clients')->count(),
             'projects' => DB::table('projects')->count(),
@@ -29,7 +49,7 @@ class DashboardController extends Controller
         // Cashflow: last 6 months money in vs money out (works on MySQL + SQLite).
         $months = [];
         for ($m = 5; $m >= 0; $m--) {
-            $d = now()->subMonths($m);
+            $d = $ref->copy()->subMonths($m);
             $months[] = [
                 'label' => $d->format('M'),
                 'revenue' => (float) DB::table('payments')->whereYear('paid_on', $d->year)->whereMonth('paid_on', $d->month)->sum('amount'),
@@ -63,8 +83,8 @@ class DashboardController extends Controller
             ->get(['tasks.id', 'tasks.title', 'tasks.status', 'tasks.priority', 'tasks.due_date', 'projects.name as project']);
 
         // Mini month calendar with due dots.
-        $calY = (int) now()->format('Y');
-        $calM = (int) now()->format('n');
+        $calY = (int) $ref->format('Y');
+        $calM = (int) $ref->format('n');
         $calStart = (int) date('N', mktime(0, 0, 0, $calM, 1, $calY));
         $calDays = (int) date('t', mktime(0, 0, 0, $calM, 1, $calY));
         $dueMap = [];
@@ -138,7 +158,7 @@ class DashboardController extends Controller
         // Forward look: company target vs this month, 3-month collection
         // average projected forward, and open pipeline coverage.
         $target = max(0, (float) setting('company.monthly_target', 0));
-        $mtd = (float) DB::table('payments')->whereYear('paid_on', now()->year)->whereMonth('paid_on', now()->month)->sum('amount');
+        $mtd = (float) DB::table('payments')->whereYear('paid_on', $ref->year)->whereMonth('paid_on', $ref->month)->sum('amount');
         $avg3 = 0;
         for ($m = 1; $m <= 3; $m++) {
             $d = now()->subMonths($m);
@@ -166,9 +186,10 @@ class DashboardController extends Controller
         $w0 = now()->startOfWeek()->toDateString();
         $pw0 = now()->subWeek()->startOfWeek()->toDateString();
         $pw1 = now()->subWeek()->endOfWeek()->toDateString();
-        $m0 = now()->startOfMonth()->toDateString();
-        $pm0 = now()->subMonth()->startOfMonth()->toDateString();
-        $pm1 = now()->subMonth()->endOfMonth()->toDateString();
+        $m0 = $ref->copy()->startOfMonth()->toDateString();
+        $m1 = $ref->copy()->endOfMonth()->toDateString();
+        $pm0 = $ref->copy()->subMonth()->startOfMonth()->toDateString();
+        $pm1 = $ref->copy()->subMonth()->endOfMonth()->toDateString();
         $dealSum = function ($status, $from, $to = null) {
             $q = DB::table('proposals')->where('status', $status)->whereDate('updated_at', '>=', $from);
             if ($to) $q->whereDate('updated_at', '<=', $to);
@@ -183,8 +204,8 @@ class DashboardController extends Controller
         $wonPW = $dealSum('accepted', $pw0, $pw1);
         $lostW = $dealSum('declined', $w0);
         $lostPW = $dealSum('declined', $pw0, $pw1);
-        $wonM = $dealSum('accepted', $m0);
-        $lostM = $dealSum('declined', $m0);
+        $wonM = $dealSum('accepted', $m0, $m1);
+        $lostM = $dealSum('declined', $m0, $m1);
         $wonPM = $dealSum('accepted', $pm0, $pm1);
         $deals = [
             'wonW' => $wonW, 'lostW' => $lostW,
@@ -197,8 +218,8 @@ class DashboardController extends Controller
         $pipeW = DB::table('proposals')->whereDate('created_at', '>=', $w0)->selectRaw('COUNT(*) c, COALESCE(SUM(total),0) t')->first();
         $deals['pipeW'] = ['c' => (int) ($pipeW->c ?? 0), 't' => (float) ($pipeW->t ?? 0)];
         $inSources = ['website', 'google', 'indiamart', 'justdial', 'referral', 'walkin', 'instagram', 'facebook', 'whatsapp'];
-        $deals['inbound'] = (int) DB::table('leads')->whereDate('created_at', '>=', $m0)->whereIn('source', $inSources)->count();
-        $deals['outbound'] = (int) DB::table('leads')->whereDate('created_at', '>=', $m0)->where('source', 'coldcall')->count();
+        $deals['inbound'] = (int) DB::table('leads')->whereDate('created_at', '>=', $m0)->whereDate('created_at', '<=', $m1)->whereIn('source', $inSources)->count();
+        $deals['outbound'] = (int) DB::table('leads')->whereDate('created_at', '>=', $m0)->whereDate('created_at', '<=', $m1)->where('source', 'coldcall')->count();
         // Weekly performance: collections, new pipeline, tasks finished.
         $weekPay = (float) DB::table('payments')->whereDate('paid_on', '>=', $w0)->sum('amount');
         $weekPayC = (int) DB::table('payments')->whereDate('paid_on', '>=', $w0)->count();
@@ -247,16 +268,16 @@ class DashboardController extends Controller
             });
         if ($spot) {
             $spot->initial = strtoupper(mb_substr($spot->client ?? $spot->number ?? '?', 0, 1));
-            $ref = $spot->valid_until ?? $spot->updated_at;
-            $spot->day = $ref ? \Carbon\Carbon::parse($ref)->format('d') : '—';
-            $spot->mon = $ref ? \Carbon\Carbon::parse($ref)->format('M') : '';
+            $spotDate = $spot->valid_until ?? $spot->updated_at;
+            $spot->day = $spotDate ? \Carbon\Carbon::parse($spotDate)->format('d') : '—';
+            $spot->mon = $spotDate ? \Carbon\Carbon::parse($spotDate)->format('M') : '';
         }
 
         // Monthly won/lost series for the deals area chart (last 6 months) +
         // precomputed SVG paths (viewBox 0 0 300 120), so the view stays dumb.
         $dealMonths = [];
         for ($m = 5; $m >= 0; $m--) {
-            $d = now()->subMonths($m);
+            $d = $ref->copy()->subMonths($m);
             $dealMonths[] = [
                 'label' => $d->format('M'),
                 'won' => (float) DB::table('proposals')->where('status', 'accepted')->whereYear('updated_at', $d->year)->whereMonth('updated_at', $d->month)->sum('total'),
@@ -281,7 +302,7 @@ class DashboardController extends Controller
             'dxy' => $dxy,
         ];
 
-        return view('dashboard', compact('stats', 'recentInvoices', 'recentTasks', 'overdue', 'dueSoon', 'months', 'maxBar', 'billed', 'collected', 'outstanding', 'overdueTotal', 'collectionRate', 'pipeline', 'pipelineTotal', 'funnel', 'funnelTotal', 'focusTasks', 'calY', 'calM', 'calStart', 'calDays', 'dueMap', 'week', 'weekMax', 'sparks', 'payWeek', 'pipeWeek', 'billWeek', 'doneWeek', 'pipeClients', 'recentActivity', 'lowStock', 'target', 'mtd', 'targetPct', 'forecast', 'forecastMax', 'openPipe', 'deals', 'perf', 'spot', 'openDeals', 'dealRows', 'dealChart'));
+        return view('dashboard', compact('stats', 'recentInvoices', 'recentTasks', 'overdue', 'dueSoon', 'months', 'maxBar', 'billed', 'collected', 'outstanding', 'overdueTotal', 'collectionRate', 'pipeline', 'pipelineTotal', 'funnel', 'funnelTotal', 'focusTasks', 'calY', 'calM', 'calStart', 'calDays', 'dueMap', 'week', 'weekMax', 'sparks', 'payWeek', 'pipeWeek', 'billWeek', 'doneWeek', 'pipeClients', 'recentActivity', 'lowStock', 'target', 'mtd', 'targetPct', 'forecast', 'forecastMax', 'openPipe', 'deals', 'perf', 'spot', 'openDeals', 'dealRows', 'dealChart', 'ref', 'selMonth', 'monthOptions'));
     }
     public function money()
     {

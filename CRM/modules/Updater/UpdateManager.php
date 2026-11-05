@@ -238,10 +238,36 @@ class UpdateManager
             }
             $zip->close();
 
-            return ['ok' => true, 'path' => $zipPath, 'file' => 'crm-backup-'.$stamp.'.zip', 'dir' => $dir];
+            $pruned = $this->pruneBackups();
+
+            return ['ok' => true, 'path' => $zipPath, 'file' => 'crm-backup-'.$stamp.'.zip', 'dir' => $dir, 'pruned' => $pruned];
         } catch (\Throwable $e) {
             return ['ok' => false, 'error' => $e->getMessage()];
         }
+    }
+
+    /** Keep only the newest backups (limit 3); older archives and their work dirs are removed. */
+    public function pruneBackups(?int $keep = null): int
+    {
+        $keep = max(1, min(3, $keep ?? (int) app(\Modules\Settings\SettingStore::class)->get('backups.retain_count', 3)));
+        $dir = storage_path('app/backups');
+        $zips = glob($dir.'/crm-backup-*.zip') ?: [];
+        usort($zips, fn ($a, $b) => strcmp(basename($b), basename($a)));
+
+        $removed = 0;
+        foreach (array_slice($zips, $keep) as $old) {
+            if (! @unlink($old)) {
+                continue;
+            }
+            $removed++;
+            $stamp = preg_replace('/^crm-backup-/', '', basename($old, '.zip'));
+            $workDir = $dir.'/'.$stamp;
+            if (is_dir($workDir)) {
+                $this->cleanup($workDir);
+            }
+        }
+
+        return $removed;
     }
 
     protected function backupDatabase(string $dir): string

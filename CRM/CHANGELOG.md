@@ -1,5 +1,167 @@
 # Changelog
 
+> Version numbering was reset to **1.0.0** on 2026-10-19. The entries below are
+> kept for history; the current codebase is the 1.0.0 baseline. Demo seeders
+> and demo records are not part of the release.
+
+## Unreleased
+
+2 migrations, `?v=130` CSS / `?v=79` JS.
+
+- Settings → Branding rebuilt on the shared design system: header with save and
+  back actions, primary/accent/override/logo metrics, identity and logo upload
+  tiles, grouped colour-token editors, a live component preview with reset,
+  company/tax and email-sender cards, and a save bar. Pickr colour picking,
+  live CSS-variable theming, the WCAG contrast warning and reset-to-defaults
+  all keep working.
+- All remaining Settings pages rebuilt on the shared design system (`General`,
+  `Tax`, `Billing`, `Email templates`, `Integrations`, `My account`, `Users`,
+  the user form, `Modules`, `Content library`, `Updates`, `License`, `API` and
+  the webhook log): consistent headers with back/save actions, summary metrics,
+  grouped cards, compact filters, switch/check rows, amount-right tables,
+  empty states and responsive mobile layouts. The settings hub is now a grouped
+  directory with section counts. Every existing field, route and form name is
+  preserved, including the user role-permission script and push-notification
+  controls.
+- Accounting suite rebuilt on the shared directory design: invoices, payments,
+  expenses, credit notes, cheques, petty cash, fixed assets, day-end close,
+  purchase orders and payment reminders now
+  use the same header summary, metric cards, clickable chips, compact filter bar,
+  balanced tables, empty states and mobile card rows.
+- Invoices: outstanding/overdue summary, All / Invoiced / Outstanding / Collected
+  metrics, status chips (including Unpaid and Partial), balance with due-date or
+  overdue cues, and the manager-only assigned column.
+- Payments: receipt, received, this-month and average metrics, payment-method
+  chips, invoice links and method/reference details.
+- Expenses: pending/approved/rejected chips, inline approve for managers,
+  approved-spend and monthly totals.
+- Credit notes: issued, applied and open-credit metrics, open/applied chips and
+  remaining credit per note.
+- Cheques: held value, ready-to-deposit, cleared and bounced metrics with state
+  chips and due-date cues.
+- Petty cash: month navigation, in-hand/added/spent/net metrics, labelled quick
+  entry and a running-balance book with an opening row.
+- Fixed assets: count, original cost, book value and depreciation metrics, a
+  register grid and per-row custody assignment.
+- Day-end close: expected petty, cash, open invoices and cheque metrics, checklist
+  cards, variance display and a past-closes table with checklist progress.
+- Purchase orders: status counts, draft and in-transit values, received-value
+  metric, status chips, vendor/expected-date cues and a right-hand total.
+- Payment reminders: reminder, failure, follow-up and WhatsApp metrics across the
+  three audit logs, with delivery status, inline error detail and grouped tables.
+- Registers switch to card rows at 1200px, metrics go 2-up at 1100px, and money
+  metrics compact below 480px; all pages styled for dark mode.
+- Money columns now sit at the right end of every accounting register, right-aligned
+  on desktop, with card rows keeping labels on the left and amounts pushed to the
+  right edge, so totals line up page to page.
+
+- Clients directory rebuilt: header summary with total/active/new/outstanding
+  metrics, clickable status chips, compact search/filter toolbar and quick-add
+  form, a balanced client table with project counts and clear status/outstanding
+  indicators, plus a two-row mobile card layout and dark-mode styling.
+- Delivery challans, delivery routes, products and AMC & warranty indexes rebuilt
+  on the same directory design: header summaries, four metric cards, clickable
+  status chips, compact search/filter toolbars, balanced desktop tables and
+  card layouts down to mobile widths.
+- Challans gained number/client search, draft/issued/cancelled counts and
+  dispatched value; routes gained today/planned/on-route/completed counts and
+  stop progress; products gained archived totals, average rate and low-stock
+  cues while keeping quick-add and bulk actions; AMC gained an unscheduled
+  state, expiry countdowns and renewal urgency.
+- Leads page redesign: compact pipeline metrics, clickable stage chips, a cleaner
+  table with balanced desktop column widths, compact row actions and a mobile
+  card layout, plus a fit-to-width kanban board with neutral cards and readable
+  stage controls.
+- Staff profile pictures: upload/remove from Account and user admin forms,
+  stored on the public disk, shown in the top bar, account menu and user list,
+  with initials fallback.
+- Web Push notifications: self-hosted VAPID keys, per-device subscriptions,
+  service worker, test/enable/disable UI, notification avatar icon, sound and
+  vibration hints, plus an in-app chime while the CRM is open.
+- All database notifications now also dispatch through `WebPushChannel`;
+  delivery is deferred and silently skips users without subscriptions.
+- Packaging excludes the generated `storage/app/webpush_vapid.json` private
+  key; a new key pair is generated per installation.
+- Backups are capped at the latest 3 zips; older archives and their working
+  directories are pruned automatically after every nightly or manual backup.
+- Sidebar groups now render in their declared order; HR sits last, after Data
+  Import & Export.
+- Settings are loaded once per request and the app version reuses that cache,
+  removing roughly 250 repeated database queries from every page; menu
+  visibility checks are memoized and the scheduler heartbeat now spawns only
+  after the response is sent. Average page render time roughly halved in the
+  local benchmark.
+- Removed an unused `Payslip` import left over after the payslip action moved
+  to a fully-qualified reference.
+- Meetings attendees now use a flat checkbox picker matching the form fields
+  instead of the native multi-select; selected attendees are listed on upcoming
+  and past meetings, choices survive validation errors, and stored IDs are
+  normalized.
+- Invoice and document printing now always uses the paper/light palette,
+  including when the app is in dark mode, so printed invoices and PDFs match
+  the light theme.
+- Projects now show a plain-language status summary with counts and percentages
+  instead of the segmented rainbow bar, and the task/budget meters in each row
+  include percentages and clearer colours. Per-project status is now a coloured
+  dot and readable label beside the client, instead of a bordered uppercase tag.
+- Tasks use the same status summary and compact dot/label tags for status and
+  priority; overdue dates show a small caption instead of a red pill, and the
+  done strikethrough only applies to the task title.
+- Knowledge base rebuilt as a readable article index: page header, compact
+  search/filter toolbar, excerpted article rows with kind chips, author and
+  updated date, pinned indicators, category counts and a pinned-articles rail.
+  Article creation moved into a modal, article pages gained a proper reading
+  layout and edit/pin/delete actions, and the Template kind is now editable.
+- Quality loop rebuilt: incident rows with severity and status chips, project
+  context and inline root-cause/fix editing, plus a kaizen rail for capturing
+  ideas and moving them from proposed to doing to done (or dropping them).
+  Incident creation now opens in a modal instead of an inline form.
+- Meetings rebuilt as an agenda view: upcoming rows with date blocks, time
+  range, project, attendee avatars and inline minutes, plus a compact past
+  rail. Scheduling moved into a modal with the existing attendee picker, and
+  legacy attendee names are resolved alongside stored user IDs.
+- Automations and task templates rebuilt on the same directory design:
+  header summaries, four metric cards, clickable status chips, compact
+  search/filter toolbars and balanced desktop tables with card layouts down to
+  mobile widths. Automations gained rule-name search, trigger filtering,
+  live/paused tallies, per-rule last-fired ages and a recent-firings table
+  while keeping quick-add, pause/resume, delete and run-now. Task templates
+  gained a single search across starters and checklist packs, labelled
+  quick-add forms, step counts and a two-card grid that stacks on narrow
+  screens.
+- Quick-add and filter forms now read their `action` attribute instead of the
+  form property, so a field named `action` (such as an automation's action
+  picker) no longer hijacks the submit URL. Deleting a row on the rebuilt
+  directories refreshes the surrounding counters and empty state.
+
+## v1.0.9 — 2026-10-19
+
+On top of v1.0.8. 0 migrations, `?v=107` CSS / `?v=74` JS.
+
+- Design system unified across every staff page against the Dashboard mockup:
+  `--dc-*` tokens and dark theme, flat cards (no shadow/hover), full-bleed
+  shell, one button/chip/pagination system, uppercase badges, restyled tables,
+  forms, filters and empty states.
+- Branding now drives the theme: primary colour feeds `--brand-accent`, stored
+  surface/text/border/status colours and background/sidebar overrides wire into
+  the `--dc-*` tokens (dark mode respects the brand); Pickr colour fields
+  unified.
+- Dashboards rebuilt on `dc.css`; topbar, account menu, search panel and mobile
+  drawer rebuilt (300px rail drawer, mobile title); portal header made
+  responsive (no overflow at 390 / 768 px).
+- Auth pages share `_head` / `_theme` partials (title, favicon, CSS, theme
+  bootstrap); stale `@section('crumb')` blocks removed from all views.
+- Cleanup: ~200 dead CSS rules and 79 unused classes removed, dead JS handlers,
+  unused imports and duplicate controller helpers removed (new `AssignsRecords`
+  trait, `DocumentNumber::isVisibleTo`), unused fonts dropped; `.gitignore`
+  hardened (DB, storage, license files).
+- Packaging: `.freebuff`, `.gitignore`, generated bootstrap cache and every
+  storage/license identity file excluded; required storage dirs ship as
+  explicit directory entries.
+- Upgrade-path safety: the process-suite migration guards each table, so an
+  install left with `workflow_rules` / `automation_firings` by an interrupted
+  run completes on retry instead of failing with MySQL error 1050.
+
 ## v1.0.8 — 2026-10-13
 
 On top of v1.0.7. 0 migrations, `?v=89` CSS / `?v=70` JS.

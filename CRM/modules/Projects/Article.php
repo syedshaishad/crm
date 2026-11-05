@@ -13,7 +13,7 @@ class Article extends Model
 
     public static function categories(): array
     {
-        return ['SOP', 'Guide', 'Checklist', 'Policy', 'Notes'];
+        return ['SOP', 'Guide', 'Checklist', 'Policy', 'Template', 'Notes'];
     }
 
     public function author()
