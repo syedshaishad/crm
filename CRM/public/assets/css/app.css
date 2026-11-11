@@ -3205,3 +3205,74 @@ html:root[data-theme="dark"] .auth-side,html:root:not([data-theme="light"]) .aut
   .due-banner.paid{background:var(--ok-bg)!important;color:var(--ok)!important}
   .due-banner.over{background:var(--bad-bg)!important;color:var(--bad)!important}
 }
+
+/* ---------- mobile polish (phones, <=640px) ----------
+   Layered last so these win over the compact quick-add/table rules above.
+   Desktop and tablet layouts are untouched. */
+.kv>span:last-child{min-width:0;overflow-wrap:anywhere}
+/* quick-add is a one-line form, not a long form: its submit must not float
+   over the fields above it */
+.quickadd .btn{position:static!important}
+
+@media(max-width:640px){
+  /* iOS zooms the page when a field under 16px gets focus. Force 16px on
+     every real field (checkboxes/radios/files excluded) so focus never jumps. */
+  input.in,select.in,textarea.in,
+  .card input:not([type=checkbox]):not([type=radio]):not([type=file]),
+  .card select,.card textarea,
+  .modal input:not([type=checkbox]):not([type=radio]):not([type=file]),
+  .modal select,.modal textarea{font-size:16px!important}
+
+  /* comfortable touch targets */
+  .btn.sm{padding:9px 14px!important;min-height:38px}
+  .ix-chip,.cl-status-chip,.ld-stage-chip{min-height:34px;padding:7px 12px;font-size:12.5px}
+  .ix-act{width:36px;height:36px;border-radius:10px}
+  .ix-act svg{width:15px;height:15px}
+  .ix-actions{gap:5px}
+
+  /* settings tabs: one swipeable row instead of a stack of rows */
+  .subtabs{flex-wrap:nowrap;overflow-x:auto;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;scrollbar-width:none;margin:0 -2px 14px;padding:2px 2px 4px}
+  .subtabs::-webkit-scrollbar{display:none}
+  .subtabs a{flex:0 0 auto;padding:8px 14px}
+
+  /* wide tables scroll inside their box; give the box a visible, thin bar
+     and trim the forced min-width so there is less sideways travel */
+  .tbl-scroll.roomy table.tbl{min-width:620px}
+  .tbl-scroll{scrollbar-width:thin;scrollbar-color:var(--dc-line2) transparent}
+  .tbl-scroll::-webkit-scrollbar{height:6px}
+  .tbl-scroll::-webkit-scrollbar-thumb{background:var(--dc-line2);border-radius:99px}
+}
+
+@media(max-width:480px){
+  /* inline filter forms (tasks, proposals, leads...) stack full width so
+     native select labels are never clipped */
+  form[data-ajax-filter]{flex-direction:column!important;align-items:stretch!important}
+  form[data-ajax-filter]>*{flex:1 1 auto!important;width:100%!important;min-width:0!important}
+
+  /* filter grids become a single column */
+  .ix-filters,.cl-filters,.ld-filters{grid-template-columns:1fr}
+  .ix-filter,.cl-filter,.ld-filter{grid-column:1/-1}
+
+  /* long money values fit inside two-column metric cards */
+  .ix-metric-val.is-money,.cl-metric-val.is-money,.ld-metric-val.is-money{font-size:14px;letter-spacing:-.02em}
+  .ix-metric,.cl-metric,.ld-metric{padding:11px 12px}
+
+  /* detail rows: narrower label gutter leaves room for long values */
+  .kv .k{width:84px;flex:0 0 84px}
+
+  /* branding live-preview: let the sample table reflow instead of clipping */
+  .br-preview{padding:12px}
+  .br-preview-table th,.br-preview-table td{padding:6px 3px!important}
+  .br-preview-table td{font-size:11.5px}
+  .br-preview-table .ix-c-client{display:none!important}
+  .br-preview-table .ix-sub{white-space:normal!important;overflow:visible!important;text-overflow:clip}
+  .br-preview-chips .ix-chip{min-height:30px;padding:6px 9px;font-size:11.5px}
+}
+
+/* very small phones: one metric per row keeps money values at a readable size
+   instead of shrinking them below 12px */
+@media(max-width:400px){
+  .ix-metrics,.cl-metrics,.ld-metrics{grid-template-columns:1fr}
+  .ix-metric-val,.cl-metric-val,.ld-metric-val{font-size:20px}
+  .ix-metric-val.is-money,.cl-metric-val.is-money,.ld-metric-val.is-money{font-size:18px}
+}

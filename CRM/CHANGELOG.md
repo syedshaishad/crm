@@ -6,8 +6,21 @@
 
 ## Unreleased
 
-2 migrations, `?v=130` CSS / `?v=79` JS.
+2 migrations, `?v=131` CSS / `?v=79` JS.
 
+- Phone pass (≤640px): money values no longer clip inside the invoice, payment,
+  client and lead metric cards (2-up with a 14px money size, 1-up below 400px);
+  dashboard KPI cards sit in an equal two-up grid with a compact `INR 53.1k`
+  chase amount; filter bars and inline filter forms stack full width so select
+  labels stop truncating; settings tabs become one swipeable row; list chips and
+  row actions meet touch-target sizes; long detail values (emails, addresses)
+  wrap instead of overflowing; the payroll month form and the quick-add row no
+  longer overflow or float over their fields; the branding live-preview table
+  reflows without clipping. Every real field is 16px on phones so iOS does not
+  zoom on focus.
+- Client portal: theme is resolved before first paint, so a light OS no longer
+  gets a dark sheet with dark text; the mobile nav is one swipeable row and the
+  portal tables size columns to content instead of wrapping invoice numbers.
 - Settings → Branding rebuilt on the shared design system: header with save and
   back actions, primary/accent/override/logo metrics, identity and logo upload
   tiles, grouped colour-token editors, a live component preview with reset,

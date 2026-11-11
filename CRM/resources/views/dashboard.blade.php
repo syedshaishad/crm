@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @section('title','Dashboard')
-@section('head')<link rel="stylesheet" href="{{ asset('assets/css/dc.css').'?v=4' }}">@endsection
+@section('head')<link rel="stylesheet" href="{{ asset('assets/css/dc.css').'?v=5' }}">@endsection
 @section('content')
 @php
   $hour = (int) date('H');
@@ -54,7 +54,7 @@
     </div>
     <div class="dc-kp">
       <a class="dc-k" href="{{ route('tasks.index') }}"><span>Open tasks</span><b>{{ $stats['open_tasks'] }}</b><span class="dc-krow">{{ $dueSoonCount }} due this week<span style="margin-left:auto">›</span></span></a>
-      @if($chase)<a class="dc-k dk" href="{{ route('invoices.show', $chase->id) }}"><span>Needs chasing ☆</span><b>{{ money($chase->total) }}</b><span class="dc-krow">{{ $chase->number }}<span class="dc-wa">›</span></span></a>@endif
+      @if($chase)<a class="dc-k dk" href="{{ route('invoices.show', $chase->id) }}"><span>Needs chasing ☆</span><b title="{{ money($chase->total) }}"><span class="dc-kfull">{{ money($chase->total) }}</span><span class="dc-kmini">{{ setting('app.currency', 'INR') }} {{ $short($chase->total) }}</span></b><span class="dc-krow">{{ $chase->number }}<span class="dc-wa">›</span></span></a>@endif
       <a class="dc-k" href="{{ route('invoices.index') }}"><span>Invoices</span><span class="dc-gp">{{ $stats['unpaid_invoices'] }}</span><span>▾ unpaid</span></a>
       <a class="dc-k rr" href="{{ route('proposals.index') }}"><span>Pipeline</span><span class="dc-rp">{{ $short($openPipe) }}</span><span>▴ {{ $openDeals }} proposals</span></a>
       <a class="dc-k" href="{{ route('reports.index') }}"><span>Collected</span><span class="dc-gp">{{ $collectionRate }}%</span><span>▴ {{ $targetPct }}% of target</span></a>

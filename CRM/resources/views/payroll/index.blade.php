@@ -4,9 +4,9 @@
 <div class="card">
 <div class="card-head"><h3>Payroll runs</h3></div>
 <p class="fhint">Draft from live attendance, leave, overtime, bonuses, advances and loans — review, then finalize to post salaries + TDS to the books.</p>
-<form method="POST" action="{{ route('payroll.run') }}" class="noprint" style="display:flex;gap:8px;align-items:end;margin-bottom:12px">@csrf
-<div><label class="f">Month</label><input class="in" type="month" name="month" value="{{ date('Y-m') }}" style="margin:0" required></div>
-<div><button class="btn sm">Run payroll</button></div></form>
+<form method="POST" action="{{ route('payroll.run') }}" class="noprint" style="display:flex;gap:8px;align-items:end;margin-bottom:12px;flex-wrap:wrap">@csrf
+<div style="flex:1 1 170px;min-width:0"><label class="f">Month</label><input class="in" type="month" name="month" value="{{ date('Y-m') }}" style="margin:0" required></div>
+<div style="flex:0 0 auto"><button class="btn sm">Run payroll</button></div></form>
 <div class="tbl-scroll roomy"><table class="tbl"><tr><th>Month</th><th>Status</th><th style="text-align:right">Net paid</th><th style="text-align:right">TDS</th><th></th></tr>
 @forelse($rows as $r)<tr>
 <td><b>{{ $r->label() }}</b></td>

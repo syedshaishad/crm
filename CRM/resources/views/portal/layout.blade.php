@@ -5,14 +5,20 @@
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <title>@yield('title','Client portal') — {{ $brand['company_name'] ?? config('app.name') }}</title>
 @if(!empty($brand['favicon_path']))<link rel="icon" href="{{ asset('storage/'.$brand['favicon_path']) }}">@else<link rel="icon" href="{{ asset('favicon.ico') }}">@endif
-<link rel="stylesheet" href="{{ asset('assets/css/app.css').'?v=130' }}">
+<link rel="stylesheet" href="{{ asset('assets/css/app.css').'?v=131' }}">
 @include('brand.theme')
+<script>(function(){var t=null;try{t=localStorage.getItem('theme');}catch(e){}if(t!=='dark'&&t!=='light'){try{t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}catch(e){t='light';}}document.documentElement.setAttribute('data-theme',t);})();</script>
 <style>
 @media(max-width:820px){
   .topnav{flex-wrap:wrap;gap:8px}
-  .top-actions{flex:1 1 100%;width:100%;margin-left:0;flex-wrap:wrap;gap:6px;min-width:0}
-  .top-actions .icon-pill,.top-actions form{flex:0 1 auto}
-  .top-actions .icon-pill{padding:6px 10px;font-size:12px}
+  .top-actions{flex:1 1 100%;width:100%;margin-left:0;gap:6px;min-width:0;flex-wrap:nowrap;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:none;padding-bottom:2px}
+  .top-actions::-webkit-scrollbar{display:none}
+  .top-actions .icon-pill,.top-actions form{flex:0 0 auto}
+  .top-actions .icon-pill{padding:6px 10px;font-size:12px;white-space:nowrap}
+  /* let portal tables size columns to their content instead of equal fixed widths */
+  table.tbl{table-layout:auto;font-size:12.5px}
+  table.tbl td,table.tbl th{padding:9px 7px}
+  table.tbl td:first-child{white-space:nowrap}
 }
 </style>
 </head>

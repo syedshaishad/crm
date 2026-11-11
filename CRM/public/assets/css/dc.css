@@ -149,3 +149,21 @@ body:has(.dc) .footer-note{display:none}
 .dc .dc-rw.dark b{color:#fff}
 .dc svg text{font-family:'Onest',sans-serif}
 @media(max-width:1000px){.dc .dc-hg{font-size:34px}.dc .dc-ttl h1{font-size:28px}.dc .dc-kp{justify-content:flex-start}}
+
+/* ---------- phones: dashboard header + KPI cards ---------- */
+.dc .dc-kmini{display:none}
+@media(max-width:640px){
+  .dc .dc-kfull{display:none}
+  .dc .dc-kmini{display:inline}
+  /* month picker: full-width and 16px so iOS does not zoom on tap */
+  .dc .dc-tf{flex-wrap:wrap;gap:8px;width:100%}
+  .dc .dc-dp-form{width:100%}
+  .dc .dc-dp{width:100%;height:42px;font-size:16px;padding:0 34px 0 14px}
+
+  /* KPI cards: equal two-up grid instead of fixed 120/150px boxes */
+  .dc .dc-kp{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;flex:1 1 100%;width:100%;justify-content:stretch}
+  .dc .dc-k{width:auto;min-width:0;padding:10px 11px;gap:5px}
+  .dc .dc-k b{font-size:17px;letter-spacing:-.03em}
+  .dc .dc-k .dc-krow{flex-wrap:wrap}
+  .dc .dc-kp>*:last-child:nth-child(odd){grid-column:1/-1}
+}
