@@ -3272,6 +3272,24 @@ html:root[data-theme="dark"] .auth-side,html:root:not([data-theme="light"]) .aut
   .ix-metric-val.is-money,.cl-metric-val.is-money,.ld-metric-val.is-money{font-size:14px;letter-spacing:-.02em}
   .ix-metric,.cl-metric,.ld-metric{padding:11px 12px}
 
+  /* P&L costs table: four columns cannot share a phone width without
+     squeezing the amount, so rows become two-line cards like the other
+     registers — category and amount on top, entries and share below.
+     The table selectors are element+class so they outrank `table.tbl`
+     and `.card table td`, which otherwise re-impose table layout. */
+  table.pnl-table,table.pnl-table tbody{display:block;width:100%!important;min-width:0!important;table-layout:auto;border-collapse:separate}
+  table.pnl-table tr:first-child{display:none}
+  table.pnl-table tr{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"cat amt" "ent shr";align-items:center;column-gap:10px;row-gap:4px;padding:10px 0;border-bottom:1px solid var(--dc-line)}
+  table.pnl-table tr:last-child{border-bottom:0}
+  table.pnl-table td{display:block;padding:0!important;border:0!important;min-width:0;vertical-align:middle}
+  table.pnl-table td:nth-child(1){grid-area:cat;font-size:13px;font-weight:600;color:var(--dc-ink);overflow-wrap:anywhere}
+  table.pnl-table td:nth-child(2){grid-area:ent;font-size:11px;color:var(--dc-muted);text-align:left!important}
+  table.pnl-table td:nth-child(2)::before{content:"Entries: ";color:var(--dc-faint)}
+  table.pnl-table td:nth-child(3){grid-area:amt;font-size:13px;font-weight:600;text-align:right;white-space:nowrap}
+  table.pnl-table td:nth-child(4){grid-area:shr;width:72px;justify-self:end}
+  table.pnl-table td[colspan]{grid-column:1/-1;grid-row:1}
+  table.pnl-table .progress{height:6px;margin:0}
+
   /* detail rows: narrower label gutter leaves room for long values */
   .kv .k{width:84px;flex:0 0 84px}
 
