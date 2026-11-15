@@ -3241,6 +3241,21 @@ html:root[data-theme="dark"] .auth-side,html:root:not([data-theme="light"]) .aut
   .tbl-scroll{scrollbar-width:thin;scrollbar-color:var(--dc-line2) transparent}
   .tbl-scroll::-webkit-scrollbar{height:6px}
   .tbl-scroll::-webkit-scrollbar-thumb{background:var(--dc-line2);border-radius:99px}
+
+  /* summary cards (reports, P&L, HR, projects, salary...) stack one per row
+     on phones; compact them so a three-up summary no longer fills the screen
+     and long money values stay at a readable size instead of wrapping */
+  .grid.stats{gap:10px}
+  .stat{padding:12px 14px}
+  .stat .lbl{font-size:10.5px;letter-spacing:.06em}
+  .stat b{font-size:20px;margin-top:5px;letter-spacing:-.02em}
+  .stat .sub{font-size:11.5px;margin-top:2px}
+
+  /* knowledge rows: put the kind chip above the title so the text gets the
+     full width instead of wrapping around a fixed 60px gutter */
+  .kb-item{flex-direction:column;gap:6px;padding:14px 2px}
+  .kb-item:first-child{padding-top:6px}
+  .kb-kind{align-self:flex-start;min-width:0;max-width:none}
 }
 
 @media(max-width:480px){
@@ -3260,6 +3275,13 @@ html:root[data-theme="dark"] .auth-side,html:root:not([data-theme="light"]) .aut
   /* detail rows: narrower label gutter leaves room for long values */
   .kv .k{width:84px;flex:0 0 84px}
 
+  /* report range filter: full-width date fields and apply button instead of
+     intrinsic half-width pickers with a lone button underneath */
+  .rp-filter{display:grid!important;grid-template-columns:1fr;gap:8px;align-items:stretch}
+  .rp-filter>div{min-width:0}
+  .rp-filter .in{width:100%}
+  .rp-filter .btn{width:100%}
+
   /* branding live-preview: let the sample table reflow instead of clipping */
   .br-preview{padding:12px}
   .br-preview-table th,.br-preview-table td{padding:6px 3px!important}
@@ -3275,4 +3297,10 @@ html:root[data-theme="dark"] .auth-side,html:root:not([data-theme="light"]) .aut
   .ix-metrics,.cl-metrics,.ld-metrics{grid-template-columns:1fr}
   .ix-metric-val,.cl-metric-val,.ld-metric-val{font-size:20px}
   .ix-metric-val.is-money,.cl-metric-val.is-money,.ld-metric-val.is-money{font-size:18px}
+
+  /* long page titles (e.g. "Knowledge base") stay on one line beside the
+     header icon instead of wrapping under it */
+  .page-head h1{font-size:21px}
+  .ix-head-ic,.cl-head-ic,.ld-head-ic,.kb-head-ic,.po-head-ic,.mtg-head-ic,.ql-head-ic{width:38px;height:38px;border-radius:12px}
+  .ix-head-ic svg,.cl-head-ic svg,.ld-head-ic svg,.kb-head-ic svg,.po-head-ic svg,.mtg-head-ic svg,.ql-head-ic svg{width:18px;height:18px}
 }

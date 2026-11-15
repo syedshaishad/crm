@@ -6,7 +6,7 @@
 
 ## Unreleased
 
-2 migrations, `?v=131` CSS / `?v=79` JS.
+2 migrations, `?v=132` CSS / `?v=79` JS.
 
 - Phone pass (≤640px): money values no longer clip inside the invoice, payment,
   client and lead metric cards (2-up with a 14px money size, 1-up below 400px);
@@ -18,6 +18,13 @@
   longer overflow or float over their fields; the branding live-preview table
   reflows without clipping. Every real field is 16px on phones so iOS does not
   zoom on focus.
+- Settings → hub: the directory rows now show their icons. The markup was
+  escaped, so every tile rendered blank on desktop and phones; it is emitted as
+  raw SVG now. Summary cards on Reports, P&L, HR, Projects, attendance, leave
+  and salary are compacted on phones (20px values, tighter padding) so a
+  three-up summary no longer fills the screen, the Reports range filter goes
+  full width instead of leaving a lone Apply button, and knowledge-base rows
+  put the kind chip above the title so articles read at full width.
 - Client portal: theme is resolved before first paint, so a light OS no longer
   gets a dark sheet with dark text; the mobile nav is one swipeable row and the
   portal tables size columns to content instead of wrapping invoice numbers.

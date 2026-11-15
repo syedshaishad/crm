@@ -30,7 +30,7 @@
 @endphp
 <div class="card">
   <div class="card-head"><h3>Filters</h3><a class="btn sm sec" href="{{ route('reports.exports',['from'=>$from,'to'=>$to]) }}">All exports →</a></div>
-  <form method="GET" class="noprint" style="display:flex;gap:10px;flex-wrap:wrap;align-items:end">
+  <form method="GET" class="noprint rp-filter" style="display:flex;gap:10px;flex-wrap:wrap;align-items:end">
     <div><label class="f">From</label><input class="in" style="margin:0" type="date" name="from" value="{{ $from }}"></div>
     <div><label class="f">To</label><input class="in" style="margin:0" type="date" name="to" value="{{ $to }}"></div>
     <div><button class="btn sec">Apply</button></div>
