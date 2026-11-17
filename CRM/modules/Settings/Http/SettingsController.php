@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Storage;
 use Modules\Installer\EnvWriter;
 use Modules\Licensing\LicenseManager;
 use Modules\Settings\SettingStore;
+use Modules\Updater\ReleaseFeed;
 use Modules\Updater\UpdateManager;
 use Modules\Updater\VersionTracker;
 
@@ -379,13 +380,51 @@ class SettingsController extends Controller
         return back()->with('ok', 'Tax settings saved.');
     }
 
-    public function updates(UpdateManager $updater)
+    public function updates(UpdateManager $updater, ReleaseFeed $feed)
     {
         $backups = collect(glob(storage_path('app/backups/crm-backup-*.zip') ?: []))
             ->map(fn ($p) => ['file' => basename($p), 'size' => filesize($p), 'at' => filemtime($p)])
             ->sortByDesc('at')->values();
 
-        return view('settings.updates', ['current' => VersionTracker::current(), 'packages' => $updater->availablePackages(), 'backups' => $backups, 'preflight' => $updater->preflight()]);
+        return view('settings.updates', [
+            'current' => VersionTracker::current(),
+            'packages' => $updater->availablePackages(),
+            'backups' => $backups,
+            'preflight' => $updater->preflight(),
+            'remote' => $feed->lastCheck(),
+            'remoteConfigured' => $feed->configured(),
+        ]);
+    }
+
+    /** Ask the license server whether this install may run a newer release. */
+    public function updatesCheck(ReleaseFeed $feed)
+    {
+        $result = $feed->check();
+        if (! ($result['ok'] ?? false)) {
+            return back()->with('error', 'Update check failed: '.($result['error'] ?? 'unknown error'));
+        }
+        if (empty($result['update_available'])) {
+            return back()->with('ok', 'This install is on the latest release (v'.$result['current_version'].').');
+        }
+
+        return back()->with('ok', 'Release v'.$result['latest_version'].' ('.$result['release_type'].') is available.');
+    }
+
+    /** Download the release the server offered, verify it, then apply it. */
+    public function updatesFetch(Request $r, UpdateManager $updater, ReleaseFeed $feed)
+    {
+        $version = (string) $r->validate(['version' => 'required|string|max:40'])['version'];
+        $download = $feed->download($version);
+        if (! ($download['ok'] ?? false)) {
+            return back()->with('error', 'Download failed: '.($download['error'] ?? 'unknown error'));
+        }
+
+        $blockers = array_values(array_filter($updater->preflight($download['path']), fn ($c) => $c['fatal'] && ! $c['ok']));
+        if (count($blockers) > 0) {
+            return back()->with('error', 'Update blocked: '.implode(' · ', array_map(fn ($c) => $c['label'].' — '.$c['detail'], $blockers)));
+        }
+
+        return $this->finishUpdate($updater->apply($download['path']), $download['checksum'] ?? null);
     }
 
     public function updatesApply(Request $r, UpdateManager $updater)
@@ -422,6 +461,12 @@ class SettingsController extends Controller
             $result = $updater->apply($r->package);
         }
 
+        return $this->finishUpdate($result);
+    }
+
+    /** Shared flash handling for every apply path (upload, on-disk, downloaded). */
+    protected function finishUpdate(array $result, ?string $checksum = null)
+    {
         if (! $result['ok']) {
             $msg = $result['error'] ?? 'Update failed';
             if (! empty($result['hint'])) {
@@ -434,7 +479,9 @@ class SettingsController extends Controller
             return back()->with('error', $msg);
         }
 
-        return back()->with('ok', $result['detail'] ?? ('Updated to '.($result['version'] ?? '')));
+        $done = $result['detail'] ?? ('Updated to '.($result['version'] ?? ''));
+
+        return back()->with('ok', $checksum ? $done.' · package checksum verified' : $done);
     }
 
     /** On-demand full backup (database + uploaded files) as a downloadable zip. */

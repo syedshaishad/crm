@@ -76,8 +76,11 @@ activations, domains) — not in this file. Keep one license per buyer per term.
 ## 6. Updates & renewal policy (put this in your price quote)
 
 - Updates ship as `update-vX.Y.Z.zip`, applied from Settings → Updates with
-  automatic backup + one-click rollback. Recommend buyers stay within one
-  minor version: **annual renewal includes updates only on supported versions**.
+  automatic backup + one-click rollback. Buyers who have the API credentials can
+  also install straight from the license server (section 8).
+- A license covers the major series current when it was sold: a 1.x license gets
+  every 1.x release but not 2.0.0. Recommend buyers stay within one minor
+  version: **annual renewal includes updates only on supported versions**.
 - Major restores (server loss, migration help) and GST setup are billable
   onboarding — price them separately from the license.
 
@@ -131,3 +134,48 @@ UPDATE_RELEASE_KEY=<key>
 afford the disk or time can opt out with `UPDATE_BACKUP_BEFORE_UPDATE=false`,
 but a failed update then has no restore point. Backups are pruned to the newest
 three (Settings → Updates).
+
+## 8. Automatic updates through the license server
+
+Settings → Updates has an **Automatic updates** card. With the customer key and
+the product API credentials in `.env`, the install asks the Licensify server
+what it may run instead of waiting for a zip to be emailed:
+
+```
+LICENSE_KEY=XXXX-XXXX-XXXX-XXXX-XXXX
+LICENSE_API_KEY=lk_...
+LICENSE_API_SECRET=...
+```
+
+**Check for updates** calls `POST /updates/check` with the product code, license
+key, current version, domain and installation id. The server answers with the
+release and the requirements that gate it:
+
+- `update_available`, `latest_version`, `release_type`, `release_notes`,
+  `published_at`, `changelog_url` — what the page shows.
+- `download_available: false` — the server is not offering a package; the page
+  explains why and hides the install button.
+- `requirements.minimum_php_version` / `minimum_laravel_version` — checked again
+  locally, so an installation that cannot run the release is never handed it.
+- `requirements.new_license_required: true` — the release sits outside the major
+  series this license covers (a 1.x license does not get 2.0.0). Existing 1.x
+  releases stay visible; the page says a new license is required.
+- `requirements.requires_backup_acknowledgement` — already satisfied, because
+  every update takes a database + uploads backup first.
+
+**Download & install** calls `POST /downloads/request` for a short-lived,
+single-use URL, streams the package to a `.part` file, verifies the SHA-256 the
+server returned, refuses a non-HTTPS URL, and only then renames it into
+`storage/app/updates/` and runs the normal apply path: backup → extract →
+migrations → version bump.
+
+Support notes:
+
+- The verdict is cached in `storage/app/updates/.remote-check.json`, so the page
+  does not call the server on every load. "Check for updates" refreshes it.
+- `/license/validate` also returns `update_available` and `latest_version`, so
+  the install knows about releases even when nobody opens Settings.
+- Manual upload still works, and is the fallback when the license server is
+  unreachable or the buyer has no API credentials.
+- Rate limits apply per installation (60/min by default); a click-happy admin
+  gets a plain "rate limit" message, not a failed update.

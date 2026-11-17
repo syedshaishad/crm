@@ -122,6 +122,12 @@ class LicensifyClient
         return $this->send('POST', '/updates/check', $payload);
     }
 
+    /** POST /downloads/request — short-lived single-use URL for one package. */
+    public function requestDownload(array $payload): array
+    {
+        return $this->send('POST', '/downloads/request', $payload);
+    }
+
     protected function send(string $method, string $path, array $body = [], array $query = [], bool $retried = false): array
     {
         $base = rtrim($this->serverUrl, '/').'/api/v1';

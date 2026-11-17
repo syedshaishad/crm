@@ -45,9 +45,15 @@ invoice prefix/footer/logo, mail sender, login heading. Nothing is hard-coded.
   this is a deterrent, not DRM.
 
 ## 5. Updates
-- Settings → Updates. Drop `update-*.zip` (with `update.php` + `files/` + `migrations/`)
-  into `storage/app/updates/`, click Apply: auto DB+file backup → extract →
-  migrate → bump `app.version`. See `storage/app/updates/update.php.example`.
+- **Automatic:** Settings → Updates → *Check for updates*. The license server
+  returns the latest release for your license and whether this install may run
+  it (PHP/Laravel minimums, major-series cover). *Download & install* fetches a
+  short-lived URL, verifies the SHA-256, backs up the database + uploads, then
+  applies. Needs `LICENSE_KEY`, `LICENSE_API_KEY` and `LICENSE_API_SECRET`.
+- **Manual:** drop `update-*.zip` (with `update.php` + `files/` + `migrations/`)
+  into `storage/app/updates/`, or upload it on the same page, and click Apply:
+  auto DB+file backup → extract → migrate → bump `app.version`.
+  See `storage/app/updates/update.php.example`.
 
 ## 6. Module toggles
 `config/modules.php` lists the bundled modules (Clients/Projects/Tasks/Leads/

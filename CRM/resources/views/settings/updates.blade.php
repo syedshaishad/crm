@@ -53,6 +53,63 @@
   </div>
 </div>
 
+@php
+  $remote = $remote ?? null;
+  $remoteState = 'Not checked';
+  $remoteTone = 'is-grey';
+  if ($remote) {
+      if (! empty($remote['update_available'])) { $remoteState = 'Update available'; $remoteTone = 'is-amber'; }
+      else { $remoteState = 'Up to date'; $remoteTone = 'is-green'; }
+  }
+@endphp
+
+<div class="card ix-card">
+  <div class="card-head ix-card-head">
+    <div><h3>Automatic updates</h3><span class="hint">The license server decides which release this install may run.</span></div>
+    <span class="ix-state {{ $remoteTone }}"><i></i>{{ $remoteState }}</span>
+  </div>
+
+  @unless($remoteConfigured ?? false)
+    <div class="err">Automatic updates need a license key and the product API credentials (<code class="st-code">LICENSE_KEY</code>, <code class="st-code">LICENSE_API_KEY</code>, <code class="st-code">LICENSE_API_SECRET</code>) in <code class="st-code">.env</code>. You can still upload a package below.</div>
+  @else
+    <form method="POST" action="{{ route('settings.updates.check') }}" class="st-actions-inline">@csrf
+      <button class="btn sec sm" type="submit">Check for updates</button>
+      @if($remote)
+        <span class="fhint">Last checked {{ d(date('Y-m-d H:i:s', $remote['checked_at']), 'j M Y, H:i') }}</span>
+      @endif
+    </form>
+
+    @if($remote && ! empty($remote['update_available']))
+      <div class="st-item">
+        <span class="st-item-main">
+          <b>v{{ $remote['latest_version'] }} <span class="ix-tag">{{ $remote['release_type'] }}</span></b>
+          <span>
+            @if(! empty($remote['published_at']))Published {{ d($remote['published_at'], 'j M Y') }}.@endif
+            @if(! empty($remote['release_notes'])){{ Str::limit($remote['release_notes'], 600) }}@endif
+            @if(! empty($remote['changelog_url']))<a href="{{ $remote['changelog_url'] }}" target="_blank" rel="noopener">Full changelog</a>@endif
+          </span>
+        </span>
+        <span class="st-item-actions">
+          @if(! empty($remote['installable']))
+            <form method="POST" action="{{ route('settings.updates.fetch') }}" data-confirm="Download and install v{{ $remote['latest_version'] }}? A database and file backup is taken first.">@csrf
+              <input type="hidden" name="version" value="{{ $remote['latest_version'] }}">
+              <button class="btn sm" type="submit">Download &amp; install</button>
+            </form>
+          @endif
+        </span>
+      </div>
+      @foreach($remote['blockers'] ?? [] as $blocker)
+        <div class="err">{{ $blocker }}</div>
+      @endforeach
+      @if(! empty($remote['installable']))
+        <p class="fhint st-note">The package is checked against the license server's SHA-256, and a database + file backup is taken before anything changes.</p>
+      @endif
+    @elseif($remote)
+      <p class="fhint st-note">This install is on the latest release the license server offers for this license.</p>
+    @endif
+  @endunless
+</div>
+
 <div class="st-grid">
   <div class="card ix-card">
     <div class="card-head ix-card-head">

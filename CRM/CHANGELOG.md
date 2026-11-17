@@ -8,6 +8,19 @@
 
 2 migrations, `?v=133` CSS / `?v=79` JS.
 
+- Updates can now come from the license server. Settings → Updates has an
+  **Automatic updates** card that asks Licensify what this install may run
+  (`POST /updates/check`) and shows the release notes, type, publish date and
+  changelog link. The install button is hidden when the server says the release
+  needs a newer PHP or Laravel, sits outside the licensed major series
+  (`new_license_required`), or has no package yet — with the reason spelled out.
+  Download & install fetches the short-lived URL from `POST /downloads/request`,
+  refuses a non-HTTPS URL, verifies the returned SHA-256 before the file is
+  accepted, then hands it to the existing backup → extract → migrate path.
+  The verdict is cached so the page does not call the server on every load.
+  Manual upload is unchanged and remains the fallback. RESELLER-GUIDE section 8
+  and README-INSTALL section 5 document the flow.
+
 - Phone pass (≤640px): money values no longer clip inside the invoice, payment,
   client and lead metric cards (2-up with a 14px money size, 1-up below 400px);
   dashboard KPI cards sit in an equal two-up grid with a compact `INR 53.1k`

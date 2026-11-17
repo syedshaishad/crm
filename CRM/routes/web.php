@@ -348,6 +348,8 @@ Route::middleware(['installed', 'license'])->group(function () {
             Route::post('emails', [SettingsController::class, 'emailsStore'])->name('emails.store');
             Route::get('updates', [SettingsController::class, 'updates'])->name('updates');
             Route::post('updates', [SettingsController::class, 'updatesApply'])->name('updates.apply');
+            Route::post('updates/check', [SettingsController::class, 'updatesCheck'])->middleware('throttle:10,1')->name('updates.check');
+            Route::post('updates/fetch', [SettingsController::class, 'updatesFetch'])->middleware('throttle:10,1')->name('updates.fetch');
             Route::get('updates/backup', [SettingsController::class, 'updatesBackup'])->name('updates.backup');
             Route::post('updates/backup-mail', [SettingsController::class, 'backupMail'])->name('updates.backupmail');
             Route::get('updates/backups/{file}/download', [SettingsController::class, 'downloadBackup'])->name('updates.backup.download');
