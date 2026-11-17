@@ -14,12 +14,6 @@ a server-signed grace certificate between check-ins. There is no open mode.
 - `storage/` and `bootstrap/cache/` writable
 - Outbound HTTPS to `license.shaishad.com` (activation + hourly check-ins)
 
-## 1. Hosting requirements (give this to the buyer)
-
-- PHP 8.2+, MySQL/MariaDB, Composer on server (or upload vendor/)
-- One domain/subdomain, docroot pointed at `/public`
-- `storage/` and `bootstrap/cache/` writable
-
 ## 2. Install (buyer or you, ~15 min)
 
 1. Unzip `crm-vX.Y.Z.zip` so the app root is the hosting root
@@ -86,3 +80,54 @@ activations, domains) — not in this file. Keep one license per buyer per term.
   minor version: **annual renewal includes updates only on supported versions**.
 - Major restores (server loss, migration help) and GST setup are billable
   onboarding — price them separately from the license.
+
+## 7. Building and signing update packages
+
+Build from the repo root (the version defaults to `config/version.php`):
+
+```bash
+php deploy/build-package.php --version=1.0.1 --out=../releases
+```
+
+It writes three files and refuses to finish if any check fails:
+
+| File | Use |
+| --- | --- |
+| `crm-vX.Y.Z.zip` | Fresh install: upload, point the docroot at `/public`, run the installer. |
+| `update-replace-vX.Y.Z.zip` | Byte-identical copy of the release zip, for replacing a damaged install. |
+| `update-vX.Y.Z.zip` | In-app update: Settings → Updates → upload. |
+
+The build never includes `.env`, a database, uploads, logs, caches,
+`public/storage`, identity/licence files, or any `.bat/.exe/.sh/.cmd/.ps1/.dll/.so`
+(the licence server's package validator rejects executables).
+
+**Signing.** An install that has `UPDATE_RELEASE_KEY` set refuses any package
+whose `signature.txt` does not verify, so buyers cannot be tricked into
+installing a tampered zip:
+
+```bash
+# once, per release line: generate a key and keep it in your password manager
+php -r "echo bin2hex(random_bytes(32)), PHP_EOL;"
+
+# every build (or pass --sign-key=... to build-package.php)
+php artisan update:sign --zip=update-vX.Y.Z.zip --key=<key>
+```
+
+Then put the same key in each install's `.env`:
+
+```
+UPDATE_RELEASE_KEY=<key>
+```
+
+- Installs **without** the key accept unsigned packages — that is the
+  self-hosting default, so only set it where you control the deployment.
+- Rotate by re-signing and updating every install in the same window;
+  a mismatched key rejects the update with *"not an official release"*.
+- Never commit the key. Sign `update-*.zip` only: the updater checks
+  signatures on the update path, not on a fresh install.
+
+**Before any update** the app now writes `storage/app/backups/crm-backup-<stamp>.zip`
+(database + uploaded files) and aborts if that backup fails. Hosts that cannot
+afford the disk or time can opt out with `UPDATE_BACKUP_BEFORE_UPDATE=false`,
+but a failed update then has no restore point. Backups are pruned to the newest
+three (Settings → Updates).

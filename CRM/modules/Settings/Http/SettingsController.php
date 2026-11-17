@@ -390,6 +390,14 @@ class SettingsController extends Controller
 
     public function updatesApply(Request $r, UpdateManager $updater)
     {
+        // PHP throws away the whole POST body when it exceeds post_max_size, so
+        // the upload arrives empty and validation would blame the wrong thing.
+        // Say what actually happened instead.
+        $len = (int) ($_SERVER['CONTENT_LENGTH'] ?? 0);
+        $postMax = $updater->parseBytes((string) ini_get('post_max_size'));
+        if ($len > 0 && $postMax > 0 && $postMax < PHP_INT_MAX && $len > $postMax) {
+            return back()->with('error', 'Update blocked: the package is '.round($len / 1048576, 1).' MB but this server accepts at most '.ini_get('post_max_size').' per request. Raise post_max_size and upload_max_filesize, or drop the zip into '.config('version.package_dir').' and apply it from the list below.');
+        }
         if ($r->hasFile('package_file')) {
             $r->validate(['package_file' => 'required|file|mimes:zip|max:102400']);
             $dir = config('version.package_dir');

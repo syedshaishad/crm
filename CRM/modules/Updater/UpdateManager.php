@@ -23,6 +23,16 @@ class UpdateManager
      */
     public function apply(string $zipPath): array
     {
+        // A full package is ~11k files. Extracting it, hashing the whole tree
+        // for the signature check and zipping the backup all take real time, so
+        // the time limit has to go before any of that — not only before the
+        // copy step. Hosts may refuse; worst case the request still hits
+        // max_execution_time (or FPM's request_terminate_timeout) mid-extract.
+        try {
+            @set_time_limit(0);
+            @ignore_user_abort(true);
+        } catch (\Throwable $e) {
+        }
         if (! file_exists($zipPath)) {
             return ['ok' => false, 'error' => 'Package not found.'];
         }
@@ -74,14 +84,21 @@ class UpdateManager
 
         // DB backup (mysqldump if available, else sqlite copy, else SQL dump fallback)
         $dbBackup = $this->backupDatabase($backupDir);
+        // Full archive (DB + uploads) before a single file is overwritten, so a
+        // half-written update can be rolled back. Hosts that cannot afford the
+        // disk/time can opt out with UPDATE_BACKUP_BEFORE_UPDATE=false.
+        $archive = null;
+        if ((bool) config('version.backup_before_update', true)) {
+            $made = $this->backupNow();
+            if (! ($made['ok'] ?? false)) {
+                $this->cleanup($tmp);
+
+                return ['ok' => false, 'error' => 'Backup failed, so the update was not applied: '.($made['error'] ?? 'unknown error'), 'hint' => 'Set UPDATE_BACKUP_BEFORE_UPDATE=false to update without a backup (not recommended).'];
+            }
+            $archive = $made['path'] ?? null;
+        }
 
         try {
-            // Long copy on shared hosts: ask for no time limit (hosts may refuse;
-            // worst case the request hits max_execution_time mid-copy as before).
-            try {
-                @set_time_limit(0);
-            } catch (\Throwable $e) {
-            }
             // Downgrades are blocked: package migrations never roll back, so an
             // older package over a newer app means a broken schema. Re-applying
             // the SAME version stays allowed (safe repair path).
@@ -158,7 +175,7 @@ class UpdateManager
             if ($opReport !== 'ok') {
                 $parts[] = 'NOTE: '.$opReport;
             }
-            $result = ['ok' => true, 'backup' => $backupDir, 'db_backup' => $dbBackup, 'version' => VersionTracker::current(), 'detail' => implode(', ', $parts), 'opcache' => $opReport];
+            $result = ['ok' => true, 'backup' => $backupDir, 'db_backup' => $dbBackup, 'archive' => $archive, 'version' => VersionTracker::current(), 'detail' => implode(', ', $parts), 'opcache' => $opReport];
             $this->logApply($from, $meta['version'], $copied, $migrated, $opReport, $backupDir);
 
             return $result;
@@ -232,7 +249,7 @@ class UpdateManager
                 $it = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($pub, \FilesystemIterator::SKIP_DOTS), \RecursiveIteratorIterator::SELF_FIRST);
                 foreach ($it as $f) {
                     if (! $f->isDir()) {
-                        $zip->addFile($f->getPathname(), 'files/'.substr($f->getPathname(), strlen($pub) + 1));
+                        $zip->addFile($f->getPathname(), 'files/'.str_replace('\\', '/', substr($f->getPathname(), strlen($pub) + 1)));
                     }
                 }
             }
@@ -410,7 +427,7 @@ class UpdateManager
         return $v === '' ? '0.0.0' : $v;
     }
 
-    protected function parseBytes(string $v): int
+    public function parseBytes(string $v): int
     {
         $v = trim($v);
         if ($v === '' || $v === '-1') {

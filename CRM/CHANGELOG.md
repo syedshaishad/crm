@@ -29,6 +29,18 @@
   switch to the two-line register pattern (category and amount on top, entry
   count and share bar underneath), while the table layout stays as-is from
   481px up.
+- Updates: the time limit is lifted before extraction, signature checking and
+  the backup — previously only before the file copy, so a large package could
+  die mid-extract on a 30s host with no message. The pre-update backup now
+  really is the "database and file" backup the UI promises: `apply()` wrote only
+  a database copy, and `UPDATE_BACKUP_BEFORE_UPDATE` was never read. It now
+  writes `crm-backup-<stamp>.zip` (database + uploads), aborts if that fails,
+  and prunes to the newest three. Uploading a package larger than the server's
+  `post_max_size` now says so instead of "the package field is required".
+- Packaging: `deploy/build-package.php` builds all three zips (version from
+  `config/version.php`), verifies contents and cache-busters, and can sign the
+  update zip with `--sign-key`. RESELLER-GUIDE.md documents building and signing;
+  `.env.example` documents `UPDATE_RELEASE_KEY`.
 - Client portal: theme is resolved before first paint, so a light OS no longer
   gets a dark sheet with dark text; the mobile nav is one swipeable row and the
   portal tables size columns to content instead of wrapping invoice numbers.
