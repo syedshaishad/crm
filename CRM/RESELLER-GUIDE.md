@@ -177,5 +177,9 @@ Support notes:
   the install knows about releases even when nobody opens Settings.
 - Manual upload still works, and is the fallback when the license server is
   unreachable or the buyer has no API credentials.
+- Rebuilding a zip on your machine does **not** change what the server serves:
+  upload the package on Licensify (product → versions) before you tell buyers to
+  update. The install downloads whatever the server holds for that version and
+  checks it against the checksum the server reports at grant time.
 - Rate limits apply per installation (60/min by default); a click-happy admin
   gets a plain "rate limit" message, not a failed update.
