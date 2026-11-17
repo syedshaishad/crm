@@ -450,8 +450,9 @@ class SettingsController extends Controller
                 @rename($src, $dst);
             }
             // Refuse before touching anything when the server or package
-            // cannot succeed (limits, permissions, downgrade).
-            $blockers = array_values(array_filter($updater->preflight($dst), fn ($c) => $c['fatal'] && ! $c['ok']));
+            // cannot succeed (limits, permissions, downgrade). This one did
+            // come through the browser, so PHP's upload limits apply.
+            $blockers = array_values(array_filter($updater->preflight($dst, true), fn ($c) => $c['fatal'] && ! $c['ok']));
             if (count($blockers) > 0) {
                 return back()->with('error', 'Update blocked: '.implode(' · ', array_map(fn ($c) => $c['label'].' — '.$c['detail'], $blockers)));
             }

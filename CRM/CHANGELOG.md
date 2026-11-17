@@ -20,6 +20,12 @@
   The verdict is cached so the page does not call the server on every load.
   Manual upload is unchanged and remains the fallback. RESELLER-GUIDE section 8
   and README-INSTALL section 5 document the flow.
+- The package-size readiness check only blocks a package that came through the
+  browser: a release downloaded from the license server, or dropped into
+  `storage/app/updates/` over SFTP, is no longer refused because
+  `upload_max_filesize` is smaller than the zip. A relative
+  `UPDATE_PACKAGE_DIR` is now anchored to the app root, so it means the same
+  path under PHP-FPM as under `artisan serve`.
 
 - Phone pass (≤640px): money values no longer clip inside the invoice, payment,
   client and lead metric cards (2-up with a 14px money size, 1-up below 400px);

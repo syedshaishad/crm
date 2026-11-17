@@ -489,8 +489,13 @@ class UpdateManager
      * Server readiness for updates. Optional $zipPath adds package-specific
      * verdicts (fits upload limits? downgrade?). Each check:
      * ['key','label','ok','detail','fatal'].
+     *
+     * $uploaded marks a package that arrived through the browser: only then do
+     * PHP's upload limits decide anything. A package downloaded from the
+     * license server or dropped in over FTP/SFTP never passes through
+     * upload_max_filesize, so a small limit is reported without blocking it.
      */
-    public function preflight(?string $zipPath = null): array
+    public function preflight(?string $zipPath = null, bool $uploaded = false): array
     {
         $checks = [];
         $add = function ($key, $label, $ok, $detail = '', $fatal = false) use (&$checks) {
@@ -535,7 +540,16 @@ class UpdateManager
         if ($zipPath && is_file($zipPath)) {
             $size = filesize($zipPath);
             $fits = $size <= min($up, $post);
-            $add('pkgsize', 'Package fits upload limits', $fits, round($size / 1024 / 1024, 1).' MB package vs '.ini_get('upload_max_filesize').' limit', true);
+            $mb = round($size / 1024 / 1024, 1);
+            $add(
+                'pkgsize',
+                'Package fits upload limits',
+                $fits || ! $uploaded,
+                $fits
+                    ? $mb.' MB package'
+                    : $mb.' MB package vs '.ini_get('upload_max_filesize').' upload limit'.($uploaded ? '' : ' — does not apply to a package already on disk'),
+                $uploaded && ! $fits
+            );
             $meta = $this->peekMeta($zipPath);
             if (! empty($meta['version'])) {
                 $cmp = version_compare($this->normalizeVersion($meta['version']), $this->normalizeVersion($current), '<');
