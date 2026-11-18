@@ -90,7 +90,21 @@
   // Any form with [data-confirm] pauses here; optional tone/title/label via
   // data-confirm-tone="danger|brand", data-confirm-title, data-confirm-ok.
   // Any link with [data-confirm-link="formId"] confirms then submits that form.
+  // This is a real dialog in the DOM (#confirm-modal), not window.confirm(), so
+  // automation and screen readers act on #confirm-ok / [data-modal-close].
   var pendingConfirm = null;
+  var confirmReturn = null;
+  function closeConfirm() {
+    var modal = document.getElementById('confirm-modal');
+    if (!modal || !modal.classList.contains('open')) return;
+    modal.classList.remove('open');
+    pendingConfirm = null;
+    var back = confirmReturn;
+    confirmReturn = null;
+    if (back && document.contains(back) && typeof back.focus === 'function') {
+      try { back.focus({ preventScroll: true }); } catch (err) { back.focus(); }
+    }
+  }
   function openConfirm(msg, opts) {
     var modal = document.getElementById('confirm-modal');
     if (!modal) return false;
@@ -104,7 +118,11 @@
     modal.querySelector('#confirm-msg').textContent = msg || 'Are you sure?';
     ok.textContent = opts.ok || (tone === 'danger' ? 'Delete' : 'Confirm');
     ok.className = tone === 'danger' ? 'btn danger' : 'btn brand';
+    confirmReturn = document.activeElement;
     modal.classList.add('open');
+    // Land on the action: Enter confirms, and the dialog is announced instead
+    // of leaving focus behind on the page.
+    try { ok.focus({ preventScroll: true }); } catch (err) { ok.focus(); }
     return true;
   }
   document.addEventListener('submit', function (e) {
@@ -119,10 +137,8 @@
   });
   document.addEventListener('click', function (e) {
     if (!e.target.closest('#confirm-ok')) return;
-    var modal = document.getElementById('confirm-modal');
     var job = pendingConfirm;
-    pendingConfirm = null;
-    if (modal) modal.classList.remove('open');
+    closeConfirm();
     if (!job) return;
     if (job.bulk) { bulkRun(job.bulk.bar, job.bulk.payload); return; }
     var form = job.form;
@@ -437,7 +453,10 @@
     }
     if (e.target.closest('[data-modal-close]') || (e.target.classList && e.target.classList.contains('modal-bg'))) {
       var modal = e.target.closest('.modal');
-      if (modal) modal.classList.remove('open');
+      if (modal) {
+        if (modal.id === 'confirm-modal') closeConfirm();
+        else modal.classList.remove('open');
+      }
     }
   });
   // Spotlight palette: centered overlay search (button, Cmd/Ctrl+K, "/").
@@ -504,7 +523,7 @@
     });
   }
   document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape') { document.querySelectorAll('.modal.open').forEach(function (m) { m.classList.remove('open'); }); closeSpot(); }
+    if (e.key === 'Escape') { closeConfirm(); document.querySelectorAll('.modal.open').forEach(function (m) { m.classList.remove('open'); }); closeSpot(); }
     // Cmd/Ctrl+K toggles spotlight; "/" opens it (old topbar input is gone).
     if ((e.key === 'k' || e.key === 'K') && (e.metaKey || e.ctrlKey)) {
       e.preventDefault();

@@ -6,7 +6,7 @@
 
 ## Unreleased
 
-2 migrations, `?v=134` CSS / `?v=79` JS.
+2 migrations, `?v=134` CSS / `?v=80` JS.
 
 - Updates can now come from the license server. Settings → Updates has an
   **Automatic updates** card that asks Licensify what this install may run
@@ -34,6 +34,10 @@
 - A checksum mismatch names the two hashes by their first 12 characters and
   writes the full digests to the application log, so the toast stays on screen;
   toasts also wrap long unbroken tokens instead of running off the edge.
+- The confirm dialog focuses its action button when it opens, returns focus to
+  the button that opened it, and clears its pending action when dismissed with
+  Escape or Cancel. It is a DOM dialog (`#confirm-modal` / `#confirm-ok`), not
+  `window.confirm()`, so scripts and screen readers can drive it.
 
 - Phone pass (≤640px): money values no longer clip inside the invoice, payment,
   client and lead metric cards (2-up with a 14px money size, 1-up below 400px);
