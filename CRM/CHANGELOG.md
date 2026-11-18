@@ -26,6 +26,11 @@
   `upload_max_filesize` is smaller than the zip. A relative
   `UPDATE_PACKAGE_DIR` is now anchored to the app root, so it means the same
   path under PHP-FPM as under `artisan serve`.
+- A backup now leaves one file, not two. The raw database dump is deleted once
+  it is inside the backup zip; updates used to leave a `<stamp>/` folder holding
+  an uncompressed database copy beside every archive (and deleting a backup left
+  that folder behind). Deleting or pruning a backup now also clears a work
+  folder left by an older release.
 
 - Phone pass (≤640px): money values no longer clip inside the invoice, payment,
   client and lead metric cards (2-up with a 14px money size, 1-up below 400px);

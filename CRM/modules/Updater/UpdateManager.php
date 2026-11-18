@@ -80,14 +80,12 @@ class UpdateManager
         }
 
         $backupDir = storage_path('app/backups/'.date('Y-m-d_H-i-s'));
-        @mkdir($backupDir, 0755, true);
+        $dbBackup = null;
+        $archive = null;
 
-        // DB backup (mysqldump if available, else sqlite copy, else SQL dump fallback)
-        $dbBackup = $this->backupDatabase($backupDir);
         // Full archive (DB + uploads) before a single file is overwritten, so a
         // half-written update can be rolled back. Hosts that cannot afford the
         // disk/time can opt out with UPDATE_BACKUP_BEFORE_UPDATE=false.
-        $archive = null;
         if ((bool) config('version.backup_before_update', true)) {
             $made = $this->backupNow();
             if (! ($made['ok'] ?? false)) {
@@ -96,6 +94,17 @@ class UpdateManager
                 return ['ok' => false, 'error' => 'Backup failed, so the update was not applied: '.($made['error'] ?? 'unknown error'), 'hint' => 'Set UPDATE_BACKUP_BEFORE_UPDATE=false to update without a backup (not recommended).'];
             }
             $archive = $made['path'] ?? null;
+            // backupNow() keeps the only DB copy inside the archive and removes
+            // its work dir, so point the log at that archive's stamp.
+            if (! empty($made['file'])) {
+                $backupDir = storage_path('app/backups/'.preg_replace('/^crm-backup-|\.zip$/', '', (string) $made['file']));
+            }
+        } else {
+            // No archive: still take a bare DB dump (mysqldump if available,
+            // else a sqlite copy, else a SQL dump) so there is something to
+            // restore if the update goes wrong.
+            @mkdir($backupDir, 0755, true);
+            $dbBackup = $this->backupDatabase($backupDir);
         }
 
         try {
@@ -227,18 +236,21 @@ class UpdateManager
 
     /**
      * On-demand backup: database copy + uploaded files, zipped for download.
-     * Returns ['ok' => true, 'path' => ..., 'file' => ...].
+     * Returns ['ok' => true, 'path' => ..., 'file' => ...]. The raw database
+     * dump is removed once it is inside the zip, so a backup leaves exactly one
+     * file behind instead of a second, uncompressed database image.
      */
     public function backupNow(): array
     {
+        $dir = storage_path('app/backups/'.date('Y-m-d_H-i-s'));
+        $zipPath = storage_path('app/backups/crm-backup-'.basename($dir).'.zip');
         try {
-            $stamp = date('Y-m-d_H-i-s');
-            $dir = storage_path('app/backups/'.$stamp);
             @mkdir($dir, 0755, true);
             $dbBackup = $this->backupDatabase($dir);
-            $zipPath = storage_path('app/backups/crm-backup-'.$stamp.'.zip');
             $zip = new \ZipArchive;
             if ($zip->open($zipPath, \ZipArchive::CREATE) !== true) {
+                $this->cleanup($dir);
+
                 return ['ok' => false, 'error' => 'Cannot create backup archive.'];
             }
             if (is_file($dbBackup)) {
@@ -253,12 +265,22 @@ class UpdateManager
                     }
                 }
             }
-            $zip->close();
+            if (! $zip->close()) {
+                @unlink($zipPath);
+                $this->cleanup($dir);
+
+                return ['ok' => false, 'error' => 'The backup archive could not be written.'];
+            }
+            // The dump only existed so it could be zipped.
+            $this->cleanup($dir);
 
             $pruned = $this->pruneBackups();
 
-            return ['ok' => true, 'path' => $zipPath, 'file' => 'crm-backup-'.$stamp.'.zip', 'dir' => $dir, 'pruned' => $pruned];
+            return ['ok' => true, 'path' => $zipPath, 'file' => basename($zipPath), 'pruned' => $pruned];
         } catch (\Throwable $e) {
+            @unlink($zipPath);
+            $this->cleanup($dir);
+
             return ['ok' => false, 'error' => $e->getMessage()];
         }
     }
@@ -273,18 +295,32 @@ class UpdateManager
 
         $removed = 0;
         foreach (array_slice($zips, $keep) as $old) {
-            if (! @unlink($old)) {
-                continue;
-            }
-            $removed++;
-            $stamp = preg_replace('/^crm-backup-/', '', basename($old, '.zip'));
-            $workDir = $dir.'/'.$stamp;
-            if (is_dir($workDir)) {
-                $this->cleanup($workDir);
+            if ($this->removeBackup(basename($old))) {
+                $removed++;
             }
         }
 
         return $removed;
+    }
+
+    /**
+     * Delete one backup archive and any work dir left beside it by an older
+     * release (those kept the raw DB dump after zipping).
+     */
+    public function removeBackup(string $file): bool
+    {
+        $file = basename($file);
+        if (! preg_match('/^crm-backup-[0-9][0-9A-Za-z_-]*\.zip$/', $file)) {
+            return false;
+        }
+        $dir = storage_path('app/backups');
+        $deleted = is_file($dir.'/'.$file) ? @unlink($dir.'/'.$file) : false;
+        $workDir = $dir.'/'.preg_replace('/^crm-backup-|\.zip$/', '', $file);
+        if (is_dir($workDir)) {
+            $this->cleanup($workDir);
+        }
+
+        return $deleted;
     }
 
     protected function backupDatabase(string $dir): string
@@ -369,9 +405,17 @@ class UpdateManager
 
     protected function cleanup(string $tmp): void
     {
-        $it = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($tmp, \FilesystemIterator::SKIP_DOTS), \RecursiveIteratorIterator::CHILD_FIRST);
-        foreach ($it as $f) {
-            $f->isDir() ? @rmdir($f->getPathname()) : @unlink($f->getPathname());
+        if (! is_dir($tmp)) {
+            return;
+        }
+        try {
+            $it = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($tmp, \FilesystemIterator::SKIP_DOTS), \RecursiveIteratorIterator::CHILD_FIRST);
+            foreach ($it as $f) {
+                $f->isDir() ? @rmdir($f->getPathname()) : @unlink($f->getPathname());
+            }
+        } catch (\Throwable $e) {
+            // Best effort: a locked file must not turn a successful update into
+            // an error just because its scratch copy could not be removed.
         }
         @rmdir($tmp);
     }

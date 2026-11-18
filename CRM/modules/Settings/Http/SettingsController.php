@@ -517,13 +517,14 @@ class SettingsController extends Controller
         return response()->download($path, $file);
     }
 
-    public function destroyBackup(string $file)
+    public function destroyBackup(string $file, UpdateManager $updater)
     {
         $file = basename($file);
         if (! str_starts_with($file, 'crm-backup-') || ! str_ends_with($file, '.zip')) {
             abort(404);
         }
-        @unlink(storage_path('app/backups/'.$file));
+        // Removes the archive and any raw DB dump an older release left beside it.
+        $updater->removeBackup($file);
 
         return back()->with('ok', 'Backup deleted.');
     }
