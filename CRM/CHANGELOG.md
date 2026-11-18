@@ -6,7 +6,7 @@
 
 ## Unreleased
 
-2 migrations, `?v=133` CSS / `?v=79` JS.
+2 migrations, `?v=134` CSS / `?v=79` JS.
 
 - Updates can now come from the license server. Settings → Updates has an
   **Automatic updates** card that asks Licensify what this install may run
@@ -31,6 +31,9 @@
   an uncompressed database copy beside every archive (and deleting a backup left
   that folder behind). Deleting or pruning a backup now also clears a work
   folder left by an older release.
+- A checksum mismatch names the two hashes by their first 12 characters and
+  writes the full digests to the application log, so the toast stays on screen;
+  toasts also wrap long unbroken tokens instead of running off the edge.
 
 - Phone pass (≤640px): money values no longer clip inside the invoice, payment,
   client and lead metric cards (2-up with a 14px money size, 1-up below 400px);

@@ -3,6 +3,7 @@
 namespace Modules\Updater;
 
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Modules\Licensing\LicenseManager;
 use Modules\Licensing\LicensifyClient;
 use Modules\Licensing\LicensifyException;
@@ -181,9 +182,19 @@ class ReleaseFeed
 
         $actual = (string) hash_file('sha256', $part);
         if (! hash_equals($expected, $actual)) {
+            $bytes = (int) @filesize($part);
             @unlink($part);
+            // The full digests go to the log: two 64-character hashes in a toast
+            // overflow the screen and hide the useful part of the message.
+            Log::warning('Update package checksum mismatch; download discarded', [
+                'version' => $version,
+                'expected' => $expected,
+                'actual' => $actual,
+                'url' => $url,
+                'bytes' => $bytes,
+            ]);
 
-            return $this->fail('Package checksum mismatch — the download was discarded. Expected '.$expected.', got '.$actual.'.');
+            return $this->fail('Package checksum mismatch — the download was discarded (expected '.substr($expected, 0, 12).'…, got '.substr($actual, 0, 12).'…). The full hashes are in the application log.');
         }
 
         $zip = new \ZipArchive;
