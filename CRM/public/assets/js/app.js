@@ -60,9 +60,9 @@
         if (t2 && t2.length <= 80) return t2;
       }
       var type = (el.getAttribute('type') || '').toLowerCase();
-      if (type === 'checkbox' || type === 'radio') {
+      if ((type === 'checkbox' || type === 'radio') && el.closest('tr')) {
         var row = el.closest('tr');
-        var cell = row ? row.querySelector('td:nth-child(2)') : null;
+        var cell = row.querySelector('td:nth-child(2)');
         var rowText = clean(cell ? cell.textContent : '');
         return 'Select ' + (rowText ? rowText.slice(0, 40) : 'row');
       }
