@@ -163,4 +163,6 @@ body:has(.dc) .footer-note{display:none}
   .dc .dc-k b{font-size:17px;letter-spacing:-.03em}
   .dc .dc-k .dc-krow{flex-wrap:wrap}
   .dc .dc-kp>*:last-child:nth-child(odd){grid-column:1/-1}
+  /* section "View all" links are the only tap target in the header */
+  .dc .dc-sh2 a{display:inline-flex;align-items:center;min-height:32px;padding:0 2px}
 }

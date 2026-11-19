@@ -6,7 +6,7 @@
 
 ## Unreleased
 
-2 migrations, `?v=135` CSS / `?v=6` dashboard CSS / `?v=80` JS.
+2 migrations, `?v=135` CSS / `?v=7` dashboard CSS / `?v=81` JS.
 
 - Interface audit pass, checked on every route at 1440, 1024 and 390 px:
   status text on tinted chips now clears 4.5:1 (the amber "Partial",
@@ -20,7 +20,9 @@
   the page sideways. The dashboard KPI cards share one five-column grid, the
   hero and big money values scale and wrap instead of clipping, "Deals closed
   by month" is a real six-column chart with month labels, and the weekly
-  summary no longer crowds the bars.
+  summary no longer crowds the bars. Form fields whose visible label was
+  paired only by position now get an accessible name at runtime, so screen
+  readers announce every input on the create and edit screens.
 - Updates can now come from the license server. Settings → Updates has an
   **Automatic updates** card that asks Licensify what this install may run
   (`POST /updates/check`) and shows the release notes, type, publish date and

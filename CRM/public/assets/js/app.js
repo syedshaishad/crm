@@ -10,6 +10,71 @@
     if (ta && body) ta.value = (ta.value.trim() ? ta.value.replace(/\s+$/, '') + "\n" : '') + body;
     sel.value = '';
   });
+  // Accessible names for form fields. Blade forms pair a visible
+  // <label class="f"> with its control by position, not with for/id, so a
+  // screen reader sees an empty name. Give every unnamed control an
+  // aria-label taken from that label. No ids are created, so cloned rows
+  // (invoice items, quick-add lines) never produce duplicate ids.
+  (function formLabels() {
+    function clean(s) {
+      return (s || '').replace(/\s+/g, ' ')
+        .replace(/\s*\*\s*$/, '')
+        .replace(/\s*\((optional|required)\)\s*$/i, '')
+        .trim();
+    }
+    function humanName(el) {
+      var name = el.getAttribute('name') || '';
+      var ph = (el.getAttribute('placeholder') || '').trim();
+      if (!name) return ph;
+      var t = name.replace(/\[\d*\]/g, ' ').replace(/\[\]$/, ' ')
+        .replace(/[_\-]+/g, ' ').replace(/\bid\b/gi, ' ')
+        .replace(/\s+/g, ' ').trim()
+        .replace(/\bgst\b/gi, 'GST').replace(/\bhsn\b/gi, 'HSN').replace(/\bpan\b/gi, 'PAN');
+      if (t) t = t.charAt(0).toUpperCase() + t.slice(1);
+      if (ph && (/\[\]|\[\d+\]/.test(name) || !t)) return ph;
+      return t || ph;
+    }
+    function nameFor(el) {
+      if ((el.getAttribute('aria-label') || '').trim()) return '';
+      if ((el.getAttribute('aria-labelledby') || '').trim()) return '';
+      if ((el.getAttribute('title') || '').trim()) return '';
+      if (el.closest('label')) return '';
+      var id = el.getAttribute('id');
+      if (id) {
+        try { if (document.querySelector('label[for="' + CSS.escape(id) + '"]')) return ''; }
+        catch (e) {}
+      }
+      var n = el.previousElementSibling, hops = 0;
+      while (n && hops++ < 4) {
+        if (n.tagName === 'LABEL') {
+          var t = clean(n.textContent);
+          if (t && t.length <= 80) return t;
+        }
+        if (n.matches && n.matches('input,select,textarea')) break;
+        n = n.previousElementSibling;
+      }
+      var p = el.parentElement;
+      if (p) {
+        var first = p.querySelector(':scope > label, :scope > .f');
+        var t2 = first ? clean(first.textContent) : '';
+        if (t2 && t2.length <= 80) return t2;
+      }
+      var type = (el.getAttribute('type') || '').toLowerCase();
+      if (type === 'checkbox' || type === 'radio') {
+        var row = el.closest('tr');
+        var cell = row ? row.querySelector('td:nth-child(2)') : null;
+        var rowText = clean(cell ? cell.textContent : '');
+        return 'Select ' + (rowText ? rowText.slice(0, 40) : 'row');
+      }
+      return humanName(el);
+    }
+    document.querySelectorAll('input,select,textarea').forEach(function (el) {
+      var type = (el.getAttribute('type') || '').toLowerCase();
+      if (['hidden', 'submit', 'button', 'reset', 'image', 'file'].indexOf(type) >= 0) return;
+      var label = nameFor(el);
+      if (label) el.setAttribute('aria-label', label);
+    });
+  })();
   // Central motion gate: every JS-driven flourish checks this (CSS-only
   // motion is covered by the prefers-reduced-motion kill-switch in app.css).
   function motionOK() {

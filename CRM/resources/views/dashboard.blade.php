@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @section('title','Dashboard')
-@section('head')<link rel="stylesheet" href="{{ asset('assets/css/dc.css').'?v=6' }}">@endsection
+@section('head')<link rel="stylesheet" href="{{ asset('assets/css/dc.css').'?v=7' }}">@endsection
 @section('content')
 @php
   $hour = (int) date('H');

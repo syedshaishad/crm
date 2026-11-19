@@ -286,6 +286,6 @@ foreach ($nav as $item) {
     <div class="spot-foot"><span><kbd>↑↓</kbd> navigate</span><span><kbd>↵</kbd> open</span><span><kbd>esc</kbd> close</span></div>
   </div>
 </div>
-<script src="{{ asset('assets/js/app.js').'?v=80' }}"></script>
+<script src="{{ asset('assets/js/app.js').'?v=81' }}"></script>
 </body>
 </html>
