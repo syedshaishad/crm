@@ -36,7 +36,7 @@
 
 <div class="card ix-card" data-ajax-region="payments-list">
   <div class="card-head ix-card-head">
-    <div><h3>Receipt register</h3><span class="hint">{{ $payments->total() }} {{ \Illuminate\Support\Str::plural('receipt', $payments->total()) }}{{ $hasFilters ? ' matching filters' : ' in this workspace' }}</span></div>
+    <div><h2>Receipt register</h2><span class="hint">{{ $payments->total() }} {{ \Illuminate\Support\Str::plural('receipt', $payments->total()) }}{{ $hasFilters ? ' matching filters' : ' in this workspace' }}</span></div>
   </div>
 
   <div class="ix-statuses noprint">
@@ -49,9 +49,9 @@
   <form method="GET" data-ajax-filter data-region="payments-list" class="ix-filters noprint">
     <label class="ix-search">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
-      <input class="in" name="q" value="{{ $q ?? '' }}" placeholder="Search receipt number, reference or client…" autocomplete="off">
+      <input class="in" name="q" value="{{ $q ?? '' }}" placeholder="Search receipt number, reference or client…" autocomplete="off" aria-label="Search payments">
     </label>
-    <select class="in ix-filter" name="method">
+    <select class="in ix-filter" name="method" aria-label="Filter by method">
       <option value="">All methods</option>
       @foreach($methods as $m)
         <option value="{{ $m }}" {{ $methodVal === $m ? 'selected' : '' }}>{{ ucfirst($m) }}</option>

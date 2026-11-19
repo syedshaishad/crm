@@ -97,7 +97,7 @@
 
   <aside class="kb-side noprint">
     <div class="card kb-side-card">
-      <div class="card-head"><h3>Browse by kind</h3></div>
+      <div class="card-head"><h2>Browse by kind</h2></div>
       <div class="kb-cats">
         <a class="kb-cat {{ ($category ?? '') === '' ? 'active' : '' }}" href="{{ route('knowledge.index', array_filter(['q' => $q ?? ''], fn ($v) => $v !== '' && $v !== null)) }}">
           All articles <span>{{ $total }}</span>

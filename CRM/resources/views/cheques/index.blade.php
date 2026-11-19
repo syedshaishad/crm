@@ -32,7 +32,7 @@
 
 <div class="card ix-card" data-ajax-region="cheque-list">
   <div class="card-head ix-card-head">
-    <div><h3>Post-dated cheques</h3><span class="hint">{{ $cheques->total() }} {{ \Illuminate\Support\Str::plural('cheque', $cheques->total()) }}{{ $hasFilters ? ' matching filters' : ' on record' }}</span></div>
+    <div><h2>Post-dated cheques</h2><span class="hint">{{ $cheques->total() }} {{ \Illuminate\Support\Str::plural('cheque', $cheques->total()) }}{{ $hasFilters ? ' matching filters' : ' on record' }}</span></div>
   </div>
 
   <div class="ix-statuses noprint">
@@ -45,9 +45,9 @@
   <form method="GET" data-ajax-filter data-region="cheque-list" class="ix-filters noprint">
     <label class="ix-search">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
-      <input class="in" name="q" value="{{ $q ?? '' }}" placeholder="Search number, cheque, bank or client…" autocomplete="off">
+      <input class="in" name="q" value="{{ $q ?? '' }}" placeholder="Search number, cheque, bank or client…" autocomplete="off" aria-label="Search cheques">
     </label>
-    <select class="in ix-filter" name="status">
+    <select class="in ix-filter" name="status" aria-label="Filter by status">
       <option value="">All states</option>
       @foreach($statuses as $sk => $sl)
         <option value="{{ $sk }}" {{ $statusVal === $sk ? 'selected' : '' }}>{{ $sl }}</option>

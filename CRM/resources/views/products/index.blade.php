@@ -37,7 +37,7 @@
 
 <div class="card ix-card" data-ajax-region="products-list">
   <div class="card-head ix-card-head">
-    <div><h3>Product catalog</h3><span class="hint">{{ $products->total() }} {{ \Illuminate\Support\Str::plural('item', $products->total()) }}{{ $hasFilters ? ' matching filters' : ' in this workspace' }}</span></div>
+    <div><h2>Product catalog</h2><span class="hint">{{ $products->total() }} {{ \Illuminate\Support\Str::plural('item', $products->total()) }}{{ $hasFilters ? ' matching filters' : ' in this workspace' }}</span></div>
   </div>
 
   <div class="ix-statuses noprint">
@@ -49,9 +49,9 @@
   <form method="GET" data-ajax-filter data-region="products-list" class="ix-filters noprint">
     <label class="ix-search">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
-      <input class="in" name="q" value="{{ $q ?? '' }}" placeholder="Search name, SKU, HSN or description…" autocomplete="off">
+      <input class="in" name="q" value="{{ $q ?? '' }}" placeholder="Search name, SKU, HSN or description…" autocomplete="off" aria-label="Search products">
     </label>
-    <select class="in ix-filter" name="status">
+    <select class="in ix-filter" name="status" aria-label="Filter by status">
       <option value="">All statuses</option>
       <option value="active" {{ $statusVal === 'active' ? 'selected' : '' }}>Active</option>
       <option value="archived" {{ $statusVal === 'archived' ? 'selected' : '' }}>Archived</option>
@@ -63,9 +63,9 @@
   <form method="POST" action="{{ route('products.store') }}" data-ajax-add data-region="products-list" class="ix-quick noprint">
     @csrf
     <span class="ix-quick-lbl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Quick add</span>
-    <input class="in" name="name" required placeholder="Product or service name" autocomplete="off">
-    <input class="in" name="rate" type="number" step="0.01" min="0" placeholder="Rate" autocomplete="off">
-    <input class="in" name="hsn_code" placeholder="HSN/SAC" autocomplete="off">
+    <input class="in" name="name" required placeholder="Product or service name" autocomplete="off" aria-label="Product name">
+    <input class="in" name="rate" type="number" step="0.01" min="0" placeholder="Rate" autocomplete="off" aria-label="Product rate">
+    <input class="in" name="hsn_code" placeholder="HSN/SAC" autocomplete="off" aria-label="HSN or SAC code">
     <button class="btn sm">Add product</button>
   </form>
 

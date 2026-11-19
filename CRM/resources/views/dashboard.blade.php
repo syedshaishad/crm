@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @section('title','Dashboard')
-@section('head')<link rel="stylesheet" href="{{ asset('assets/css/dc.css').'?v=5' }}">@endsection
+@section('head')<link rel="stylesheet" href="{{ asset('assets/css/dc.css').'?v=6' }}">@endsection
 @section('content')
 @php
   $hour = (int) date('H');
@@ -74,7 +74,10 @@
           <div class="dc-ls"><span class="dc-ic" style="background:#111"></span>Pipeline<span class="dc-v">{{ number_format($openPipe, 0) }}</span><span class="dc-pc">{{ $openDeals }}</span></div>
         </div>
         <div class="dc-gc"><div class="dc-fb"><span class="dc-lb" style="font-size:13px">Deals closed by month</span><span class="dc-dd">{{ money($wonMonthTotal) }} won</span></div>
-          <div class="dc-bx">@foreach($dealChart['months'] as $i=>$dm)@php $isMax = $dm['won'] >= $maxWon && $maxWon > 0; @endphp<div class="{{ $dm['won'] > 0 ? '' : 'dc-ht' }}{{ $isMax ? ' hot' : '' }}" style="height:{{ max(8, round($dm['won'] / $maxWon * 100)) }}%" title="{{ $dm['label'] }}: {{ money($dm['won']) }} won"><span class="dc-ico">{{ strtoupper(mb_substr($dm['label'], 0, 1)) }}</span></div>@endforeach</div>
+          <div class="dc-bxg">
+            <div class="dc-bx">@foreach($dealChart['months'] as $i=>$dm)@php $isMax = $dm['won'] >= $maxWon && $maxWon > 0; $pct = $maxWon > 0 ? round($dm['won'] / $maxWon * 100) : 0; @endphp<div class="dc-bxb {{ $dm['won'] > 0 ? '' : 'dc-ht' }}{{ $isMax ? ' hot' : '' }}" style="height:{{ max(6, $pct) }}%" title="{{ $dm['label'] }}: {{ money($dm['won']) }} won"></div>@endforeach</div>
+            <div class="dc-bxs">@foreach($dealChart['months'] as $dm)<span>{{ $dm['label'] }}</span>@endforeach</div>
+          </div>
         </div>
       </div>
 
@@ -114,25 +117,25 @@
   </div>
 
   <div class="dc-g2" style="margin-top:16px">
-    <section class="dc-gc" style="flex:1 1 440px;padding:16px"><div class="dc-sh2"><h3>Today's focus</h3><a href="{{ route('tasks.index') }}">All tasks →</a></div>
+    <section class="dc-gc" style="flex:1 1 440px;padding:16px"><div class="dc-sh2"><h2>Today's focus</h2><a href="{{ route('tasks.index') }}">All tasks →</a></div>
       @php $fiShown = 0; @endphp
       @foreach($overdue->take(2) as $o)<div class="dc-fi"><span class="dc-fd"></span><div><b>Chase {{ $o->number }}</b><small>{{ money($o->total) }} · {{ abs(now()->startOfDay()->diffInDays(\Carbon\Carbon::parse($o->due_date)->startOfDay(), false)) }} days overdue</small></div><span class="dc-go">Overdue</span></div>@php $fiShown++; @endphp @endforeach
       @foreach($dueSoon->take(4 - $fiShown) as $t)<div class="dc-fi"><span class="dc-fd"></span><div><b>{{ \Str::limit($t->title, 42) }}</b><small>{{ ucfirst($t->priority ?? '') }} · due {{ d($t->due_date) }}</small></div><span class="dc-go">{{ ucfirst($t->priority ?? '') }}</span></div>@endforeach
       @if($fiShown === 0 && $dueSoon->isEmpty())<div class="dc-em">Nothing due soon.<small style="margin-top:4px">Overdue work is pinned in Today's focus.</small></div>@endif
     </section>
-    <section class="dc-gc" style="flex:1 1 440px;padding:16px"><div class="dc-sh2"><h3>{{ $ref->format('F Y') }}</h3><a href="{{ route('tasks.index') }}">Tasks →</a></div>
+    <section class="dc-gc" style="flex:1 1 440px;padding:16px"><div class="dc-sh2"><h2>{{ $ref->format('F Y') }}</h2><a href="{{ route('tasks.index') }}">Tasks →</a></div>
       <div class="dc-cg"><div class="h">M</div><div class="h">T</div><div class="h">W</div><div class="h">T</div><div class="h">F</div><div class="h">S</div><div class="h">S</div>@for($b = 0; $b < $calBlanks; $b++)<div></div>@endfor @for($d = 1; $d <= $calDays; $d++)@php $dk = sprintf('%04d-%02d-%02d', $calY, $calM, $d); @endphp<div class="dc-cd{{ $dk === $todayKey ? ' td' : '' }}">{{ $d }}@if(!empty($dueMap[$dk]))<i></i>@endif</div>@endfor</div>
       <small style="margin-top:12px;font-weight:700;letter-spacing:.08em">COLLECTIONS THIS WEEK</small><div style="display:flex;gap:6px">@foreach($week as $wd)<div style="flex:1;text-align:center"><div class="dc-wb" style="@if($wd['value'] > 0)background:var(--dc-accent);@endif"></div><small>{{ $wd['label'] }}</small></div>@endforeach</div>
     </section>
   </div>
 
   <div class="dc-g2" style="margin-top:16px">
-    <section class="dc-gc" style="flex:1 1 440px;padding:16px"><div class="dc-sh2"><h3>Cashflow — last 6 months</h3><a href="{{ route('reports.index') }}">Full reports →</a></div>
+    <section class="dc-gc" style="flex:1 1 440px;padding:16px"><div class="dc-sh2"><h2>Cashflow — last 6 months</h2><a href="{{ route('reports.index') }}">Full reports →</a></div>
       @php $cfMax = max(1, collect($months)->flatMap(fn ($x) => [$x['revenue'], $x['expenses']])->max()); @endphp
       <svg viewBox="0 0 420 110" width="100%" role="img" aria-label="Monthly money in and out"><g stroke="var(--dc-line2)" stroke-dasharray="2 4"><path d="M0 20H420M0 55H420"></path></g><g fill="var(--dc-ink)">@foreach($months as $i=>$cm)<rect x="{{ 14 + $i * 70 }}" y="{{ 84 - max(8, round($cm['revenue'] / $cfMax * 64)) }}" width="20" height="{{ max(8, round($cm['revenue'] / $cfMax * 64)) }}" rx="4"></rect>@endforeach</g><g fill="var(--dc-pale)">@foreach($months as $i=>$cm)<rect x="{{ 38 + $i * 70 }}" y="{{ 84 - max(8, round($cm['expenses'] / $cfMax * 64)) }}" width="20" height="{{ max(8, round($cm['expenses'] / $cfMax * 64)) }}" rx="4"></rect>@endforeach</g><g font-size="10" fill="var(--dc-muted)" text-anchor="middle">@foreach($months as $i=>$cm)<text x="{{ 36 + $i * 70 }}" y="104">{{ $cm['label'] }}</text>@endforeach</g></svg>
       <small><b style="color:var(--dc-ink)">●</b> Money in {{ money(collect($months)->sum('revenue')) }} &nbsp; <b style="color:var(--dc-pale)">●</b> Money out {{ money(collect($months)->sum('expenses')) }}</small>
     </section>
-    <section class="dc-gc" style="flex:1 1 440px;padding:16px"><div class="dc-sh2"><h3>Money position</h3><a href="{{ route('invoices.index') }}">Invoices →</a></div>
+    <section class="dc-gc" style="flex:1 1 440px;padding:16px"><div class="dc-sh2"><h2>Money position</h2><a href="{{ route('invoices.index') }}">Invoices →</a></div>
       @php $ring = round($collectionRate / 100 * 301.6, 1); @endphp
       <div style="display:flex;align-items:center;gap:18px;flex-wrap:wrap"><svg viewBox="0 0 120 120" width="116" role="img" aria-label="{{ $collectionRate }} percent collected"><circle cx="60" cy="60" r="48" fill="none" stroke="var(--dc-line2)" stroke-width="12"></circle><circle cx="60" cy="60" r="48" fill="none" stroke="var(--dc-accent)" stroke-width="12" stroke-linecap="round" stroke-dasharray="{{ $ring }} 301.6" transform="rotate(-90 60 60)"></circle><text x="60" y="64" text-anchor="middle" font-size="22" font-weight="700" fill="var(--dc-ink)">{{ $collectionRate }}%</text><text x="60" y="80" text-anchor="middle" font-size="9" fill="var(--dc-muted)">collected</text></svg>
       <div style="flex:1 1 180px;font-size:13px"><div style="display:flex;justify-content:space-between;padding:7px 0"><span>Billed</span><b>{{ money($billed) }}</b></div><div style="display:flex;justify-content:space-between;padding:7px 0;border-top:1px solid var(--dc-line)"><span>Collected</span><b>{{ money($collected) }}</b></div><div style="display:flex;justify-content:space-between;padding:7px 0;border-top:1px solid var(--dc-line)"><span>Outstanding</span><b style="color:var(--dc-accent)">{{ money($outstanding) }}</b></div></div></div>
@@ -140,29 +143,29 @@
   </div>
 
   <div class="dc-g2" style="margin-top:16px">
-    <section class="dc-gc" style="flex:1 1 440px;padding:16px"><div class="dc-sh2"><h3>Recent invoices</h3><a class="dc-btn" href="{{ route('invoices.create') }}" style="text-decoration:none">+ New</a></div>
+    <section class="dc-gc" style="flex:1 1 440px;padding:16px"><div class="dc-sh2"><h2>Recent invoices</h2><a class="dc-btn" href="{{ route('invoices.create') }}" style="text-decoration:none">+ New</a></div>
       <div class="dc-th"><span style="flex:1.4">Number</span><span style="flex:1.2">Total</span><span style="flex:1;text-align:right">Status</span></div>
       @forelse($recentInvoices->take(4) as $ri)<a class="dc-rw" href="{{ route('invoices.show', $ri->id) }}" style="text-decoration:none"><b style="flex:1.4">{{ $ri->number }}</b><span style="flex:1.2">{{ money($ri->total) }}</span><span style="flex:1;text-align:right"><span class="dc-tg {{ $ri->status === 'overdue' ? 'r' : 'l' }}">{{ ucfirst($ri->status) }}</span></span></a>@empty<div class="dc-em">No invoices yet.</div>@endforelse
       <small style="margin:8px 4px 0">Showing {{ min(4, $recentInvoiceShown) }} of {{ $recentInvoiceShown }} recent invoices</small>
     </section>
-    <section class="dc-gc" style="flex:1 1 440px;padding:16px"><div class="dc-sh2"><h3>Recent tasks</h3><a class="dc-btn" href="{{ route('tasks.create') }}" style="text-decoration:none">+ New</a></div>
+    <section class="dc-gc" style="flex:1 1 440px;padding:16px"><div class="dc-sh2"><h2>Recent tasks</h2><a class="dc-btn" href="{{ route('tasks.create') }}" style="text-decoration:none">+ New</a></div>
       <div class="dc-th"><span style="flex:2">Title</span><span style="flex:.8">Status</span><span style="flex:1.4;text-align:right">Due</span></div>
       @forelse($recentTasks as $rt)<div class="dc-rw"><div style="flex:2;font-weight:600">{{ \Str::limit($rt->title, 26) }}<small>{{ \Str::limit($rt->project ?? 'No project', 24) }}</small></div><div style="flex:.8"><span class="dc-tg l">{{ ucfirst(str_replace('_', ' ', $rt->status)) }}</span></div><div style="flex:1.4;text-align:right">{{ d($rt->due_date) ?: '—' }} <span class="dc-tg {{ in_array(strtolower($rt->priority ?? ''), ['urgent', 'high']) ? 'r' : 'l' }}">{{ ucfirst($rt->priority ?? 'normal') }}</span></div></div>@empty<div class="dc-em">No tasks yet.</div>@endforelse
     </section>
   </div>
 
   <div class="dc-g2" style="margin-top:16px">
-    <section class="dc-gc" style="flex:1 1 440px;padding:16px"><div class="dc-sh2"><h3>Overdue invoices</h3><a href="{{ route('invoices.index', ['status' => 'overdue']) }}">View all →</a></div>
+    <section class="dc-gc" style="flex:1 1 440px;padding:16px"><div class="dc-sh2"><h2>Overdue invoices</h2><a href="{{ route('invoices.index', ['status' => 'overdue']) }}">View all →</a></div>
       <div class="dc-th"><span style="flex:1.4">Number</span><span style="flex:1.2">Due</span><span style="flex:1;text-align:right">Total</span></div>
       @forelse($overdue as $o)<div class="dc-rw dark"><b style="flex:1.4">{{ $o->number }}</b><span style="flex:1.2">{{ d($o->due_date) ?: '—' }}</span><b style="flex:1;text-align:right">{{ money($o->total) }}</b></div>@empty<div class="dc-em">Nothing overdue. 🎉</div>@endforelse
     </section>
-    <section class="dc-gc" style="flex:1 1 440px;padding:16px"><div class="dc-sh2"><h3>Due within 7 days</h3><a href="{{ route('tasks.index') }}">View all →</a></div>
+    <section class="dc-gc" style="flex:1 1 440px;padding:16px"><div class="dc-sh2"><h2>Due within 7 days</h2><a href="{{ route('tasks.index') }}">View all →</a></div>
       <div class="dc-th"><span style="flex:2">Task</span><span style="flex:1">Due</span><span style="flex:1;text-align:right">Status</span></div>
       @forelse($dueSoon as $t)<div class="dc-rw"><div style="flex:2;font-weight:600">{{ \Str::limit($t->title, 30) }}</div><div style="flex:1">{{ d($t->due_date) ?: '—' }}</div><div style="flex:1;text-align:right"><span class="dc-tg l">{{ ucfirst(str_replace('_', ' ', $t->status)) }}</span></div></div>@empty<div class="dc-em">Nothing due soon.<small style="margin-top:4px">Overdue work is pinned in Today's focus.</small></div>@endforelse
     </section>
   </div>
 
-  <section class="dc-gc" style="margin-top:16px;padding:16px 18px"><div class="dc-sh2"><h3>Recent activity</h3><a href="{{ route('activity.index') }}">View all →</a></div>@forelse($recentActivity as $a)<div class="dc-ac"><span class="dc-ci">{{ strtoupper(mb_substr($a->user->name ?? 'C', 0, 1)) }}</span><div><b>{{ $a->description }}</b><small>{{ $a->user->name ?? 'Client' }} · {{ d($a->created_at, 'j M, h:i A') }}</small></div></div>@empty<div class="dc-em">No activity yet.</div>@endforelse</section>
+  <section class="dc-gc" style="margin-top:16px;padding:16px 18px"><div class="dc-sh2"><h2>Recent activity</h2><a href="{{ route('activity.index') }}">View all →</a></div>@forelse($recentActivity as $a)<div class="dc-ac"><span class="dc-ci">{{ strtoupper(mb_substr($a->user->name ?? 'C', 0, 1)) }}</span><div><b>{{ $a->description }}</b><small>{{ $a->user->name ?? 'Client' }} · {{ d($a->created_at, 'j M, h:i A') }}</small></div></div>@empty<div class="dc-em">No activity yet.</div>@endforelse</section>
   <div class="dc-foot">{{ $brand['company_name'] ?? config('app.name') }} · v{{ app_version() }} · self-hosted</div>
 
 </div>
@@ -175,8 +178,7 @@
     done: @json($doneWeek)
   };
   var labels = @json(array_column($week, 'label'));
-  function draw(key){
-    var vals = data[key] || [];
+  function draw(key){    var vals = data[key] || [];
     var mx = Math.max.apply(null, vals.concat([0]));
     var host = document.getElementById('dcWkBars');
     if(!host) return;
@@ -186,10 +188,6 @@
       var h = mx > 0 ? Math.max(8, Math.round(v / mx * 100)) : 8;
       d.style.height = h + '%';
       if(v >= mx && mx > 0) d.classList.add('hot');
-      var s = document.createElement('span');
-      s.className = 'dc-ico';
-      s.textContent = (labels[i] || '').charAt(0);
-      d.appendChild(s);
       host.appendChild(d);
     });
   }

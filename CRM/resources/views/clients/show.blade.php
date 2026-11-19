@@ -86,8 +86,8 @@
 <div class="empty">Catalog rates apply — add a special rate below to override per product.</div>
 @endforelse
 <form method="POST" action="{{ route('clients.prices.store',$client) }}" class="noprint" style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;align-items:end">@csrf
-<div style="flex:2;min-width:170px"><label class="f">Product</label><select class="in" style="margin:0" name="product_id" required>@foreach($products as $p)<option value="{{ $p->id }}">{{ $p->name }} · {{ money($p->rate) }}</option>@endforeach</select></div>
-<div style="flex:1;min-width:130px"><label class="f">Special rate (₹)</label><input class="in" style="margin:0" type="number" step="0.01" min="0" name="rate" required></div>
+<div style="flex:2;min-width:170px"><label class="f">Product</label><select class="in" style="margin:0" name="product_id" required aria-label="Product">@foreach($products as $p)<option value="{{ $p->id }}">{{ $p->name }} · {{ money($p->rate) }}</option>@endforeach</select></div>
+<div style="flex:1;min-width:130px"><label class="f">Special rate (₹)</label><input class="in" style="margin:0" type="number" step="0.01" min="0" name="rate" required aria-label="Special rate"></div>
 <div><button class="btn sm">Save rate</button></div>
 </form>
 </div>
@@ -106,9 +106,9 @@
 <div class="empty">No portal logins yet — create one so this client can sign in.</div>
 @endforelse
 <form method="POST" action="{{ route('clients.users.store',$client) }}" class="noprint" style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;align-items:end">@csrf
-<div style="flex:2;min-width:150px"><label class="f">Name</label><input class="in" style="margin:0" name="name" required maxlength="255" placeholder="Contact person"></div>
-<div style="flex:2;min-width:170px"><label class="f">Email (login)</label><input class="in" style="margin:0" type="email" name="email" required maxlength="255"></div>
-<div style="flex:1;min-width:140px"><label class="f">Password</label><input class="in" style="margin:0" type="text" name="password" required minlength="8" placeholder="min 8 chars"></div>
+<div style="flex:2;min-width:150px"><label class="f">Name</label><input class="in" style="margin:0" name="name" required maxlength="255" placeholder="Contact person" aria-label="Contact name"></div>
+<div style="flex:2;min-width:170px"><label class="f">Email (login)</label><input class="in" style="margin:0" type="email" name="email" required maxlength="255" aria-label="Login email"></div>
+<div style="flex:1;min-width:140px"><label class="f">Password</label><input class="in" style="margin:0" type="text" name="password" required minlength="8" placeholder="min 8 chars" aria-label="Login password"></div>
 <div><button class="btn sm">Create login</button></div>
 </form>
 <p class="hint" style="margin:8px 0 0">Share <code>{{ route('portal.login') }}</code> with them. They can change the password after signing in.</p>

@@ -62,7 +62,7 @@
 <div class="card cl-card" data-ajax-region="clients-list">
   <div class="card-head cl-card-head">
     <div>
-      <h3>Client list</h3>
+      <h2>Client list</h2>
       <span class="hint">{{ $clients->total() }} {{ \Illuminate\Support\Str::plural('client', $clients->total()) }}</span>
     </div>
   </div>

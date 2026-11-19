@@ -36,7 +36,7 @@
   <section class="card mtg-card">
     <div class="card-head mtg-card-head">
       <div>
-        <h3>Upcoming</h3>
+        <h2>Upcoming</h2>
         <span class="hint">Soonest first</span>
       </div>
       <span class="mtg-count">{{ $upcoming->count() }}</span>

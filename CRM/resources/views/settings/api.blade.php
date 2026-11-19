@@ -52,7 +52,7 @@
 
 <div class="card ix-card">
   <div class="card-head ix-card-head">
-    <div><h3>API access</h3><span class="hint">Authenticate other apps, scripts, or a mobile client against this install.</span></div>
+    <div><h2>API access</h2><span class="hint">Authenticate other apps, scripts, or a mobile client against this install.</span></div>
     <span class="ix-tag">v1</span>
   </div>
   <div class="st-api-lines">

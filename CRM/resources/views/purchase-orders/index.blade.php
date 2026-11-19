@@ -46,7 +46,7 @@
   <form method="GET" data-ajax-filter data-region="pos-list" class="ix-filters noprint">
     <label class="ix-search">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
-      <input class="in" name="q" value="{{ $q ?? '' }}" placeholder="Search number or vendor…" autocomplete="off">
+      <input class="in" name="q" value="{{ $q ?? '' }}" placeholder="Search number or vendor…" autocomplete="off" aria-label="Search purchase orders">
     </label>
     <input type="hidden" name="status" value="{{ $statusVal }}">
     <button class="btn sec sm ix-filter-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg>Search</button>

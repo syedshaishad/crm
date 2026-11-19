@@ -58,7 +58,7 @@
 <div class="st-grid">
   <div class="card ix-card">
     <div class="card-head ix-card-head">
-      <div><h3>Locale &amp; display</h3><span class="hint">How dates, money and lists appear.</span></div>
+      <div><h2>Locale &amp; display</h2><span class="hint">How dates, money and lists appear.</span></div>
       <span class="ix-tag">Locale</span>
     </div>
     <div class="form-grid">

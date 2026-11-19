@@ -76,7 +76,7 @@
     @endphp
     <div class="card ix-card">
       <div class="card-head ix-card-head">
-        <div><h3>{{ $meta['title'] }}</h3><span class="hint">{{ $meta['desc'] }}</span></div>
+        <div><h2>{{ $meta['title'] }}</h2><span class="hint">{{ $meta['desc'] }}</span></div>
         <span class="ix-state {{ $isCustom ? 'is-blue' : 'is-grey' }}"><i></i>{{ $isCustom ? 'Custom' : 'Default' }}</span>
       </div>
 

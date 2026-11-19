@@ -76,7 +76,7 @@
 <div class="card ld-card">
   <div class="card-head ld-card-head">
     <div>
-      <h3>{{ $isBoard ? 'Pipeline board' : 'Lead list' }}</h3>
+      <h2>{{ $isBoard ? 'Pipeline board' : 'Lead list' }}</h2>
       <span class="hint">{{ $isBoard ? 'Drag a card to change stage' : $leads->total().' leads' }}</span>
     </div>
     <div class="seg noprint" role="tablist" aria-label="Views">

@@ -68,7 +68,7 @@
     @php $group = $entry['group']; $links = $entry['links']; @endphp
     <div class="card ix-card">
       <div class="card-head ix-card-head">
-        <div><h3>{{ $group['title'] }}</h3><span class="hint">{{ $group['sub'] }}</span></div>
+        <div><h2>{{ $group['title'] }}</h2><span class="hint">{{ $group['sub'] }}</span></div>
         <span class="ix-tag">{{ count($links) }}</span>
       </div>
       @foreach($links as $l)

@@ -3,7 +3,7 @@
 @section('content')
 <div class="card">
   <form method="GET" action="{{ route('search') }}" style="display:flex;gap:8px;flex-wrap:wrap">
-    <input class="in" style="margin:0;flex:1;min-width:200px" name="q" value="{{ $q }}" placeholder="Search clients, projects, tasks, invoices, receipts, expenses, files…" autocomplete="off" autofocus>
+    <input class="in" style="margin:0;flex:1;min-width:200px" name="q" value="{{ $q }}" placeholder="Search clients, projects, tasks, invoices, receipts, expenses, files…" autocomplete="off" autofocus aria-label="Search everything">
     <button class="btn">Search</button>
   </form>
   @if($q === '')

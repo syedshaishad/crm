@@ -35,7 +35,7 @@
 
 <div class="card ix-card" data-ajax-region="invoices-list">
   <div class="card-head ix-card-head">
-    <div><h3>Invoice register</h3><span class="hint">{{ $invoices->total() }} {{ \Illuminate\Support\Str::plural('invoice', $invoices->total()) }}{{ $hasFilters ? ' matching filters' : ' in this workspace' }}</span></div>
+    <div><h2>Invoice register</h2><span class="hint">{{ $invoices->total() }} {{ \Illuminate\Support\Str::plural('invoice', $invoices->total()) }}{{ $hasFilters ? ' matching filters' : ' in this workspace' }}</span></div>
   </div>
 
   <div class="ix-statuses noprint">
@@ -51,9 +51,9 @@
   <form method="GET" data-ajax-filter data-region="invoices-list" class="ix-filters noprint">
     <label class="ix-search">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
-      <input class="in" name="q" value="{{ $q ?? '' }}" placeholder="Search invoice number or client…" autocomplete="off">
+      <input class="in" name="q" value="{{ $q ?? '' }}" placeholder="Search invoice number or client…" autocomplete="off" aria-label="Search invoices">
     </label>
-    <select class="in ix-filter" name="status">
+    <select class="in ix-filter" name="status" aria-label="Filter by status">
       <option value="">All statuses</option>
       @foreach($labels as $st => $lbl)
         <option value="{{ $st }}" {{ $statusVal === $st ? 'selected' : '' }}>{{ $lbl }}</option>

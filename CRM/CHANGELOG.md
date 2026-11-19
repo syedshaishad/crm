@@ -6,8 +6,21 @@
 
 ## Unreleased
 
-2 migrations, `?v=134` CSS / `?v=80` JS.
+2 migrations, `?v=135` CSS / `?v=6` dashboard CSS / `?v=80` JS.
 
+- Interface audit pass, checked on every route at 1440, 1024 and 390 px:
+  status text on tinted chips now clears 4.5:1 (the amber "Partial",
+  "Pending" and "low stock" labels were 1.66:1); muted and faint greys were
+  darkened in both themes; the legacy cream panel colours now use the theme
+  tokens; 9–9.5px micro labels were raised to 10.5px; icon-only row actions,
+  check circles, kanban arrows and link buttons meet the 32px target; every
+  search and filter control has an accessible name; page-level card titles are
+  `h2`, so the heading outline no longer skips a level; the sidebar scrollbar
+  appears on hover only. On phones, client row actions wrap instead of pushing
+  the page sideways. The dashboard KPI cards share one five-column grid, the
+  hero and big money values scale and wrap instead of clipping, "Deals closed
+  by month" is a real six-column chart with month labels, and the weekly
+  summary no longer crowds the bars.
 - Updates can now come from the license server. Settings → Updates has an
   **Automatic updates** card that asks Licensify what this install may run
   (`POST /updates/check`) and shows the release notes, type, publish date and

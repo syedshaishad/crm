@@ -29,7 +29,7 @@
 
 <div class="card ix-card" data-ajax-region="dc-list">
   <div class="card-head ix-card-head">
-    <div><h3>Challans</h3><span class="hint">{{ $challans->total() }} {{ \Illuminate\Support\Str::plural('challan', $challans->total()) }}{{ $hasFilters ? ' matching filters' : ' in this workspace' }}</span></div>
+    <div><h2>Challans</h2><span class="hint">{{ $challans->total() }} {{ \Illuminate\Support\Str::plural('challan', $challans->total()) }}{{ $hasFilters ? ' matching filters' : ' in this workspace' }}</span></div>
   </div>
 
   <div class="ix-statuses noprint">
@@ -43,9 +43,9 @@
   <form method="GET" data-ajax-filter data-region="dc-list" class="ix-filters noprint">
     <label class="ix-search">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
-      <input class="in" name="q" value="{{ $q ?? '' }}" placeholder="Search challan number or client…" autocomplete="off">
+      <input class="in" name="q" value="{{ $q ?? '' }}" placeholder="Search challan number or client…" autocomplete="off" aria-label="Search challans">
     </label>
-    <select class="in ix-filter" name="status">
+    <select class="in ix-filter" name="status" aria-label="Filter by status">
       <option value="">All statuses</option>
       @foreach($statuses as $st => $label)
         <option value="{{ $st }}" {{ $statusVal === $st ? 'selected' : '' }}>{{ $label }}</option>

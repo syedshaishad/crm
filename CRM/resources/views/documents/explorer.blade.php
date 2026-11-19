@@ -15,7 +15,7 @@
 @endphp
 <div class="fm-layout">
   <div class="card fm-side noprint">
-    <form method="GET" action="{{ route('documents.index') }}" style="display:flex;gap:6px;margin-bottom:10px"><input class="in" style="margin:0" name="q" value="{{ $q }}" placeholder="Search all files…" autocomplete="off"><button class="btn sm sec">Go</button></form>
+    <form method="GET" action="{{ route('documents.index') }}" style="display:flex;gap:6px;margin-bottom:10px"><input class="in" style="margin:0" name="q" value="{{ $q }}" placeholder="Search all files…" autocomplete="off" aria-label="Search all files"><button class="btn sm sec">Go</button></form>
     <a class="fm-link {{ ($client_id ?? '')===''&&($project_id ?? '')===''?'active':'' }}" href="{{ route('documents.index', array_filter(['q'=>$q])) }}"><span class="fd-ic sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span><span class="t">All files</span><span class="n">{{ $totalCount }}</span></a>
     <a class="fm-link {{ ($client_id ?? '')==='general'?'active':'' }}" href="{{ route('documents.index', array_filter(['client_id'=>'general','q'=>$q])) }}"><span class="fd-ic sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span><span class="t">General</span><span class="n">{{ $generalCount }}</span></a>
     @foreach($clients as $c)

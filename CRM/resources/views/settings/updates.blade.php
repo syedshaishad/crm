@@ -65,7 +65,7 @@
 
 <div class="card ix-card">
   <div class="card-head ix-card-head">
-    <div><h3>Automatic updates</h3><span class="hint">The license server decides which release this install may run.</span></div>
+    <div><h2>Automatic updates</h2><span class="hint">The license server decides which release this install may run.</span></div>
     <span class="ix-state {{ $remoteTone }}"><i></i>{{ $remoteState }}</span>
   </div>
 

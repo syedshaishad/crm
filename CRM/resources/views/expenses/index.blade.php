@@ -37,7 +37,7 @@
 
 <div class="card ix-card" data-ajax-region="expenses-list">
   <div class="card-head ix-card-head">
-    <div><h3>Expense log</h3><span class="hint">{{ $expenses->total() }} {{ \Illuminate\Support\Str::plural('expense', $expenses->total()) }}{{ $hasFilters ? ' matching filters' : ' in this workspace' }}</span></div>
+    <div><h2>Expense log</h2><span class="hint">{{ $expenses->total() }} {{ \Illuminate\Support\Str::plural('expense', $expenses->total()) }}{{ $hasFilters ? ' matching filters' : ' in this workspace' }}</span></div>
   </div>
 
   <div class="ix-statuses noprint">
@@ -50,15 +50,15 @@
   <form method="GET" data-ajax-filter data-region="expenses-list" class="ix-filters noprint">
     <label class="ix-search">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
-      <input class="in" name="q" value="{{ $q ?? '' }}" placeholder="Search title, vendor or notes…" autocomplete="off">
+      <input class="in" name="q" value="{{ $q ?? '' }}" placeholder="Search title, vendor or notes…" autocomplete="off" aria-label="Search expenses">
     </label>
-    <select class="in ix-filter" name="category">
+    <select class="in ix-filter" name="category" aria-label="Filter by category">
       <option value="">All categories</option>
       @foreach($categories as $c)
         <option {{ ($category ?? '') === $c ? 'selected' : '' }}>{{ $c }}</option>
       @endforeach
     </select>
-    <select class="in ix-filter" name="project_id">
+    <select class="in ix-filter" name="project_id" aria-label="Filter by project">
       <option value="">All projects</option>
       @foreach($projects as $p)
         <option value="{{ $p->id }}" {{ (string) ($project_id ?? '') === (string) $p->id ? 'selected' : '' }}>{{ $p->name }}</option>

@@ -99,7 +99,7 @@
 
 <div class="card ix-card br-card">
   <div class="card-head ix-card-head">
-    <div><h3>Brand identity</h3><span class="hint">This is what your clients see — your name, not ours.</span></div>
+    <div><h2>Brand identity</h2><span class="hint">This is what your clients see — your name, not ours.</span></div>
     <span class="ix-tag">Identity</span>
   </div>
 

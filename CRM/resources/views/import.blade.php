@@ -23,7 +23,7 @@ city, state, source, stage, value</code>
 
   <form method="POST" action="{{ route('import.store') }}" enctype="multipart/form-data" style="margin-top:18px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
     @csrf
-    <select class="in" name="type" style="margin:0;min-width:140px">
+    <select class="in" name="type" style="margin:0;min-width:140px" aria-label="Import type">
       @foreach($types as $t)<option value="{{ $t }}">{{ ucfirst($t) }}</option>@endforeach
     </select>
     <input class="in" type="file" name="file" accept=".csv,text/csv" required style="margin:0;flex:1;min-width:200px">

@@ -26,7 +26,7 @@
     <section class="card ql-card" data-ajax-region="q-list">
       <div class="card-head ql-card-head">
         <div>
-          <h3>Incidents</h3>
+          <h2>Incidents</h2>
           <span class="hint">What broke, why, and what changed</span>
         </div>
         <form method="GET" data-ajax-filter data-region="q-list" class="ql-filter noprint">

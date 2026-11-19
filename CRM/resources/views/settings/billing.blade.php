@@ -58,7 +58,7 @@
 <div class="st-grid">
   <div class="card ix-card is-wide">
     <div class="card-head ix-card-head">
-      <div><h3>Numbering</h3><span class="hint">Document prefixes, proposal defaults and number series.</span></div>
+      <div><h2>Numbering</h2><span class="hint">Document prefixes, proposal defaults and number series.</span></div>
       <span class="ix-tag">Series</span>
     </div>
     <div class="form-grid is-three">
