@@ -71,6 +71,7 @@ Route::middleware(['installed', 'license'])->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->middleware('auth')->name('dashboard');
     Route::get('/money', [DashboardController::class, 'money'])->middleware('auth')->name('dashboard.money');
     Route::get('/work', [DashboardController::class, 'work'])->middleware('auth')->name('dashboard.work');
+    Route::get('/cashflow', [DashboardController::class, 'cashflow'])->middleware('auth')->name('dashboard.cashflow');
 
     Route::middleware(['auth', 'module'])->group(function () {
         Route::get('search', [SearchController::class, 'index'])->name('search');

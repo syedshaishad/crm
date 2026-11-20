@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Activity;
 use Illuminate\Support\Facades\DB;
+use Modules\Expenses\RecurringExpenseProfile;
 
 class DashboardController extends Controller
 {
@@ -304,6 +305,122 @@ class DashboardController extends Controller
 
         return view('dashboard', compact('stats', 'recentInvoices', 'recentTasks', 'overdue', 'dueSoon', 'months', 'maxBar', 'billed', 'collected', 'outstanding', 'overdueTotal', 'collectionRate', 'pipeline', 'pipelineTotal', 'funnel', 'funnelTotal', 'focusTasks', 'calY', 'calM', 'calStart', 'calDays', 'dueMap', 'week', 'weekMax', 'sparks', 'payWeek', 'pipeWeek', 'billWeek', 'doneWeek', 'pipeClients', 'recentActivity', 'lowStock', 'target', 'mtd', 'targetPct', 'forecast', 'forecastMax', 'openPipe', 'deals', 'perf', 'spot', 'openDeals', 'dealRows', 'dealChart', 'ref', 'selMonth', 'monthOptions'));
     }
+    /**
+     * Forward-looking cash position. Everything here is derived from records
+     * the app already keeps: open invoice balances for money in, active
+     * recurring expense profiles for money out.
+     */
+    public function cashflow()
+    {
+        $today = now()->startOfDay();
+        $start = $today->copy()->startOfWeek();
+        $end = $start->copy()->addWeeks(13)->subDay();
+
+        $weeks = [];
+        for ($i = 0; $i < 13; $i++) {
+            $from = $start->copy()->addWeeks($i);
+            $weeks[] = [
+                'from' => $from->toDateString(),
+                'to' => $from->copy()->addDays(6)->toDateString(),
+                'label' => $from->format('d M'),
+                'in' => 0.0, 'out' => 0.0, 'net' => 0.0, 'cum' => 0.0,
+            ];
+        }
+        $weekIndex = function ($date) use ($weeks) {
+            $d = is_string($date) ? $date : $date->toDateString();
+            foreach ($weeks as $i => $w) {
+                if ($d >= $w['from'] && $d <= $w['to']) return $i;
+            }
+            return null;
+        };
+
+        $buckets = [
+            'Not due yet' => 0.0, '0–30 days' => 0.0, '31–60 days' => 0.0,
+            '61–90 days' => 0.0, '90+ days' => 0.0,
+        ];
+        $bucketCounts = array_fill_keys(array_keys($buckets), 0);
+        $open = [];
+        $outstanding = 0.0;
+        $overdueTotal = 0.0;
+        $dueWeek = 0.0;
+
+        $rows = DB::table('invoices')
+            ->leftJoin('clients', 'clients.id', '=', 'invoices.client_id')
+            ->whereNotIn('invoices.status', ['draft', 'paid', 'cancelled'])
+            ->whereNotNull('invoices.due_date')
+            ->select('invoices.id', 'invoices.number', 'invoices.due_date', 'invoices.total',
+                'invoices.paid_amount', 'invoices.writeoff_amount', 'invoices.status',
+                'clients.name as client')
+            ->get();
+
+        foreach ($rows as $inv) {
+            $bal = max(0, round((float) $inv->total - (float) $inv->paid_amount - (float) ($inv->writeoff_amount ?? 0), 2));
+            if ($bal <= 0) continue;
+            $due = \Carbon\Carbon::parse($inv->due_date)->startOfDay();
+            $daysOverdue = max(0, (int) $due->diffInDays($today, false));
+            $open[] = [
+                'id' => $inv->id, 'number' => $inv->number,
+                'client' => $inv->client ?: '—', 'due_date' => $due->toDateString(),
+                'balance' => $bal, 'days_overdue' => $daysOverdue, 'status' => $inv->status,
+            ];
+            $outstanding += $bal;
+            if ($daysOverdue > 0) $overdueTotal += $bal;
+            if ($due->gte($today) && $due->lte($today->copy()->addDays(7))) $dueWeek += $bal;
+
+            $key = $daysOverdue === 0 ? 'Not due yet'
+                : ($daysOverdue <= 30 ? '0–30 days'
+                : ($daysOverdue <= 60 ? '31–60 days'
+                : ($daysOverdue <= 90 ? '61–90 days' : '90+ days')));
+            $buckets[$key] += $bal;
+            $bucketCounts[$key]++;
+            $wi = $weekIndex($due);
+            if ($wi !== null) $weeks[$wi]['in'] += $bal;
+        }
+
+        $advance = function (\Carbon\Carbon $date, ?string $frequency) {
+            switch (strtolower((string) $frequency)) {
+                case 'daily': return $date->copy()->addDay();
+                case 'weekly': return $date->copy()->addWeek();
+                case 'quarterly': return $date->copy()->addMonths(3);
+                case 'yearly': case 'annually': return $date->copy()->addYear();
+                default: return $date->copy()->addMonth();
+            }
+        };
+        foreach (RecurringExpenseProfile::where('is_active', true)->get() as $profile) {
+            if (! $profile->next_run_on || (float) $profile->amount <= 0) continue;
+            $date = \Carbon\Carbon::parse($profile->next_run_on)->startOfDay();
+            for ($guard = 0; $date->lte($end) && $guard < 60; $guard++) {
+                if ($date->gte($start)) {
+                    $wi = $weekIndex($date);
+                    if ($wi !== null) $weeks[$wi]['out'] += (float) $profile->amount;
+                }
+                $date = $advance($date, $profile->frequency);
+            }
+        }
+
+        $cumulative = 0.0;
+        foreach ($weeks as &$w) {
+            $w['net'] = $w['in'] - $w['out'];
+            $cumulative += $w['net'];
+            $w['cum'] = $cumulative;
+        }
+        unset($w);
+        $maxFlow = max(1.0, (float) collect($weeks)->max(function ($w) { return max($w['in'], $w['out']); }));
+        $maxCum = max(1.0, (float) collect($weeks)->max(function ($w) { return abs($w['cum']); }));
+
+        $cutoff = $today->copy()->addDays(7)->toDateString();
+        $chase = collect($open)
+            ->filter(function ($x) use ($cutoff) { return $x['days_overdue'] > 0 || $x['due_date'] <= $cutoff; })
+            ->sort(function ($a, $b) {
+                if ($a['days_overdue'] !== $b['days_overdue']) return $b['days_overdue'] <=> $a['days_overdue'];
+                return $b['balance'] <=> $a['balance'];
+            })
+            ->take(15)->values();
+
+        return view('cashflow', compact('weeks', 'buckets', 'bucketCounts', 'chase',
+            'outstanding', 'overdueTotal', 'dueWeek', 'maxFlow', 'maxCum', 'start', 'end'));
+    }
+
     public function money()
     {
         // Cashflow: last 6 months money in vs money out (works on MySQL + SQLite).

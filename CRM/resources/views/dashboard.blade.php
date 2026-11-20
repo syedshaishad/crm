@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @section('title','Dashboard')
-@section('head')<link rel="stylesheet" href="{{ asset('assets/css/dc.css').'?v=7' }}">@endsection
+@section('head')<link rel="stylesheet" href="{{ asset('assets/css/dc.css').'?v=9' }}">@endsection
 @section('content')
 @php
   $hour = (int) date('H');
@@ -130,7 +130,7 @@
   </div>
 
   <div class="dc-g2" style="margin-top:16px">
-    <section class="dc-gc" style="flex:1 1 440px;padding:16px"><div class="dc-sh2"><h2>Cashflow — last 6 months</h2><a href="{{ route('reports.index') }}">Full reports →</a></div>
+    <section class="dc-gc" style="flex:1 1 440px;padding:16px"><div class="dc-sh2"><h2>Cashflow — last 6 months</h2><a href="{{ route('dashboard.cashflow') }}">13-week view →</a></div>
       @php $cfMax = max(1, collect($months)->flatMap(fn ($x) => [$x['revenue'], $x['expenses']])->max()); @endphp
       <svg viewBox="0 0 420 110" width="100%" role="img" aria-label="Monthly money in and out"><g stroke="var(--dc-line2)" stroke-dasharray="2 4"><path d="M0 20H420M0 55H420"></path></g><g fill="var(--dc-ink)">@foreach($months as $i=>$cm)<rect x="{{ 14 + $i * 70 }}" y="{{ 84 - max(8, round($cm['revenue'] / $cfMax * 64)) }}" width="20" height="{{ max(8, round($cm['revenue'] / $cfMax * 64)) }}" rx="4"></rect>@endforeach</g><g fill="var(--dc-pale)">@foreach($months as $i=>$cm)<rect x="{{ 38 + $i * 70 }}" y="{{ 84 - max(8, round($cm['expenses'] / $cfMax * 64)) }}" width="20" height="{{ max(8, round($cm['expenses'] / $cfMax * 64)) }}" rx="4"></rect>@endforeach</g><g font-size="10" fill="var(--dc-muted)" text-anchor="middle">@foreach($months as $i=>$cm)<text x="{{ 36 + $i * 70 }}" y="104">{{ $cm['label'] }}</text>@endforeach</g></svg>
       <small><b style="color:var(--dc-ink)">●</b> Money in {{ money(collect($months)->sum('revenue')) }} &nbsp; <b style="color:var(--dc-pale)">●</b> Money out {{ money(collect($months)->sum('expenses')) }}</small>

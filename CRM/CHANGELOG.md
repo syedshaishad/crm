@@ -6,7 +6,14 @@
 
 ## Unreleased
 
-2 migrations, `?v=138` CSS / `?v=7` dashboard CSS / `?v=82` JS.
+2 migrations, `?v=138` CSS / `?v=9` dashboard CSS / `?v=82` JS.
+
+- New **Cash flow & collections** page (`/cashflow`, linked from the dashboard
+  cashflow card and the sidebar). It shows a forward 13-week money-in/money-out
+  chart built from open invoice due dates and active recurring expenses, a
+  running cash position, receivables ageing buckets, and a ranked "who to
+  chase" list with one-click reminder buttons that reuse the existing reminder
+  endpoint.
 
 - The installer can now set up a **SQLite** database as well as MySQL/MariaDB.
   Step 2 offers the two side by side: SQLite creates `database/database.sqlite`

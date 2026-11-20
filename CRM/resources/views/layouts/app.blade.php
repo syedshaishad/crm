@@ -15,6 +15,7 @@
 @php
 $nav = [
   ['Dashboard','dashboard',[],'<path d="M3 10.5 12 3l9 7.5V21H3z"/><path d="M9 21v-6h6v6"/>',[]],
+  ['Cash flow','dashboard.cashflow',['dashboard.cashflow'],'<path d="M4 19V10m5 9V5m5 14v-6m5 6V8"/>',[]],
   ['Sales',null,['leads.*','clients.*','proposals.*','products.*','amc.*'],'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.5 3.4-5 6.5-5s5.7 1.5 6.5 5"/><circle cx="17" cy="9" r="2.6"/><path d="M15.5 14.6c2.9.2 5 1.6 5.7 4.4"/>',[
     ['Leads','leads.index',['leads.*'],'<path d="M12 2a7 7 0 0 1 7 7c0 2.4-1.2 4.2-2.6 5.6-.9 1-1.4 2.1-1.4 3.4H9c0-1.3-.5-2.4-1.4-3.4C6.2 13.2 5 11.4 5 9a7 7 0 0 1 7-7z"/><path d="M9 21h6"/>'],
     ['Clients','clients.index',['clients.*'],'<circle cx="12" cy="8" r="3.5"/><path d="M5 20c.9-3.8 3.7-5.5 7-5.5s6.1 1.7 7 5.5"/>'],

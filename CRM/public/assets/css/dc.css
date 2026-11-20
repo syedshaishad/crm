@@ -166,3 +166,18 @@ body:has(.dc) .footer-note{display:none}
   /* section "View all" links are the only tap target in the header */
   .dc .dc-sh2 a{display:inline-flex;align-items:center;min-height:32px;padding:0 2px}
 }
+
+/* ---------- cash flow cockpit ---------- */
+.dc .cf-scroll{overflow-x:auto;padding-bottom:4px}
+.dc .cf-chart{display:grid;grid-template-columns:repeat(13,minmax(34px,1fr));gap:6px;min-width:560px}
+.dc .cf-col{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0}
+.dc .cf-bars{height:130px;width:100%;display:flex;align-items:flex-end;justify-content:center;gap:3px;border-bottom:1px solid var(--dc-line2)}
+.dc .cf-bar{width:40%;min-height:2px;border-radius:5px 5px 0 0}
+.dc .cf-in{background:var(--dc-green)}
+.dc .cf-out{background:var(--dc-amber)}
+.dc .cf-col small{font-size:10.5px;color:var(--dc-pale);white-space:nowrap}
+@media(max-width:640px){
+  .dc .cf-chart{grid-template-columns:repeat(13,minmax(30px,1fr));min-width:520px}
+  .dc .cf-bars{height:96px}
+  .dc .dc-rw form button{min-height:32px}
+}
