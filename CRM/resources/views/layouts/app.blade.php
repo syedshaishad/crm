@@ -16,7 +16,7 @@
 $nav = [
   ['Dashboard','dashboard',[],'<path d="M3 10.5 12 3l9 7.5V21H3z"/><path d="M9 21v-6h6v6"/>',[]],
   ['Cash flow','dashboard.cashflow',['dashboard.cashflow'],'<path d="M4 19V10m5 9V5m5 14v-6m5 6V8"/>',[]],
-  ['Sales',null,['leads.*','clients.*','proposals.*','products.*','amc.*'],'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.5 3.4-5 6.5-5s5.7 1.5 6.5 5"/><circle cx="17" cy="9" r="2.6"/><path d="M15.5 14.6c2.9.2 5 1.6 5.7 4.4"/>',[
+  ['Sales',null,['leads.*','clients.*','proposals.*','products.*','amc.*','renewals.*'],'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.5 3.4-5 6.5-5s5.7 1.5 6.5 5"/><circle cx="17" cy="9" r="2.6"/><path d="M15.5 14.6c2.9.2 5 1.6 5.7 4.4"/>',[
     ['Leads','leads.index',['leads.*'],'<path d="M12 2a7 7 0 0 1 7 7c0 2.4-1.2 4.2-2.6 5.6-.9 1-1.4 2.1-1.4 3.4H9c0-1.3-.5-2.4-1.4-3.4C6.2 13.2 5 11.4 5 9a7 7 0 0 1 7-7z"/><path d="M9 21h6"/>'],
     ['Clients','clients.index',['clients.*'],'<circle cx="12" cy="8" r="3.5"/><path d="M5 20c.9-3.8 3.7-5.5 7-5.5s6.1 1.7 7 5.5"/>'],
     ['Proposals','proposals.index',['proposals.*'],'<path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6"/><path d="m9.5 14.5 2 2 3.5-4"/>'],
@@ -24,6 +24,7 @@ $nav = [
     ['Delivery routes','routes.index',['routes.*'],'<path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/>'],
     ['Products','products.index',['products.*'],'<path d="M21 8 12 3 3 8v8l9 5 9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/>'],
     ['AMC & Warranties','amc.index',['amc.*'],'<path d="M12 22s8-3.5 8-10V5l-8-3-8 3v7c0 6.5 8 10 8 10z"/><path d="m9 11.5 2 2 4-4.5"/>'],
+    ['Renewals','renewals.index',['renewals.*'],'<path d="M20 11a8 8 0 1 0-2.3 6.3"/><path d="M20 4v5h-5"/>'],
   ]],
   ['Work',null,['projects.*','tasks.*','meetings.*','knowledge.*','quality.*','automations.*'],'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 4v5"/>',[
     ['Projects','projects.index',['projects.*'],'<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>'],

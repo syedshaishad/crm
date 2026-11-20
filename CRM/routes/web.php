@@ -35,6 +35,7 @@ use Modules\Projects\Http\ProjectController;
 use Modules\Purchases\Http\PurchaseOrderController;
 use Modules\Proposals\Http\ProposalController;
 use Modules\Reports\Http\ReportController;
+use Modules\Renewals\Http\RenewalsController;
 use Modules\Settings\Http\SettingsController;
 use Modules\Settings\Http\UsersController;
 use Modules\Tasks\Http\TaskController;
@@ -237,6 +238,10 @@ Route::middleware(['installed', 'license'])->group(function () {
         Route::post('amc/{amcContract}/renew', [AmcContractController::class, 'renew'])->name('amc.renew');
         Route::resource('expiry', ExpiryDocumentController::class)->parameters(['expiry' => 'expiryDocument']);
         Route::post('expiry/{expiryDocument}/renew', [ExpiryDocumentController::class, 'renew'])->name('expiry.renew');
+        Route::get('renewals', [RenewalsController::class, 'index'])->name('renewals.index');
+        Route::post('renewals/sync', [RenewalsController::class, 'sync'])->name('renewals.sync');
+        Route::post('renewals/{renewal}/draft', [RenewalsController::class, 'draft'])->name('renewals.draft');
+        Route::post('renewals/{renewal}/mark', [RenewalsController::class, 'mark'])->name('renewals.mark');
         Route::post('invoices/{invoice}/email', [InvoiceController::class, 'sendEmail'])->name('invoices.email');
         Route::post('invoices/{invoice}/whatsapp', [InvoiceController::class, 'whatsapp'])->name('invoices.whatsapp');
         Route::post('invoices/{invoice}/tds', [InvoiceController::class, 'claimTds'])->name('invoices.tds.claim');

@@ -6,7 +6,7 @@
 
 ## Unreleased
 
-2 migrations, `?v=139` CSS / `?v=9` dashboard CSS / `?v=83` JS.
+4 migrations, `?v=139` CSS / `?v=9` dashboard CSS / `?v=83` JS.
 
 - New **Cash flow & collections** page (`/cashflow`, linked from the dashboard
   cashflow card and the sidebar). It shows a forward 13-week money-in/money-out
@@ -20,6 +20,12 @@
   also understands actions — typing "new inv" or "cash" offers direct jumps to
   create screens and the cash-flow page, gated by the same module and
   permission checks as search results.
+- New **Renewals** pipeline under Sales. It collects renewal dates from AMC
+  contracts, expiry documents and recurring billing into one board with value
+  by month, ageing and won/lost tracking. Staff can draft a renewal proposal
+  in one click; `renewals:sync` runs nightly and auto-drafts proposals for
+  renewals inside 45 days. Drafts are idempotent — repeat runs reuse the
+  existing proposal.
 
 - The installer can now set up a **SQLite** database as well as MySQL/MariaDB.
   Step 2 offers the two side by side: SQLite creates `database/database.sqlite`
