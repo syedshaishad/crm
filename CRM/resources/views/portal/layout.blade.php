@@ -9,7 +9,7 @@
 @include('brand.theme')
 <script>(function(){var t=null;try{t=localStorage.getItem('theme');}catch(e){}if(t!=='dark'&&t!=='light'){try{t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}catch(e){t='light';}}document.documentElement.setAttribute('data-theme',t);})();</script>
 <style>
-@media(max-width:820px){
+@media(max-width:1180px){
   .topnav{flex-wrap:wrap;gap:8px}
   .top-actions{flex:1 1 100%;width:100%;margin-left:0;gap:6px;min-width:0;flex-wrap:nowrap;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:none;padding-bottom:2px}
   .top-actions::-webkit-scrollbar{display:none}

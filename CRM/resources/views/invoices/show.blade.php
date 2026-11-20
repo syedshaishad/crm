@@ -72,7 +72,7 @@ $smsText = 'Dear '.($invoice->client->company ?: ($invoice->client->name ?? 'Cus
 @endphp
 @if($invoice->public_token && in_array($invoice->status,['sent','partial','overdue'],true) && $invoice->paid_amount < $invoice->total)
 <div class="card noprint"><div class="card-head"><h3>Collect via SMS</h3><button class="btn sec sm" data-sms="{{ $smsText }}" onclick="navigator.clipboard.writeText(this.dataset.sms);this.textContent='Copied!';setTimeout(()=>this.textContent='Copy SMS text',1500)">Copy SMS text</button></div>
-<p class="hint" style="margin:0;white-space:pre-line">{{ $smsText }}</p></div>
+<p class="hint" style="margin:0;white-space:pre-line;overflow-wrap:anywhere">{{ $smsText }}</p></div>
 @endif
 
 <div class="card noprint"><div class="card-head"><h3>Reminders</h3>@if($invoice->last_nudged_at)<span class="hint">last nudged {{ $invoice->last_nudged_at->diffForHumans() }}</span>@endif</div>

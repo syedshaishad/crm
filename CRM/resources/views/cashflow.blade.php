@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @section('title','Cash flow')
-@section('head')<link rel="stylesheet" href="{{ asset('assets/css/dc.css').'?v=9' }}">@endsection
+@section('head')<link rel="stylesheet" href="{{ asset('assets/css/dc.css').'?v=10' }}">@endsection
 @section('content')
 <div class="dc">
   <section class="dc-gc" style="padding:16px;margin-bottom:14px">

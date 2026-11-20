@@ -181,7 +181,15 @@ class DocumentController extends Controller
             return back()->withErrors(['signature' => 'That signature image could not be accepted.']);
         }
         $path = 'signatures/doc_'.$doc->id.'_'.time().'.png';
-        Storage::disk('public')->put($path, $binary);
+        // Make sure the folder exists, and never claim the document is signed
+        // if the signature image could not actually be written.
+        $absolute = Storage::disk('public')->path($path);
+        if (! is_dir(dirname($absolute))) {
+            @mkdir(dirname($absolute), 0755, true);
+        }
+        if (Storage::disk('public')->put($path, $binary) !== true) {
+            return back()->withErrors(['signature' => 'Could not save the signature on this server. Please try again.']);
+        }
         $doc->update([
             'signed_by' => $data['signed_by'],
             'signed_at' => now(),

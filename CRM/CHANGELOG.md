@@ -6,7 +6,7 @@
 
 ## Unreleased
 
-6 migrations, `?v=139` CSS / `?v=9` dashboard CSS / `?v=83` JS.
+6 migrations, `?v=139` CSS / `?v=10` dashboard CSS / `?v=83` JS.
 
 - New **Cash flow & collections** page (`/cashflow`, linked from the dashboard
   cashflow card and the sidebar). It shows a forward 13-week money-in/money-out
@@ -35,6 +35,12 @@
     Staff can request a signature from the document explorer; the client gets
     a token-guarded signing page with a drawn signature, stored against the
     document and shown in both the portal and the explorer.
+- Follow-up UI audit over every new screen (main app, portal and public signing
+  page) at desktop, tablet and phone widths. Fixed the dark KPI label contrast
+  on the cash-flow page, an 87px overflow from the long SMS text on an invoice,
+  the portal top-bar wrapping at tablet width, the password form's unlabelled
+  fields, and a heading skip on the portal dashboard. Document signing now
+  refuses to mark a document signed if the signature image could not be saved.
 
 - The installer can now set up a **SQLite** database as well as MySQL/MariaDB.
   Step 2 offers the two side by side: SQLite creates `database/database.sqlite`
