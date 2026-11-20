@@ -6,7 +6,7 @@
 
 ## Unreleased
 
-2 migrations, `?v=136` CSS / `?v=7` dashboard CSS / `?v=81` JS.
+2 migrations, `?v=137` CSS / `?v=7` dashboard CSS / `?v=81` JS.
 
 - Interface audit pass, checked on every route at 1440, 1024 and 390 px:
   status text on tinted chips now clears 4.5:1 (the amber "Partial",
@@ -25,8 +25,9 @@
   readers announce every input on the create and edit screens.
 - Phones can reach workspace settings again. The desktop icon rail and the
   account menu (which held the only Settings links) are both hidden below
-  1000px, so the navigation drawer now ends with Notifications, Settings and
-  My account.
+  1000px, so the navigation drawer now ends with a pinned footer holding
+  Notifications, Settings and My account. It stays visible at the foot of the
+  drawer instead of hiding below the long section list.
 - Updates can now come from the license server. Settings → Updates has an
   **Automatic updates** card that asks Licensify what this install may run
   (`POST /updates/check`) and shows the release notes, type, publish date and

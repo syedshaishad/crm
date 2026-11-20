@@ -1424,8 +1424,10 @@ body.side-min .dc-tr{display:none}
    Notifications / Settings / My account instead. */
 .dc-tmore{display:none}
 @media(max-width:1000px){
-  body.nav-open .dc-tmore{display:flex;flex-direction:column;gap:2px;margin-top:12px;padding-top:10px;border-top:1px solid var(--dc-line2)}
-  body.nav-open .dc-tmore .dc-t0.link{margin-top:0;min-height:36px;padding:0 8px}
+  /* pinned to the foot of the drawer so Settings is reachable without
+     scrolling a long HR/tree list */
+  body.nav-open .dc-tmore{display:flex;flex-direction:column;gap:2px;margin-top:auto;padding-top:10px;border-top:1px solid var(--dc-line2);position:sticky;bottom:-16px;background:var(--dc-shell);box-shadow:0 -10px 14px -12px rgba(20,18,14,.35)}
+  body.nav-open .dc-tmore .dc-t0.link{margin-top:0;min-height:40px;padding:0 8px}
 }
 /* ============================================================================
    DC COMPONENTS — shared primitives in the dashboard design language.
