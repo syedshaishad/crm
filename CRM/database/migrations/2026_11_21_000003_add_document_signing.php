@@ -19,6 +19,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('documents', function (Blueprint $t) {
+            // SQLite cannot drop a UNIQUE column until its index is gone.
+            $t->dropUnique(['sign_token']);
             $t->dropColumn(['sign_token', 'signed_by', 'signed_at', 'signature_path']);
         });
     }

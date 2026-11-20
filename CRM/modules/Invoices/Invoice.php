@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Modules\Clients\Client;
 use Modules\Core\Documents\DocumentNumber;
 use Modules\Core\Gst\Calculator;
@@ -22,6 +23,9 @@ class Invoice extends Model
 
     protected static function booted(): void
     {
+        // Every invoice gets a public token at creation, including API,
+        // recurring and proposal-conversion paths that used to forget it.
+        static::creating(fn (Invoice $inv) => $inv->public_token = $inv->public_token ?: Str::random(32));
         // Hard delete (never the soft Trash path): drop this invoice's TDS
         // rows so no orphaned claims linger in the register.
         static::forceDeleted(fn (Invoice $inv) => DB::table('tds_entries')->where('invoice_id', $inv->id)->delete());
@@ -35,6 +39,9 @@ class Invoice extends Model
             if ($inv->status === 'sent') {
                 \Modules\Core\Webhooks\Webhook::fire('invoice.sent', $base);
             } elseif ($inv->status === 'paid') {
+                // A bookkeeping write-off can close an invoice without any
+                // money arriving — that is not a payment event.
+                if ($inv->wasChanged('writeoff_amount') && ! $inv->wasChanged('paid_amount')) return;
                 \Modules\Core\Webhooks\Webhook::fire('invoice.paid', $base + ['paid' => (float) $inv->paid_amount]);
             }
         });

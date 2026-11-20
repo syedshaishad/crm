@@ -22,7 +22,7 @@
         @endif
       </td>
       <td class="noprint" style="text-align:right;white-space:nowrap">
-        <a class="btn sm sec" href="{{ route('documents.download', $doc) }}">Download</a>
+        <a class="btn sm sec" href="{{ url('storage/'.$doc->path) }}" target="_blank" rel="noopener">Download</a>
         @if($doc->sign_token && ! $doc->signed_at)
         <a class="btn sm" href="{{ route('documents.sign', $doc->sign_token) }}">Sign →</a>
         @endif

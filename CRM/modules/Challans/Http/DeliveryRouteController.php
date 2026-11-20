@@ -2,6 +2,7 @@
 
 namespace Modules\Challans\Http;
 
+use Modules\Core\Numbering\NextNumber;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Modules\Challans\DeliveryChallan;
@@ -52,7 +53,7 @@ class DeliveryRouteController extends Controller
             'challans' => 'required|array|min:1', 'challans.*' => 'exists:delivery_challans,id',
         ]);
         $route = DeliveryRoute::create([
-            'number' => 'RT-'.str_pad((string) ((DeliveryRoute::withTrashed()->max('id') ?? 0) + 1), 5, '0', STR_PAD_LEFT),
+            'number' => NextNumber::take('RT-', 'delivery_routes'),
             'route_date' => $data['route_date'], 'vehicle_no' => $data['vehicle_no'] ?? null,
             'driver' => $data['driver'] ?? null, 'notes' => $data['notes'] ?? null,
             'status' => 'planned', 'created_by' => auth()->id(),

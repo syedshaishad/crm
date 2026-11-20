@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use Modules\Core\Numbering\NextNumber;
 use App\Http\Resources\InvoiceResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -41,7 +42,7 @@ class InvoiceApi extends BaseApi
             'items.*.qty' => 'required|numeric|min:0.01', 'items.*.rate' => 'required|numeric|min:0', 'items.*.discount_percent' => 'nullable|numeric|min:0|max:100',
         ]);
         $prefix = $s->get('invoice.prefix', config('branding.invoice_prefix', 'INV-'));
-        $number = $prefix.str_pad((string) ((Invoice::withTrashed()->max('id') ?? 0) + 1), 5, '0', STR_PAD_LEFT);
+        $number = NextNumber::take($prefix, 'invoices');
         $inv = Invoice::create([
             'number' => $number, 'client_id' => $data['client_id'], 'project_id' => $data['project_id'] ?? null,
             'issue_date' => $data['issue_date'], 'due_date' => $data['due_date'] ?? null,

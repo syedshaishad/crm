@@ -334,7 +334,7 @@ class ProposalController extends Controller
             return back()->withErrors(['signature' => 'Invalid signature image. Please draw again.']);
         }
         $bin = base64_decode(substr($data['signature'], 22), true);
-        if ($bin === false || strlen($bin) < 100 || strlen($bin) > 2000000 || substr($bin, 1, 3) !== 'PNG') {
+        if ($bin === false || strlen($bin) < 60 || strlen($bin) > 2000000 || substr($bin, 0, 8) !== "\x89PNG\r\n\x1a\n") {
             return back()->withErrors(['signature' => 'Invalid signature image. Please draw again.']);
         }
         if ($proposal->signature_path) {

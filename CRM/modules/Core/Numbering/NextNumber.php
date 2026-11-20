@@ -32,6 +32,7 @@ class NextNumber
     /** The one policy: continuous max(id)+1, or per-FY series when enabled. */
     protected static function allocate(string $prefix, string $table): string
     {
+        $reserveKey = 'numbering:last:'.$table.':'.(function_exists('setting') && setting('numbering.mode', 'continuous') === 'fy' ? 'fy' : 'id');
         if (function_exists('fy') && function_exists('setting') && setting('numbering.mode', 'continuous') === 'fy') {
             $fy = fy();
             $base = rtrim(trim($prefix), '-_/ ') ?: 'DOC';
@@ -49,9 +50,15 @@ class NextNumber
                 }
             }
 
+            // Remember the reservation: the caller inserts AFTER take() has
+            // released its lock, so max(id) alone would allow a duplicate.
+            $max = max($max, (int) cache()->get($reserveKey.':'.$fy, 0));
+            cache()->put($reserveKey.':'.$fy, $max + 1, now()->addMinutes(10));
+
             return $base.'/'.$fy.'/'.str_pad((string) ($max + 1), 3, '0', STR_PAD_LEFT);
         }
-        $max = (int) (DB::table($table)->max('id') ?? 0);
+        $max = max((int) (DB::table($table)->max('id') ?? 0), (int) cache()->get($reserveKey, 0));
+        cache()->put($reserveKey, $max + 1, now()->addMinutes(10));
 
         return $prefix.str_pad((string) ($max + 1), 5, '0', STR_PAD_LEFT);
     }

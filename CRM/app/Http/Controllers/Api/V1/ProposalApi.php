@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use Modules\Core\Numbering\NextNumber;
 use App\Http\Resources\InvoiceResource;
 use App\Http\Resources\ProposalResource;
 use Illuminate\Http\Request;
@@ -43,7 +44,7 @@ class ProposalApi extends BaseApi
             'items.*.qty' => 'required|numeric|min:0.01', 'items.*.rate' => 'required|numeric|min:0', 'items.*.discount_percent' => 'nullable|numeric|min:0|max:100',
         ]);
         $prefix = $s->get('proposal.prefix', 'PROP-');
-        $number = $prefix.str_pad((string) ((Proposal::withTrashed()->max('id') ?? 0) + 1), 5, '0', STR_PAD_LEFT);
+        $number = NextNumber::take($prefix, 'proposals');
         $prop = Proposal::create([
             'number' => $number, 'client_id' => $data['client_id'], 'project_id' => $data['project_id'] ?? null,
             'issue_date' => $data['issue_date'] ?? now()->toDateString(), 'valid_until' => $data['valid_until'] ?? now()->addDays((int) $s->get('proposal.valid_days', 15))->toDateString(),
@@ -142,7 +143,7 @@ class ProposalApi extends BaseApi
             return response()->json(['message' => 'Only signed (accepted) proposals can be converted to an invoice.'], 409);
         }
         $prefix = $s->get('invoice.prefix', 'INV-');
-        $number = $prefix.str_pad((string) ((Invoice::withTrashed()->max('id') ?? 0) + 1), 5, '0', STR_PAD_LEFT);
+        $number = NextNumber::take($prefix, 'invoices');
         $inv = Invoice::create([
             'number' => $number, 'client_id' => $proposal->client_id, 'project_id' => $proposal->project_id,
             'issue_date' => now()->toDateString(), 'due_date' => now()->addDays((int) $s->get('invoice.due_days', 7))->toDateString(),

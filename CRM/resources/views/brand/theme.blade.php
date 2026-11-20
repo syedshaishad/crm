@@ -7,7 +7,7 @@ installer, licensing) includes this so branding changes propagate everywhere. --
   // so the design system keeps its built-in accent on a fresh install.
   $ba = trim((string) setting('brand.primary_color'));
   if ($ba === '') { $ba = trim((string) setting('brand.accent_color')); }
-  $headDecl = $ba !== '' ? '--brand-accent:'.$ba.';' : '';
+  $headDecl = $isHex($ba) ? '--brand-accent:'.$ba.';' : '';
   // Brand surfaces drive the DC design-system tokens (light mode; dark keeps its own palette).
   $dcMap = [
     'background_color' => '--dc-page',

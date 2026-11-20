@@ -140,7 +140,9 @@ class DocumentController extends Controller
 
     public function download(Document $document)
     {
-        return Storage::disk('public')->download($document->path, $document->name);
+        $safeName = str_replace(["\r", "\n", '"', '\\'], '_', (string) $document->name);
+
+        return Storage::disk('public')->download($document->path, $safeName);
     }
 
     public function destroy(Document $document)
@@ -169,6 +171,9 @@ class DocumentController extends Controller
     public function publicSignStore(Request $r, string $token)
     {
         $doc = Document::where('sign_token', $token)->firstOrFail();
+        if ($doc->signed_at) {
+            abort(409, 'This document has already been signed.');
+        }
         $data = $r->validate([
             'signed_by' => 'required|string|max:255',
             'signature' => 'required|string',
@@ -181,12 +186,9 @@ class DocumentController extends Controller
             return back()->withErrors(['signature' => 'That signature image could not be accepted.']);
         }
         $path = 'signatures/doc_'.$doc->id.'_'.time().'.png';
-        // Make sure the folder exists, and never claim the document is signed
-        // if the signature image could not actually be written.
-        $absolute = Storage::disk('public')->path($path);
-        if (! is_dir(dirname($absolute))) {
-            @mkdir(dirname($absolute), 0755, true);
-        }
+        // Never claim the document is signed if the image could not be written.
+        // Storage::put() creates parent folders on local disks and works with
+        // remote disks too, so no path()/mkdir() here.
         if (Storage::disk('public')->put($path, $binary) !== true) {
             return back()->withErrors(['signature' => 'Could not save the signature on this server. Please try again.']);
         }

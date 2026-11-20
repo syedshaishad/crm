@@ -164,7 +164,7 @@ class InvoiceController extends Controller
         if ($bal <= 0) {
             return back()->withErrors(['advance' => 'This invoice has no balance left.']);
         }
-        if (round((float) $pay->amount, 2) > $bal + 0.009) {
+        if (round((float) $pay->amount, 2) > $bal + 0.001) {
             return back()->withErrors(['advance' => 'Advance '.money($pay->amount).' exceeds the '.money($bal).' balance — link it to a bigger invoice or record a smaller receipt.']);
         }
         $pay->update(['invoice_id' => $invoice->id]);
@@ -215,6 +215,7 @@ class InvoiceController extends Controller
             }
             if ($inv->status === 'draft') {
                 $inv->update(['status' => 'sent']);
+                $inv->fresh()->syncStock(); // same stock posting as a single send
             }
             $sent++;
         }
@@ -295,10 +296,14 @@ class InvoiceController extends Controller
         ]);
         $currency = strtoupper($data['currency'] ?? $invoice->currency ?? 'INR');
         $fx = $currency === 'INR' ? 1 : round((float) ($data['exchange_rate'] ?? $invoice->exchange_rate ?? 1), 6);
+        // Paid/partial are derived from payments by Payment::syncInvoice();
+        // accepting them from the form fires a false invoice.paid webhook.
+        $manualStatus = in_array($data['status'], ['draft', 'sent', 'overdue', 'cancelled'], true)
+            ? $data['status'] : $invoice->status;
         $invoice->update([
             'client_id' => $data['client_id'], 'project_id' => $data['project_id'] ?? null,
             'issue_date' => $data['issue_date'], 'due_date' => $data['due_date'] ?? null,
-            'gst_rate' => $data['gst_rate'], 'status' => $data['status'], 'notes' => $data['notes'] ?? null,
+            'gst_rate' => $data['gst_rate'], 'status' => $manualStatus, 'notes' => $data['notes'] ?? null,
             'place_of_supply' => $data['place_of_supply'] ?? null, 'reverse_charge' => (bool) ($data['reverse_charge'] ?? false),
             'discount' => round((float) ($data['discount'] ?? 0) * $fx, 2), 'eway_bill_no' => $data['eway_bill_no'] ?? null,
             'currency' => $currency, 'exchange_rate' => $fx,
@@ -353,7 +358,7 @@ class InvoiceController extends Controller
             return null;
         }
         $total = round((float) $invoice->fresh()->total, 2);
-        if ($amt > $total + 0.009) {
+        if ($amt > $total + 0.001) {
             return 'TDS of '.money($amt).' exceeds the invoice total of '.money($total).' — adjust it below.';
         }
         $sections = tds_sections();
@@ -405,7 +410,7 @@ class InvoiceController extends Controller
         ]);
         $balance = $invoice->balance();
         $amt = round((float) $data['tds_amount'], 2);
-        if ($amt > $balance + 0.009) {
+        if ($amt > $balance + 0.001) {
             return back()->withErrors(['tds_amount' => 'TDS exceeds the outstanding balance of '.money($balance).'.']);
         }
         $sections = tds_sections();

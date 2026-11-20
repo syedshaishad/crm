@@ -34,7 +34,7 @@
     </div>
   </div>
   @endforeach
-  @if($req->status === 'open')
+  @if(in_array($req->status, ['open', 'in_progress'], true))
   <form method="POST" action="{{ route('portal.requests.reply', $req) }}" style="margin-top:10px">@csrf
     <label for="reply-{{ $req->id }}">Reply</label>
     <textarea id="reply-{{ $req->id }}" name="body" rows="2" required placeholder="Add anything else…"></textarea>

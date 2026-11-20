@@ -404,6 +404,7 @@ class LicenseManager
             'expenses' => 'Expenses', 'reports' => 'Reports', 'documents' => 'Documents',
             'expiry' => 'Compliance', 'cheques' => 'Cheques',
             'amc' => 'Amc', 'challans' => 'Challans', 'routes' => 'Challans', 'purchase-orders' => 'Purchases', 'petty' => 'Petty', 'dayclose' => 'Petty',
+            'renewals' => 'Amc', 'client-requests' => 'Clients',
         ];
         foreach ($map as $prefix => $module) {
             if ($route === $prefix || str_starts_with($route, $prefix.'.') || str_starts_with($route, $prefix.'/')) {

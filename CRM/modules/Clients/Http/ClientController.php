@@ -164,6 +164,16 @@ class ClientController extends Controller
                     : route('invoices.show', $inv),
             ];
         }
+        foreach ($invoices as $inv) {
+            $writtenOff = (float) ($inv->writeoff_amount ?? 0);
+            if ($writtenOff <= 0) continue;
+            $entries[] = [
+                'sort' => $inv->issue_date->toDateString().'/'.$inv->id.'/w',
+                'date' => $inv->issue_date->toDateString(), 'type' => 'Write-off', 'ref' => $inv->number,
+                'details' => 'Amount written off', 'debit' => 0.0, 'credit' => $writtenOff,
+                'link' => $portal ? null : route('invoices.show', $inv),
+            ];
+        }
         $payments = Payment::with('invoice')->where('client_id', $client->id)->orderBy('paid_on')->orderBy('id')->get();
         foreach ($payments as $p) {
             $pdate = $p->paid_on->toDateString();
@@ -207,6 +217,7 @@ class ClientController extends Controller
             'billed' => round(array_sum(array_column($entries, 'debit')), 2),
             'collected' => round(collect($entries)->where('type', 'Payment')->sum('credit'), 2),
             'credits' => round(collect($entries)->where('type', 'Credit note')->sum('credit'), 2),
+            'writeoffs' => round(collect($entries)->where('type', 'Write-off')->sum('credit'), 2),
             'tds' => round(collect($entries)->where('type', 'TDS')->sum('credit'), 2),
             'balance' => $bal,
         ];

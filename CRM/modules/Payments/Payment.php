@@ -4,6 +4,7 @@ namespace Modules\Payments;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
 use Modules\Clients\Client;
 use Modules\Invoices\Invoice;
 
@@ -27,6 +28,7 @@ class Payment extends Model
 
     protected static function booted(): void
     {
+        static::creating(fn (Payment $p) => $p->public_token = $p->public_token ?: Str::random(32));
         static::saved(fn (Payment $p) => self::syncInvoice($p->invoice_id));
         static::created(function (Payment $p) {
             $p->loadMissing(['client', 'invoice']);

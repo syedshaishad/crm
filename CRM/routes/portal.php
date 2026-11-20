@@ -27,7 +27,7 @@ Route::middleware('installed')->prefix('portal')->name('portal.')->group(functio
         $r->session()->regenerate();
 
         return redirect()->intended(route('portal.dashboard'));
-    })->middleware(['guest:client', 'throttle:10,1']);
+    })->middleware(['guest:client', 'throttle:10,1'])->name('login.post');
 
     Route::middleware(['auth:client', 'client.active', 'license'])->group(function () {
         Route::get('/', [PortalController::class, 'dashboard'])->name('dashboard');

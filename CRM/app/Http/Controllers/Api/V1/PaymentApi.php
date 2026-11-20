@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use Modules\Core\Numbering\NextNumber;
 use App\Http\Resources\PaymentResource;
 use App\Notifications\PaymentReceived;
 use Illuminate\Http\Request;
@@ -43,7 +44,7 @@ class PaymentApi extends BaseApi
             }
         }
         $prefix = $s->get('payments.prefix', 'PAY-');
-        $data['number'] = $prefix.str_pad((string) ((Payment::withTrashed()->max('id') ?? 0) + 1), 5, '0', STR_PAD_LEFT);
+        $data['number'] = NextNumber::take($prefix, 'payments');
         $data['public_token'] = Str::random(32);
         $payment = Payment::create($data);
         notify_roles(['admin', 'manager'], new PaymentReceived($payment));

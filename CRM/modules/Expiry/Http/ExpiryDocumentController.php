@@ -2,6 +2,7 @@
 
 namespace Modules\Expiry\Http;
 
+use Modules\Core\Numbering\NextNumber;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Modules\Expiry\ExpiryDocument;
@@ -120,6 +121,6 @@ class ExpiryDocumentController extends Controller
 
     protected function nextNumber(): string
     {
-        return 'EXP-'.str_pad((string) ((ExpiryDocument::withTrashed()->max('id') ?? 0) + 1), 5, '0', STR_PAD_LEFT);
+        return NextNumber::take('EXP-', 'expiry_documents');
     }
 }

@@ -16,7 +16,7 @@ class RenewalsController extends Controller
 
     public function index(Request $r)
     {
-        $status = in_array($r->input('status'), ['upcoming', 'drafted', 'won', 'lost', 'ignored'], true)
+        $status = in_array($r->input('status'), ['upcoming', 'drafted', 'won', 'lost', 'ignored', 'all'], true)
             ? $r->input('status') : 'upcoming';
         $rows = Renewal::with(['client', 'proposal'])
             ->when($status !== 'all', fn ($q) => $q->where('status', $status))

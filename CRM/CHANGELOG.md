@@ -6,7 +6,7 @@
 
 ## Unreleased
 
-6 migrations, `?v=139` CSS / `?v=10` dashboard CSS / `?v=83` JS.
+7 migrations, `?v=140` CSS / `?v=10` dashboard CSS / `?v=84` JS.
 
 - New **Cash flow & collections** page (`/cashflow`, linked from the dashboard
   cashflow card and the sidebar). It shows a forward 13-week money-in/money-out
@@ -41,6 +41,32 @@
   the portal top-bar wrapping at tablet width, the password form's unlabelled
   fields, and a heading skip on the portal dashboard. Document signing now
   refuses to mark a document signed if the signature image could not be saved.
+- Full code review pass with fixes across the new features and the core money
+  paths:
+  - Razorpay webhooks now require a configured signing secret and always verify
+    the signature; empty payment notes fall back to the order's notes. The
+    amount recorded on public checkout comes from the server-created order,
+    never the browser callback, and gateway payment IDs are unique with a
+    deduplicating migration so duplicate deliveries cannot double-credit.
+  - Client statements, ledger exports, credit warnings and outstanding totals
+    now subtract write-offs, matching invoice balances.
+  - Invoice/payment public tokens are minted on creation, so API, recurring,
+    webhook and proposal-conversion records all get working pay/receipt links.
+  - Number allocation is reserved under the cache lock, and API/recurring
+    creators use it instead of hand-rolled `max(id)+1`, preventing duplicate
+    invoice/proposal numbers.
+  - Renewals no longer overwrite manual edits on nightly sync; draft proposal
+    creation is locked against double-clicks and cron races, staff edits are
+    preserved, and cron drafts are assigned to an admin so normal staff can
+    see them. The "All" filter works.
+  - Saved views survive AJAX list refreshes, restore the complete filter set,
+    handle empty filters and show errors instead of failing silently; their
+    focus rings and tap targets were enlarged.
+  - The portal can download its own documents, its request threads stay open
+    after a staff reply, and the signing page supports keyboard/typed
+    signatures and rotation. Manual invoice edits cannot emit false
+    `invoice.paid` webhooks, bulk email posts stock movements, and branding
+    colours are validated before entering CSS.
 
 - The installer can now set up a **SQLite** database as well as MySQL/MariaDB.
   Step 2 offers the two side by side: SQLite creates `database/database.sqlite`

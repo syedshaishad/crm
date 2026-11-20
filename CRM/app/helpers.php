@@ -199,9 +199,9 @@ if (! function_exists('client_outstanding')) {
     {
         try {
             $row = DB::table('invoices')->where('client_id', $clientId)->whereNotIn('status', ['cancelled'])
-                ->selectRaw('COALESCE(SUM(total),0) t, COALESCE(SUM(paid_amount),0) p')->first();
+                ->selectRaw('COALESCE(SUM(total),0) t, COALESCE(SUM(paid_amount),0) p, COALESCE(SUM(writeoff_amount),0) w')->first();
 
-            return max(0, (float) ($row->t ?? 0) - (float) ($row->p ?? 0) - client_advance($clientId));
+            return max(0, (float) ($row->t ?? 0) - (float) ($row->p ?? 0) - (float) ($row->w ?? 0) - client_advance($clientId));
         } catch (Throwable $e) {
             return 0;
         }

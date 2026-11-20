@@ -43,7 +43,7 @@ class SavedViewController extends Controller
         $data = $r->validate([
             'name' => 'required|string|max:80',
             'route' => 'required|string|max:120',
-            'query' => 'required|array',
+            'query' => 'present|array',
         ]);
         // Keep the query small: a saved view is a filter, not a data dump.
         $query = array_slice($data['query'], 0, 30);

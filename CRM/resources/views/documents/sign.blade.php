@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Sign {{ $doc->name }} — {{ config('app.name') }}</title>
-<link rel="stylesheet" href="{{ asset('assets/css/app.css').'?v=139' }}">
+<link rel="stylesheet" href="{{ asset('assets/css/app.css').'?v=140' }}">
 @include('brand.theme')
 <style>
   .sign-wrap{max-width:620px;margin:36px auto;padding:0 14px}
@@ -31,8 +31,9 @@
       <form method="POST" action="{{ route('documents.sign.store', $doc->sign_token) }}">@csrf
         <label for="signed-by">Your full name</label>
         <input id="signed-by" name="signed_by" required maxlength="255" autocomplete="name" placeholder="Name">
-        <label for="sig-pad">Draw your signature</label>
-        <canvas id="sig-pad" aria-label="Signature pad"></canvas>
+        <span id="sig-help" class="f" style="display:block;font-size:12px;font-weight:600;margin-bottom:4px">Draw your signature, or type it below</span>
+        <canvas id="sig-pad" role="img" aria-labelledby="sig-help" tabindex="0"></canvas>
+        <input id="sig-typed" class="in" maxlength="120" autocomplete="name" aria-label="Type your signature" placeholder="Or type your full name as your signature" style="margin-top:8px">
         <input type="hidden" name="signature" id="sig-data">
         <div style="margin-top:8px"><button class="btn sm sec" type="button" id="sig-clear">Clear</button></div>
         <div class="form-actions"><button class="btn" type="submit">Sign document</button></div>
@@ -43,12 +44,15 @@
 <script>
 (function(){
   var pad=document.getElementById('sig-pad'); if(!pad)return;
-  var ctx=pad.getContext('2d'), drawing=false, inked=false;
+  var ctx=pad.getContext('2d'), drawing=false, inked=false, cssW=0, cssH=0;
+  var inkColor=getComputedStyle(document.documentElement).getPropertyValue('--dc-ink').trim()||'#222';
   function size(){
     var rect=pad.getBoundingClientRect(), ratio=window.devicePixelRatio||1;
+    cssW=rect.width; cssH=rect.height;
     pad.width=Math.round(rect.width*ratio); pad.height=Math.round(rect.height*ratio);
+    ctx.setTransform(1,0,0,1,0,0);
     ctx.scale(ratio,ratio); ctx.lineWidth=2.2; ctx.lineCap='round'; ctx.lineJoin='round';
-    ctx.strokeStyle=getComputedStyle(document.documentElement).getPropertyValue('--dc-ink').trim()||'#222';
+    ctx.strokeStyle=inkColor; ctx.fillStyle=inkColor;
   }
   function pos(e){ var r=pad.getBoundingClientRect(); var t=e.touches?e.touches[0]:e; return {x:t.clientX-r.left,y:t.clientY-r.top}; }
   function start(e){ e.preventDefault(); var p=pos(e); drawing=true; inked=true; ctx.beginPath(); ctx.moveTo(p.x,p.y); }
@@ -58,9 +62,24 @@
   window.addEventListener('mouseup',end);
   pad.addEventListener('touchstart',start,{passive:false}); pad.addEventListener('touchmove',move,{passive:false});
   window.addEventListener('touchend',end);
-  document.getElementById('sig-clear').addEventListener('click',function(){ctx.clearRect(0,0,pad.width,pad.height);inked=false;});
+  // Redraw the existing ink after a rotation/resize so the pad stays usable.
+  window.addEventListener('resize',function(){
+    if(!inked)return;
+    var old=pad.toDataURL('image/png'); size();
+    var img=new Image();
+    img.onload=function(){ ctx.drawImage(img,0,0,cssW,cssH); };
+    img.src=old;
+  });
+  document.getElementById('sig-clear').addEventListener('click',function(){ctx.clearRect(0,0,cssW,cssH);inked=false;});
   pad.closest('form').addEventListener('submit',function(e){
-    if(!inked){ e.preventDefault(); alert('Please draw your signature first.'); return; }
+    var typed=(document.getElementById('sig-typed').value||'').trim();
+    if(!inked){
+      if(!typed){ e.preventDefault(); alert('Please draw or type your signature first.'); return; }
+      ctx.clearRect(0,0,cssW,cssH);
+      ctx.font='30px cursive';
+      ctx.fillText(typed,12,Math.max(40,cssH/2));
+      inked=true;
+    }
     document.getElementById('sig-data').value=pad.toDataURL('image/png');
   });
   size();

@@ -157,6 +157,6 @@ class PdcChequeController extends Controller
 
     protected function nextNumber(): string
     {
-        return 'CHQ-'.str_pad((string) ((PdcCheque::withTrashed()->max('id') ?? 0) + 1), 5, '0', STR_PAD_LEFT);
+        return NextNumber::take('CHQ-', 'pdc_cheques');
     }
 }

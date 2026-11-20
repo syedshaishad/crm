@@ -107,21 +107,43 @@
   (function savedViews() {
     var cfg = window.CRM_VIEWS;
     if (!cfg || !cfg.route) return;
-    var form = document.querySelector('form[data-ajax-filter]');
-    if (!form) return;
-    var bar = document.createElement('div');
-    bar.className = 'sv-bar noprint';
-    if (form.parentNode) form.parentNode.insertBefore(bar, form);
+    function getForm() { return document.querySelector('form[data-ajax-filter]'); }
+    var bar = document.querySelector('.sv-bar');
+    if (!bar) {
+      var form = getForm();
+      if (!form) return;
+      bar = document.createElement('div');
+      bar.className = 'sv-bar noprint';
+      // The filter form is INSIDE the swapped region. Put the bar outside it
+      // so AJAX filtering/pagination doesn't tear it down.
+      var region = form.closest('[data-ajax-region]');
+      var anchor = region || form;
+      if (anchor.parentNode) anchor.parentNode.insertBefore(bar, anchor);
+    }
 
     function request(url, options) {
       var headers = { 'Accept': 'application/json', 'X-CSRF-TOKEN': cfg.token };
       if (options && options.body) headers['Content-Type'] = 'application/json';
-      return fetch(url, Object.assign({ headers: headers }, options || {}));
+      return fetch(url, Object.assign({ headers: headers }, options || {})).then(function (r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      });
+    }
+    function fail(message) {
+      if (typeof ajaxFlash === 'function') ajaxFlash(message || 'Could not update saved views. Please try again.', true);
     }
     function currentQuery() {
-      var q = {};
-      new FormData(form).forEach(function (v, k) { if (v !== '' && k !== 'page') q[k] = v; });
+      var q = {}, f = getForm();
+      if (!f) return q;
+      new FormData(f).forEach(function (v, k) { if (v !== '' && k !== 'page') q[k] = v; });
       return q;
+    }
+    function apply(v) {
+      var f = getForm();
+      var u = new URL((f && f.getAttribute('action')) || location.pathname, location.origin);
+      u.search = ''; // the saved view is the whole filter set, not a patch
+      Object.keys(v.query || {}).forEach(function (k) { u.searchParams.set(k, v.query[k]); });
+      location.href = u.href;
     }
     function chip(v) {
       var wrap = document.createElement('span');
@@ -131,12 +153,7 @@
       go.className = 'sv-go';
       go.textContent = v.name;
       go.title = 'Apply ' + v.name;
-      go.onclick = function () {
-        var u = new URL(form.getAttribute('action') || location.href, location.origin);
-        Object.keys(v.query || {}).forEach(function (k) { u.searchParams.set(k, v.query[k]); });
-        u.searchParams.delete('page');
-        location.href = u.href;
-      };
+      go.onclick = function () { apply(v); };
       wrap.appendChild(go);
       var star = document.createElement('button');
       star.type = 'button';
@@ -145,7 +162,8 @@
       star.title = 'Make default';
       star.setAttribute('aria-label', 'Make ' + v.name + ' the default view');
       star.onclick = function () {
-        request(cfg.base + '/' + v.id + '/default', { method: 'POST' }).then(function (r) { return r.json(); }).then(load).catch(function () {});
+        request(cfg.base + '/' + v.id + '/default', { method: 'POST' })
+          .then(load).catch(function () { fail('Could not set the default view.'); });
       };
       wrap.appendChild(star);
       var del = document.createElement('button');
@@ -155,7 +173,8 @@
       del.title = 'Delete view';
       del.setAttribute('aria-label', 'Delete ' + v.name);
       del.onclick = function () {
-        request(cfg.base + '/' + v.id, { method: 'DELETE' }).then(function (r) { return r.json(); }).then(load).catch(function () {});
+        request(cfg.base + '/' + v.id, { method: 'DELETE' })
+          .then(load).catch(function () { fail('Could not delete the view.'); });
       };
       wrap.appendChild(del);
       return wrap;
@@ -182,12 +201,12 @@
     }
     function load() {
       request(cfg.list + '?route=' + encodeURIComponent(cfg.route))
-        .then(function (r) { return r.json(); })
         .then(function (d) { render(d.views || []); })
-        .catch(function () {});
+        .catch(function () { fail('Could not load saved views.'); });
     }
     var form2 = document.getElementById('view-form');
-    if (form2) {
+    if (form2 && !form2.dataset.svReady) {
+      form2.dataset.svReady = '1';
       form2.addEventListener('submit', function (e) {
         e.preventDefault();
         var input = document.getElementById('view-name');
@@ -196,12 +215,13 @@
         request(cfg.store, {
           method: 'POST',
           body: JSON.stringify({ name: name, route: cfg.route, query: currentQuery() })
-        }).then(function (r) { return r.json(); }).then(function () {
+        }).then(function () {
           var m = document.getElementById('view-modal');
           if (m) m.classList.remove('open');
           form2.reset();
           load();
-        }).catch(function () {});
+          if (typeof ajaxFlash === 'function') ajaxFlash('View saved.');
+        }).catch(function () { fail('Could not save the view.'); });
       });
     }
     load();

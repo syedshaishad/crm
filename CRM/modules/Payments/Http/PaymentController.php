@@ -5,6 +5,7 @@ namespace Modules\Payments\Http;
 use App\Notifications\PaymentReceived;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -341,6 +342,17 @@ class PaymentController extends Controller
         return NextNumber::take($s->get('payments.prefix', 'PAY-'), 'payments');
     }
 
+    /** Insert a gateway payment once, even if two requests race. */
+    private function createOnce(array $data): ?Payment
+    {
+        try {
+            return Payment::create($data);
+        } catch (\Illuminate\Database\QueryException $e) {
+            if (! str_contains(strtolower($e->getMessage()), 'unique')) throw $e;
+            return null;
+        }
+    }
+
     /** Public checkout step 1 (no login): create a Razorpay order capped at the
      *  live balance. Token identifies the invoice; amount is never trusted. */
     public function publicOrder(Request $r, string $token)
@@ -365,6 +377,11 @@ class PaymentController extends Controller
             'receipt' => 'pub-'.$invoice->id.'-'.time(),
             'notes' => ['invoice_id' => $invoice->id, 'client_id' => $invoice->client_id],
         ]);
+        // Remember what we actually asked Razorpay to charge. The verify step
+        // must not trust a client-supplied amount.
+        Cache::put('razorpay_order:'.$order['id'], [
+            'amount' => $amount, 'invoice_id' => $invoice->id, 'client_id' => $invoice->client_id,
+        ], now()->addHours(2));
 
         return response()->json(['key' => config('razorpay.key_id'), 'order_id' => $order['id'], 'amount' => $amount]);
     }
@@ -385,18 +402,46 @@ class PaymentController extends Controller
         if ($bal <= 0) {
             return response()->json(['error' => 'Invoice is already fully paid.'], 422);
         }
-        $data['amount'] = min(round((float) $data['amount'], 2), $bal);
+        // The paid amount is whatever WE asked Razorpay to charge for this
+        // order — never a number supplied by the browser callback.
+        $cacheKey = 'razorpay_order:'.$data['razorpay_order_id'];
+        $orderInfo = Cache::get($cacheKey);
+        if ($orderInfo) {
+            if ((int) $orderInfo['invoice_id'] !== (int) $invoice->id) {
+                return response()->json(['error' => 'This payment belongs to another invoice.'], 422);
+            }
+            $data['amount'] = (float) $orderInfo['amount'];
+        } else {
+            try {
+                $api = new Api(config('razorpay.key_id'), config('razorpay.key_secret'));
+                $order = $api->order->fetch($data['razorpay_order_id']);
+                $notes = (array) ($order['notes'] ?? []);
+                if ((int) ($notes['invoice_id'] ?? 0) !== (int) $invoice->id) {
+                    return response()->json(['error' => 'This payment belongs to another invoice.'], 422);
+                }
+                $data['amount'] = round((int) ($order['amount'] ?? 0) / 100, 2);
+            } catch (\Throwable $e) {
+                return response()->json(['error' => 'Could not verify the order with the payment gateway. Please retry.'], 422);
+            }
+        }
+        if ($data['amount'] <= 0 || $data['amount'] > $bal + 0.009) {
+            return response()->json(['error' => 'The paid amount no longer matches this invoice.'], 422);
+        }
+        Cache::forget($cacheKey);
         if ($err = $this->verifyRazorpay($data)) {
             return response()->json(['error' => $err], 422);
         }
         $s = app(SettingStore::class);
-        $payment = Payment::create([
+        $payment = $this->createOnce([
             'number' => $this->nextNumber($s), 'invoice_id' => $invoice->id, 'client_id' => $invoice->client_id,
             'amount' => $data['amount'], 'method' => 'razorpay', 'reference' => $data['razorpay_order_id'],
             'razorpay_payment_id' => $data['razorpay_payment_id'], 'razorpay_order_id' => $data['razorpay_order_id'],
             'paid_on' => now()->toDateString(), 'notes' => 'Paid online by client.',
             'public_token' => Str::random(32),
         ]);
+        if (! $payment) {
+            return response()->json(['error' => 'This online payment was already recorded.'], 422);
+        }
         $left = $invoice->fresh()->balance();
 
         return response()->json([
@@ -409,12 +454,14 @@ class PaymentController extends Controller
     public function webhook(Request $r)
     {
         $secret = config('razorpay.webhook_secret');
-        if ($secret) {
-            $sig = $r->header('X-Razorpay-Signature', '');
-            $expected = hash_hmac('sha256', $r->getContent(), $secret);
-            if (! hash_equals($expected, $sig)) {
-                abort(403, 'Bad signature');
-            }
+        // An unauthenticated webhook endpoint would let anyone create money.
+        if (! $secret) {
+            abort(403, 'Razorpay webhook secret is not configured.');
+        }
+        $sig = $r->header('X-Razorpay-Signature', '');
+        $expected = hash_hmac('sha256', $r->getContent(), $secret);
+        if (! hash_equals($expected, $sig)) {
+            abort(403, 'Bad signature');
         }
         $event = $r->input('event', '');
         // Late capture / double-submit safety net: record captured payments we missed.
@@ -436,7 +483,9 @@ class PaymentController extends Controller
             return;
         }
         $notes = $entity['notes'] ?? [];
-        if (! is_array($notes) && $orderId = ($entity['order_id'] ?? '')) {
+        // Razorpay puts the invoice/client notes on the ORDER, not the payment,
+        // and the payment entity usually carries an empty notes array.
+        if (empty($notes) && $orderId = ($entity['order_id'] ?? '')) {
             try {
                 $api = new Api(config('razorpay.key_id'), config('razorpay.key_secret'));
                 $notes = (array) ($api->order->fetch($orderId)->notes ?? []);
@@ -463,7 +512,7 @@ class PaymentController extends Controller
             }
         }
         $s = app(SettingStore::class);
-        Payment::create([
+        $this->createOnce([
             'number' => $this->nextNumber($s),
             'invoice_id' => $inv?->id, 'client_id' => $clientId, 'amount' => $amount,
             'method' => 'razorpay', 'reference' => $entity['order_id'] ?? null,

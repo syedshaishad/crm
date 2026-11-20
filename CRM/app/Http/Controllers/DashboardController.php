@@ -381,9 +381,9 @@ class DashboardController extends Controller
             switch (strtolower((string) $frequency)) {
                 case 'daily': return $date->copy()->addDay();
                 case 'weekly': return $date->copy()->addWeek();
-                case 'quarterly': return $date->copy()->addMonths(3);
-                case 'yearly': case 'annually': return $date->copy()->addYear();
-                default: return $date->copy()->addMonth();
+                case 'quarterly': return $date->copy()->addMonthsNoOverflow(3);
+                case 'yearly': case 'annually': return $date->copy()->addYearNoOverflow();
+                default: return $date->copy()->addMonthNoOverflow();
             }
         };
         foreach (RecurringExpenseProfile::where('is_active', true)->get() as $profile) {

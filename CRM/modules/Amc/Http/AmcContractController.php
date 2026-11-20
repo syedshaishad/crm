@@ -2,6 +2,7 @@
 
 namespace Modules\Amc\Http;
 
+use Modules\Core\Numbering\NextNumber;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Modules\Amc\AmcContract;
@@ -137,6 +138,6 @@ class AmcContractController extends Controller
 
     protected function nextNumber(): string
     {
-        return 'AMC-'.str_pad((string) ((AmcContract::withTrashed()->max('id') ?? 0) + 1), 5, '0', STR_PAD_LEFT);
+        return NextNumber::take('AMC-', 'amc_contracts');
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use Modules\Core\Numbering\NextNumber;
 use App\Http\Resources\ExpenseResource;
 use Illuminate\Http\Request;
 use Modules\Expenses\Expense;
@@ -32,7 +33,7 @@ class ExpenseApi extends BaseApi
             'reference' => 'nullable|string|max:100', 'notes' => 'nullable|string',
         ]);
         $prefix = $s->get('expense.prefix', 'EXP-');
-        $data['number'] = $prefix.str_pad((string) ((Expense::withTrashed()->max('id') ?? 0) + 1), 5, '0', STR_PAD_LEFT);
+        $data['number'] = NextNumber::take($prefix, 'expenses');
         $data['created_by'] = $r->user()->id;
         if ($r->user()->isAdmin() || $r->user()->isManager()) {
             $data['status'] = 'approved';

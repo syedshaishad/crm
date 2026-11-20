@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use Modules\Core\Numbering\NextNumber;
 use Illuminate\Console\Command;
 use Modules\Invoices\Invoice;
 use Modules\Invoices\InvoiceMailer;
@@ -33,7 +34,7 @@ class GenerateRecurringInvoices extends Command
 
                 continue;
             }
-            $number = $prefix.str_pad((string) ((Invoice::withTrashed()->max('id') ?? 0) + 1), 5, '0', STR_PAD_LEFT);
+            $number = NextNumber::take($prefix, 'invoices');
             // Trial: the house pays while the trial window is open.
             $onTrial = $p->trial_ends_on && $p->trial_ends_on->gte(now()->toDateString());
             // Proration: first run bills only the remaining share of the period.
