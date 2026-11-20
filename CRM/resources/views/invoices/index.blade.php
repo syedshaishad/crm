@@ -39,13 +39,13 @@
   </div>
 
   <div class="ix-statuses noprint">
-    <a class="ix-chip {{ $statusVal === '' ? 'on' : '' }}" href="{{ $statusUrl('') }}"><i style="background:var(--dc-ink2)"></i>All <b>{{ $stats['total'] }}</b></a>
-    <a class="ix-chip {{ $statusVal === 'draft' ? 'on' : '' }}" href="{{ $statusUrl('draft') }}"><i style="background:var(--dc-blue)"></i>Draft <b>{{ $stats['draft'] }}</b></a>
-    <a class="ix-chip {{ $statusVal === 'sent' ? 'on' : '' }}" href="{{ $statusUrl('sent') }}"><i style="background:var(--dc-amber)"></i>Unpaid <b>{{ $stats['sent'] }}</b></a>
-    <a class="ix-chip {{ $statusVal === 'partial' ? 'on' : '' }}" href="{{ $statusUrl('partial') }}"><i style="background:var(--dc-amber)"></i>Partial <b>{{ $stats['partial'] }}</b></a>
-    <a class="ix-chip {{ $statusVal === 'overdue' ? 'on' : '' }}" href="{{ $statusUrl('overdue') }}"><i style="background:var(--dc-red)"></i>Overdue <b>{{ $stats['overdue'] }}</b></a>
-    <a class="ix-chip {{ $statusVal === 'paid' ? 'on' : '' }}" href="{{ $statusUrl('paid') }}"><i style="background:var(--dc-green)"></i>Paid <b>{{ $stats['paid'] }}</b></a>
-    <a class="ix-chip {{ $statusVal === 'cancelled' ? 'on' : '' }}" href="{{ $statusUrl('cancelled') }}"><i style="background:var(--dc-muted)"></i>Cancelled <b>{{ $stats['cancelled'] }}</b></a>
+    <a class="ix-chip {{$statusVal === '' ? 'on' : ''}}" @if($statusVal === '' ? 'on' : '') aria-current="page" @endif href="{{ $statusUrl('') }}"><i style="background:var(--dc-ink2)"></i>All <b>{{ $stats['total'] }}</b></a>
+    <a class="ix-chip {{$statusVal === 'draft' ? 'on' : ''}}" @if($statusVal === 'draft' ? 'on' : '') aria-current="page" @endif href="{{ $statusUrl('draft') }}"><i style="background:var(--dc-blue)"></i>Draft <b>{{ $stats['draft'] }}</b></a>
+    <a class="ix-chip {{$statusVal === 'sent' ? 'on' : ''}}" @if($statusVal === 'sent' ? 'on' : '') aria-current="page" @endif href="{{ $statusUrl('sent') }}"><i style="background:var(--dc-amber)"></i>Unpaid <b>{{ $stats['sent'] }}</b></a>
+    <a class="ix-chip {{$statusVal === 'partial' ? 'on' : ''}}" @if($statusVal === 'partial' ? 'on' : '') aria-current="page" @endif href="{{ $statusUrl('partial') }}"><i style="background:var(--dc-amber)"></i>Partial <b>{{ $stats['partial'] }}</b></a>
+    <a class="ix-chip {{$statusVal === 'overdue' ? 'on' : ''}}" @if($statusVal === 'overdue' ? 'on' : '') aria-current="page" @endif href="{{ $statusUrl('overdue') }}"><i style="background:var(--dc-red)"></i>Overdue <b>{{ $stats['overdue'] }}</b></a>
+    <a class="ix-chip {{$statusVal === 'paid' ? 'on' : ''}}" @if($statusVal === 'paid' ? 'on' : '') aria-current="page" @endif href="{{ $statusUrl('paid') }}"><i style="background:var(--dc-green)"></i>Paid <b>{{ $stats['paid'] }}</b></a>
+    <a class="ix-chip {{$statusVal === 'cancelled' ? 'on' : ''}}" @if($statusVal === 'cancelled' ? 'on' : '') aria-current="page" @endif href="{{ $statusUrl('cancelled') }}"><i style="background:var(--dc-muted)"></i>Cancelled <b>{{ $stats['cancelled'] }}</b></a>
   </div>
 
   <form method="GET" data-ajax-filter data-region="invoices-list" class="ix-filters noprint">

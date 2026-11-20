@@ -52,7 +52,7 @@
 <div class="st-grid">
   <div class="card ix-card">
     <div class="card-head ix-card-head">
-      <div><h3>Profile</h3><span class="hint">Your photo appears in the top bar, team list and push notifications.</span></div>
+      <div><h2>Profile</h2><span class="hint">Your photo appears in the top bar, team list and push notifications.</span></div>
       <span class="ix-tag">Identity</span>
     </div>
     <div class="st-profile">
@@ -76,7 +76,7 @@
 
   <div class="card ix-card">
     <div class="card-head ix-card-head">
-      <div><h3>Change password</h3><span class="hint">Leave blank to keep your current password.</span></div>
+      <div><h2>Change password</h2><span class="hint">Leave blank to keep your current password.</span></div>
       <span class="ix-tag">Security</span>
     </div>
     <label class="f" for="acc-current">Current password</label>
@@ -96,7 +96,7 @@
       <span>Profile details and password.</span>
     </div>
     <div class="st-actions-btns">
-      <a class="btn sec" href="{{ route('settings.index') }}">Cancel</a>
+      
       <button class="btn" type="submit">Save changes</button>
     </div>
   </div>
@@ -106,7 +106,7 @@
 <div class="st-grid">
   <div class="card ix-card" data-push-settings data-csrf="{{ csrf_token() }}" data-public-key-url="{{ route('push.publicKey') }}" data-subscribe-url="{{ route('push.subscribe') }}" data-unsubscribe-url="{{ route('push.unsubscribe') }}" data-test-url="{{ route('push.test') }}" data-sw-url="{{ asset('sw.js') }}">
     <div class="card-head ix-card-head">
-      <div><h3>Push notifications</h3><span class="hint">Get task, payment and invoice alerts on this device, even when the CRM is closed. Your profile picture is used as the notification icon.</span></div>
+      <div><h2>Push notifications</h2><span class="hint">Get task, payment and invoice alerts on this device, even when the CRM is closed. Your profile picture is used as the notification icon.</span></div>
       <span class="ix-tag">Device</span>
     </div>
     <p class="hint st-note" data-push-status role="status">Checking this device…</p>
@@ -120,7 +120,7 @@
 
   <div class="card ix-card">
     <div class="card-head ix-card-head">
-      <div><h3>Two-factor authentication</h3><span class="hint">Works with Google/Microsoft Authenticator, 1Password and similar apps.</span></div>
+      <div><h2>Two-factor authentication</h2><span class="hint">Works with Google/Microsoft Authenticator, 1Password and similar apps.</span></div>
       <span class="ix-state {{ $twofa ? 'is-green' : 'is-grey' }}"><i></i>{{ $twofa ? 'On' : 'Off' }}</span>
     </div>
     @if($user->twofa_enabled)

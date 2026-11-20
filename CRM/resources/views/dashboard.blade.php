@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @section('title','Dashboard')
-@section('head')<link rel="stylesheet" href="{{ asset('assets/css/dc.css').'?v=10' }}">@endsection
+@section('head')<link rel="stylesheet" href="{{ asset('assets/css/dc.css').'?v=12' }}">@endsection
 @section('content')
 @php
   $hour = (int) date('H');
@@ -161,12 +161,11 @@
     </section>
     <section class="dc-gc" style="flex:1 1 440px;padding:16px"><div class="dc-sh2"><h2>Due within 7 days</h2><a href="{{ route('tasks.index') }}">View all →</a></div>
       <div class="dc-th"><span style="flex:2">Task</span><span style="flex:1">Due</span><span style="flex:1;text-align:right">Status</span></div>
-      @forelse($dueSoon as $t)<div class="dc-rw"><div style="flex:2;font-weight:600">{{ \Str::limit($t->title, 30) }}</div><div style="flex:1">{{ d($t->due_date) ?: '—' }}</div><div style="flex:1;text-align:right"><span class="dc-tg l">{{ ucfirst(str_replace('_', ' ', $t->status)) }}</span></div></div>@empty<div class="dc-em">Nothing due soon.<small style="margin-top:4px">Overdue work is pinned in Today's focus.</small></div>@endforelse
+      @forelse($dueSoon as $t)<div class="dc-rw"><div style="flex:2;font-weight:600">{{ \Str::limit($t->title, 30) }}</div><div style="flex:1">{{ d($t->due_date) ?: '—' }}</div><div style="flex:1;text-align:right"><span class="dc-tg l">{{ ucfirst(str_replace('_', ' ', $t->status)) }}</span></div></div>@empty<div class="dc-em">Nothing due soon.</div>@endforelse
     </section>
   </div>
 
   <section class="dc-gc" style="margin-top:16px;padding:16px 18px"><div class="dc-sh2"><h2>Recent activity</h2><a href="{{ route('activity.index') }}">View all →</a></div>@forelse($recentActivity as $a)<div class="dc-ac"><span class="dc-ci">{{ strtoupper(mb_substr($a->user->name ?? 'C', 0, 1)) }}</span><div><b>{{ $a->description }}</b><small>{{ $a->user->name ?? 'Client' }} · {{ d($a->created_at, 'j M, h:i A') }}</small></div></div>@empty<div class="dc-em">No activity yet.</div>@endforelse</section>
-  <div class="dc-foot">{{ $brand['company_name'] ?? config('app.name') }} · v{{ app_version() }} · self-hosted</div>
 
 </div>
 <script>

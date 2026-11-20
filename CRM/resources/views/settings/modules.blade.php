@@ -54,7 +54,7 @@
 
 <div class="card ix-card">
   <div class="card-head ix-card-head">
-    <div><h3>Workspace modules</h3><span class="hint">Switch areas off to simplify this install. Hidden modules vanish from the nav, search, import/export and API. Settings, updates and licensing always stay on.</span></div>
+    <div><h2>Workspace modules</h2><span class="hint">Switch areas off to simplify this install. Hidden modules vanish from the nav, search, import/export and API. Settings, updates and licensing always stay on.</span></div>
     <span class="ix-tag">{{ $total }} areas</span>
   </div>
 
@@ -78,7 +78,7 @@
         <span>Changes take effect on the next page load.</span>
       </div>
       <div class="st-actions-btns">
-        <a class="btn sec" href="{{ route('settings.index') }}">Cancel</a>
+        
         <button class="btn" type="submit">Save modules</button>
       </div>
     </div>

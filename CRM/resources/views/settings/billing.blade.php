@@ -92,7 +92,7 @@
 
   <div class="card ix-card">
     <div class="card-head ix-card-head">
-      <div><h3>New invoice defaults</h3><span class="hint">Pre-filled on every new invoice.</span></div>
+      <div><h2>New invoice defaults</h2><span class="hint">Pre-filled on every new invoice.</span></div>
       <span class="ix-tag">Defaults</span>
     </div>
     <div class="form-grid">
@@ -107,7 +107,7 @@
 
   <div class="card ix-card">
     <div class="card-head ix-card-head">
-      <div><h3>Late fees</h3><span class="hint">One-click fee on overdue invoices — added as a zero-GST line so tax math stays untouched.</span></div>
+      <div><h2>Late fees</h2><span class="hint">One-click fee on overdue invoices — added as a zero-GST line so tax math stays untouched.</span></div>
       <span class="ix-state {{ $lateOn ? 'is-amber' : 'is-grey' }}"><i></i>{{ $lateOn ? 'Enabled' : 'Off' }}</span>
     </div>
     <div class="st-checks is-one">
@@ -125,7 +125,7 @@
 
   <div class="card ix-card">
     <div class="card-head ix-card-head">
-      <div><h3>Collection ladder</h3><span class="hint">Overdue reminders escalate: gentle → firm → final notice. Blank = every nudge stays gentle.</span></div>
+      <div><h2>Collection ladder</h2><span class="hint">Overdue reminders escalate: gentle → firm → final notice. Blank = every nudge stays gentle.</span></div>
       <span class="ix-tag">Dunning</span>
     </div>
     <label class="f" for="bill-dunning">Escalate on day(s) overdue</label>
@@ -135,7 +135,7 @@
 
   <div class="card ix-card">
     <div class="card-head ix-card-head">
-      <div><h3>Loyalty credits</h3><span class="hint">Clients earn a percentage of every receipt as loyalty balance, redeemable as a payment method. 0 = off.</span></div>
+      <div><h2>Loyalty credits</h2><span class="hint">Clients earn a percentage of every receipt as loyalty balance, redeemable as a payment method. 0 = off.</span></div>
       <span class="ix-tag">Retention</span>
     </div>
     <label class="f" for="bill-loyalty">Earn rate (% of receipt)</label>
@@ -144,7 +144,7 @@
 
   <div class="card ix-card">
     <div class="card-head ix-card-head">
-      <div><h3>Payroll</h3><span class="hint">Overtime pays a multiple of hourly cost; salary TDS (192) is a flat % above the monthly standard slice.</span></div>
+      <div><h2>Payroll</h2><span class="hint">Overtime pays a multiple of hourly cost; salary TDS (192) is a flat % above the monthly standard slice.</span></div>
       <span class="ix-tag">People</span>
     </div>
     <div class="form-grid">
@@ -155,7 +155,7 @@
 
   <div class="card ix-card">
     <div class="card-head ix-card-head">
-      <div><h3>Cheques</h3><span class="hint">Post-dated cheques surface in the morning digest this many days before their date.</span></div>
+      <div><h2>Cheques</h2><span class="hint">Post-dated cheques surface in the morning digest this many days before their date.</span></div>
       <span class="ix-tag">Reminders</span>
     </div>
     <label class="f" for="bill-cheque-days">Digest alert window (days)</label>
@@ -165,7 +165,7 @@
 
 <div class="card ix-card">
   <div class="card-head ix-card-head">
-    <div><h3>Bank details</h3><span class="hint">Printed on every invoice so clients can pay by bank transfer. Leave blank to hide.</span></div>
+    <div><h2>Bank details</h2><span class="hint">Printed on every invoice so clients can pay by bank transfer. Leave blank to hide.</span></div>
     <span class="ix-tag">Payments</span>
   </div>
   <div class="form-grid is-three">
@@ -180,7 +180,7 @@
 
 <div class="card ix-card">
   <div class="card-head ix-card-head">
-    <div><h3>Lists &amp; options</h3><span class="hint">One value per line. These drive the dropdowns and pickers across expenses, payments and invoices.</span></div>
+    <div><h2>Lists &amp; options</h2><span class="hint">One value per line. These drive the dropdowns and pickers across expenses, payments and invoices.</span></div>
     <span class="ix-tag">Pickers</span>
   </div>
   <div class="form-grid">
@@ -195,7 +195,7 @@
 
 <div class="card ix-card">
   <div class="card-head ix-card-head">
-    <div><h3>Invoice document</h3><span class="hint">Logo, footer, signature and declaration printed on invoices and proposals.</span></div>
+    <div><h2>Invoice document</h2><span class="hint">Logo, footer, signature and declaration printed on invoices and proposals.</span></div>
     <span class="ix-tag">Document</span>
   </div>
 
@@ -233,7 +233,7 @@
       <span>Numbering, defaults, collections, bank details and document layout.</span>
     </div>
     <div class="st-actions-btns">
-      <a class="btn sec" href="{{ route('settings.index') }}">Cancel</a>
+      
       <button class="btn" type="submit">Save billing settings</button>
     </div>
   </div>

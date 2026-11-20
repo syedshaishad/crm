@@ -88,7 +88,7 @@
 
 <div class="card ix-card">
   <div class="card-head ix-card-head">
-    <div><h3>Your tokens</h3><span class="hint">Tokens carry your permissions. Revoke one and any app using it stops immediately.</span></div>
+    <div><h2>Your tokens</h2><span class="hint">Tokens carry your permissions. Revoke one and any app using it stops immediately.</span></div>
     <span class="ix-tag">{{ $tokenCount }}</span>
   </div>
   @forelse($tokens as $t)
@@ -118,7 +118,7 @@
 
 <div class="card ix-card">
   <div class="card-head ix-card-head">
-    <div><h3>Endpoints</h3><span class="hint">JSON in / JSON out. Lists accept <code class="st-code">?q</code>, <code class="st-code">?per_page</code> and type filters; write requests take JSON bodies.</span></div>
+    <div><h2>Endpoints</h2><span class="hint">JSON in / JSON out. Lists accept <code class="st-code">?q</code>, <code class="st-code">?per_page</code> and type filters; write requests take JSON bodies.</span></div>
     <span class="ix-tag">Reference</span>
   </div>
   <div class="ix-table-scroll">
@@ -145,7 +145,7 @@
 
 <div class="card ix-card">
   <div class="card-head ix-card-head">
-    <div><h3>Webhooks</h3><span class="hint">POSTs JSON <code class="st-code">{event, at, data}</code> with <code class="st-code">X-CRM-Signature: sha256=…</code> (HMAC of the body with your secret). Verify before trusting.</span></div>
+    <div><h2>Webhooks</h2><span class="hint">POSTs JSON <code class="st-code">{event, at, data}</code> with <code class="st-code">X-CRM-Signature: sha256=…</code> (HMAC of the body with your secret). Verify before trusting.</span></div>
     <span class="ix-state {{ $failedCount ? 'is-red' : 'is-green' }}"><i></i>{{ $failedCount ? $failedCount.' failed' : 'Healthy' }}</span>
   </div>
 

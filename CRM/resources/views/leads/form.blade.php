@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('title',($lead->exists ? 'Edit ' : 'New ').'lead')
 @section('content')
-<div class="card" style="max-width:680px">
+<div class="card form-card" style="max-width:680px">
 <h3>{{ $lead->exists ? 'Edit lead' : 'New lead' }}</h3>
 <form method="POST" action="{{ $lead->exists ? route('leads.update',$lead) : route('leads.store') }}">@csrf @if($lead->exists)@method('PUT')@endif
 <div class="form-grid">

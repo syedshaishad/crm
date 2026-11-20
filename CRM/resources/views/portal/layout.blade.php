@@ -5,7 +5,7 @@
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <title>@yield('title','Client portal') — {{ $brand['company_name'] ?? config('app.name') }}</title>
 @if(!empty($brand['favicon_path']))<link rel="icon" href="{{ asset('storage/'.$brand['favicon_path']) }}">@else<link rel="icon" href="{{ asset('favicon.ico') }}">@endif
-<link rel="stylesheet" href="{{ asset('assets/css/app.css').'?v=140' }}">
+<link rel="stylesheet" href="{{ asset('assets/css/app.css').'?v=143' }}">
 @include('brand.theme')
 <script>(function(){var t=null;try{t=localStorage.getItem('theme');}catch(e){}if(t!=='dark'&&t!=='light'){try{t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}catch(e){t='light';}}document.documentElement.setAttribute('data-theme',t);})();</script>
 <style>
@@ -47,5 +47,5 @@
   @yield('content')
   <p class="footer-note noprint">{{ $brand['company_name'] ?? '' }} · client portal</p>
 </div></div>
-<script>(function(){try{var s=localStorage.getItem('theme');if(s==='dark'||s==='light')document.documentElement.setAttribute('data-theme',s);}catch(e){}document.addEventListener('click',function(e){if(!e.target.closest('[data-theme-toggle]'))return;var h=document.documentElement;var c=h.getAttribute('data-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');var n=c==='dark'?'light':'dark';h.setAttribute('data-theme',n);try{localStorage.setItem('theme',n);}catch(x){}});})();</script>
+<script>(function(){document.addEventListener('click',function(e){if(!e.target.closest('[data-theme-toggle]'))return;var h=document.documentElement;var c=h.getAttribute('data-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');var n=c==='dark'?'light':'dark';h.setAttribute('data-theme',n);try{localStorage.setItem('theme',n);}catch(x){}});})();</script>
 </body></html>

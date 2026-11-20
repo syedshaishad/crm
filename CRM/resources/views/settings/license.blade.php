@@ -26,7 +26,7 @@
       Settings
     </a>
     @if($hasKey)
-      <form method="POST" action="{{ route('settings.license.refresh') }}">@csrf<button class="btn sm" type="submit">Check now</button></form>
+      
     @endif
   </div>
 </div>
@@ -57,7 +57,7 @@
 <div class="st-grid">
   <div class="card ix-card">
     <div class="card-head ix-card-head">
-      <div><h3>Activation</h3><span class="hint">The key is registered against this installation on the license server.</span></div>
+      <div><h2>Activation</h2><span class="hint">The key is registered against this installation on the license server.</span></div>
       <span class="ix-state {{ $active ? 'is-green' : 'is-red' }}"><i></i>{{ $active ? 'Active' : 'Blocked' }}</span>
     </div>
 
@@ -89,7 +89,7 @@
 
   <div class="card ix-card">
     <div class="card-head ix-card-head">
-      <div><h3>How enforcement works</h3><span class="hint">What happens when the server is unreachable.</span></div>
+      <div><h2>How enforcement works</h2><span class="hint">What happens when the server is unreachable.</span></div>
       <span class="ix-tag">Security</span>
     </div>
     <p class="hint st-note">Every install reports its key, domain, installation id and version to the license server and obeys the answer. Successful checks return a signed certificate that covers a server-decided offline window; while it verifies, the app runs without network.</p>

@@ -1,8 +1,9 @@
 @extends('layouts.app')
 @section('title','New invoice')
 @section('content')
-<div class="card" style="max-width:780px">
-<h3>New invoice</h3>
+<h1 class="sr-only">New invoice</h1>
+<div class="card form-card" style="max-width:780px">
+<h2>New invoice</h2>
 <form method="POST" action="{{ route('invoices.store') }}">@csrf
 <div class="fsec" style="margin-top:0">1 · Client & project</div>
 <label class="f">Bill to <span class="req">*</span></label>

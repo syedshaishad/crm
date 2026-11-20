@@ -56,7 +56,7 @@
 <div class="st-grid">
   <div class="card ix-card">
     <div class="card-head ix-card-head">
-      <div><h3>Identity &amp; access</h3><span class="hint">Sign-in details, role and activation.</span></div>
+      <div><h2>Identity &amp; access</h2><span class="hint">Sign-in details, role and activation.</span></div>
       <span class="ix-tag">Account</span>
     </div>
 
@@ -114,7 +114,7 @@
 
   <div class="card ix-card">
     <div class="card-head ix-card-head">
-      <div><h3>Targets &amp; commission</h3><span class="hint">Collection goals used on the dashboard and payroll.</span></div>
+      <div><h2>Targets &amp; commission</h2><span class="hint">Collection goals used on the dashboard and payroll.</span></div>
       <span class="ix-tag">Performance</span>
     </div>
     <label class="f" for="user-target">Monthly collection target (₹) <span class="hint">— 0 means no target</span></label>
@@ -138,7 +138,7 @@
 
 <div class="card ix-card" id="perm-matrix">
   <div class="card-head ix-card-head">
-    <div><h3>Module access</h3><span class="hint">Inherit keeps the role default (full workspace). View only blocks writes with a 403. No access hides the section from the menu.</span></div>
+    <div><h2>Module access</h2><span class="hint">Inherit keeps the role default (full workspace). View only blocks writes with a 403. No access hides the section from the menu.</span></div>
     <span class="ix-tag">Permissions</span>
   </div>
   <div class="ix-table-scroll">

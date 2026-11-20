@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('title', $cheque->exists ? 'Edit '.$cheque->number : 'New cheque')
 @section('content')
-<div class="card" style="max-width:680px">
+<div class="card form-card" style="max-width:680px">
 <h3>{{ $cheque->exists ? 'Edit '.$cheque->number : 'Record a post-dated cheque' }}</h3>
 <form method="POST" action="{{ $cheque->exists ? route('cheques.update',$cheque) : route('cheques.store') }}">@csrf @if($cheque->exists)@method('PUT')@endif
 <label class="f">Received from <span class="req">*</span></label>

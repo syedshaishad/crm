@@ -50,7 +50,7 @@
 
 <div class="card ix-card">
   <div class="card-head ix-card-head">
-    <div><h3>Add a snippet</h3><span class="hint">Write once, reuse on every proposal. One point per line works best.</span></div>
+    <div><h2>Add a snippet</h2><span class="hint">Write once, reuse on every proposal. One point per line works best.</span></div>
     <span class="ix-tag">New</span>
   </div>
   <form method="POST" action="{{ route('settings.snippets.store') }}">@csrf
@@ -72,7 +72,7 @@
     @php $list = $snippets->where('kind',$k); @endphp
     <div class="card ix-card">
       <div class="card-head ix-card-head">
-        <div><h3>{{ $l }}</h3><span class="hint">{{ $list->count() }} {{ Str::plural('snippet', $list->count()) }} for this section.</span></div>
+        <div><h2>{{ $l }}</h2><span class="hint">{{ $list->count() }} {{ Str::plural('snippet', $list->count()) }} for this section.</span></div>
         <span class="ix-tag">{{ $list->count() }}</span>
       </div>
       @forelse($list as $s)

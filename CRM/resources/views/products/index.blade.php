@@ -17,7 +17,7 @@
     </div>
   </div>
   <div class="ix-head-actions noprint">
-    <button class="btn sm sec" data-modal-open="import-modal">
+    <button class="btn sm sec" type="button" data-modal-open="import-modal">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m-4-4 4 4 4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
       Import
     </button>
@@ -41,9 +41,9 @@
   </div>
 
   <div class="ix-statuses noprint">
-    <a class="ix-chip {{ $statusVal === '' ? 'on' : '' }}" href="{{ $statusUrl('') }}"><i style="background:var(--dc-ink2)"></i>All <b>{{ $stats['total'] }}</b></a>
-    <a class="ix-chip {{ $statusVal === 'active' ? 'on' : '' }}" href="{{ $statusUrl('active') }}"><i style="background:var(--dc-green)"></i>Active <b>{{ $stats['active'] }}</b></a>
-    <a class="ix-chip {{ $statusVal === 'archived' ? 'on' : '' }}" href="{{ $statusUrl('archived') }}"><i style="background:var(--dc-muted)"></i>Archived <b>{{ $stats['archived'] }}</b></a>
+    <a class="ix-chip {{$statusVal === '' ? 'on' : ''}}" @if($statusVal === '' ? 'on' : '') aria-current="page" @endif href="{{ $statusUrl('') }}"><i style="background:var(--dc-ink2)"></i>All <b>{{ $stats['total'] }}</b></a>
+    <a class="ix-chip {{$statusVal === 'active' ? 'on' : ''}}" @if($statusVal === 'active' ? 'on' : '') aria-current="page" @endif href="{{ $statusUrl('active') }}"><i style="background:var(--dc-green)"></i>Active <b>{{ $stats['active'] }}</b></a>
+    <a class="ix-chip {{$statusVal === 'archived' ? 'on' : ''}}" @if($statusVal === 'archived' ? 'on' : '') aria-current="page" @endif href="{{ $statusUrl('archived') }}"><i style="background:var(--dc-muted)"></i>Archived <b>{{ $stats['archived'] }}</b></a>
   </div>
 
   <form method="GET" data-ajax-filter data-region="products-list" class="ix-filters noprint">

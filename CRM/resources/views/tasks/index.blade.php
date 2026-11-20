@@ -1,8 +1,9 @@
 @extends('layouts.app')
 @section('title','Tasks')
 @section('content')
+<h1 class="sr-only">Tasks</h1>
 <div class="card">
-<div class="card-head"><h3>Tasks</h3>
+<div class="card-head"><h2>Tasks</h2>
 <div class="btnrow">
   <div class="seg" role="tablist" aria-label="Views"><a class="{{ ($view ?? 'list')==='list' ? 'on' : '' }}" href="{{ route('tasks.index', array_merge(request()->except(['view', 'page']), ['view' => 'list'])) }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>Table</a><a class="{{ ($view ?? 'list')==='calendar' ? 'on' : '' }}" href="{{ route('tasks.index', array_merge(request()->except(['view', 'page']), ['view' => 'calendar'])) }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 10h18"/></svg>Calendar</a></div>
   <a class="btn sm" href="{{ route('tasks.create') }}">+ Create</a>
@@ -42,7 +43,7 @@
 @if(($view ?? 'list') === 'calendar')
 <div data-ajax-region="tasks-list">
 <div class="card">
-<div class="card-head"><h3>{{ date('F Y', mktime(0,0,0,$calM,1,$calY)) }}</h3>
+<div class="card-head"><h2>{{ date('F Y', mktime(0,0,0,$calM,1,$calY)) }}</h2>
 <div class="btnrow"><a class="btn sec sm" data-cal-nav href="{{ route('tasks.index', array_merge(request()->except(['month', 'page']), ['view' => 'calendar', 'month' => $prevMonth])) }}">←</a><a class="btn sec sm" data-cal-nav href="{{ route('tasks.index', array_merge(request()->except(['month', 'page']), ['view' => 'calendar'])) }}">Today</a><a class="btn sec sm" data-cal-nav href="{{ route('tasks.index', array_merge(request()->except(['month', 'page']), ['view' => 'calendar', 'month' => $nextMonth])) }}">→</a></div></div>
 <div class="cal cal-big">
 @foreach(['M','T','W','T','F','S','S'] as $dow)<div class="cal-dow">{{ $dow }}</div>@endforeach

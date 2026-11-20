@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('title','New proposal')
 @section('content')
-<div class="card" style="max-width:780px">
+<div class="card form-card" style="max-width:780px">
 <h3>New proposal</h3>
 <form method="POST" action="{{ route('proposals.store') }}" enctype="multipart/form-data">@csrf
 <label class="f">Propose to <span class="req">*</span></label>

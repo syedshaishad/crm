@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('title', $contract->exists ? 'Edit '.$contract->number : 'New contract')
 @section('content')
-<div class="card" style="max-width:680px">
+<div class="card form-card" style="max-width:680px">
 <h3>{{ $contract->exists ? 'Edit '.$contract->number : 'New contract' }}</h3>
 <form method="POST" action="{{ $contract->exists ? route('amc.update',$contract) : route('amc.store') }}">@csrf @if($contract->exists)@method('PUT')@endif
 <label class="f">Title <span class="req">*</span></label>

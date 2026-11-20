@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('title','Edit '.$proposal->number)
 @section('content')
-<div class="card" style="max-width:760px">
+<div class="card form-card" style="max-width:760px">
 <h3>Edit {{ $proposal->number }}</h3>
 <p class="fhint">Draft only — once sent, the proposal is locked for the client.</p>
 @php $dlim = (float) setting('proposal.discount_limit', 20); $dpct = (float) $proposal->subtotal > 0 ? round((float) $proposal->discount / (float) $proposal->subtotal * 100, 1) : 0; @endphp

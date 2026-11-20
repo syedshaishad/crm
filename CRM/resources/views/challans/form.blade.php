@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('title', $challan->exists ? 'Edit '.$challan->number : 'New delivery challan')
 @section('content')
-<div class="card" style="max-width:780px">
+<div class="card form-card" style="max-width:780px">
 <h3>{{ $challan->exists ? 'Edit '.$challan->number : 'New delivery challan' }}</h3>
 <p class="fhint">Goods movement without a sale — job work, approvals, samples. No money moves; link an invoice when it bills.</p>
 <form method="POST" action="{{ $challan->exists ? route('challans.update',$challan) : route('challans.store') }}">@csrf @if($challan->exists)@method('PUT')@endif

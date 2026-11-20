@@ -156,7 +156,7 @@
 <div class="br-grid">
   <div class="card ix-card br-card">
     <div class="card-head ix-card-head">
-      <div><h3>Brand colours</h3><span class="hint">Pick a colour and watch the page re-theme instantly.</span></div>
+      <div><h2>Brand colours</h2><span class="hint">Pick a colour and watch the page re-theme instantly.</span></div>
     </div>
     <div class="br-colours">
       @foreach($brandColours as $c)
@@ -178,7 +178,7 @@
 
   <div class="card ix-card br-card">
     <div class="card-head ix-card-head">
-      <div><h3>Status colours</h3><span class="hint">Badges, dots and banners. Blank = design-system default.</span></div>
+      <div><h2>Status colours</h2><span class="hint">Badges, dots and banners. Blank = design-system default.</span></div>
     </div>
     <div class="br-colours">
       @foreach($statuses as $sc)
@@ -202,7 +202,7 @@
 
 <div class="card ix-card br-card">
   <div class="card-head ix-card-head">
-    <div><h3>Surfaces &amp; text</h3><span class="hint">Page, panels, text and borders across the app. Blank = design-system default.</span></div>
+    <div><h2>Surfaces &amp; text</h2><span class="hint">Page, panels, text and borders across the app. Blank = design-system default.</span></div>
     <span class="ix-tag">{{ count($surfaces) }} tokens</span>
   </div>
   <div class="br-colours is-4">
@@ -222,7 +222,7 @@
 
 <div class="card ix-card br-card">
   <div class="card-head ix-card-head">
-    <div><h3>Live preview</h3><span class="hint">Saving applies this everywhere: nav, buttons, links, forms, tables, badges, login and portal.</span></div>
+    <div><h2>Live preview</h2><span class="hint">Saving applies this everywhere: nav, buttons, links, forms, tables, badges, login and portal.</span></div>
     <span class="ix-state is-green"><i></i>Live theme</span>
   </div>
 
@@ -284,7 +284,7 @@
 <div class="br-grid">
   <div class="card ix-card br-card">
     <div class="card-head ix-card-head">
-      <div><h3>Company &amp; tax</h3><span class="hint">Printed on invoices and documents.</span></div>
+      <div><h2>Company &amp; tax</h2><span class="hint">Printed on invoices and documents.</span></div>
     </div>
     <label class="f" for="br-address">Address</label>
     <textarea class="in" id="br-address" name="company_address" rows="2">{{ $s->get('company.address') }}</textarea>
@@ -315,7 +315,7 @@
 
   <div class="card ix-card br-card">
     <div class="card-head ix-card-head">
-      <div><h3>Email sender</h3><span class="hint">Used for invoice emails and password resets.</span></div>
+      <div><h2>Email sender</h2><span class="hint">Used for invoice emails and password resets.</span></div>
     </div>
     <div class="form-grid">
       <div>
@@ -338,7 +338,7 @@
       <span>Save once and the theme updates the app, login screen and client portal.</span>
     </div>
     <div class="br-save-actions">
-      <a class="btn sec" href="{{ route('settings.index') }}">Cancel</a>
+      
       <button class="btn" type="submit">Save branding</button>
     </div>
   </div>

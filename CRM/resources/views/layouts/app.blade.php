@@ -6,7 +6,7 @@
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <title>@yield('title', 'Dashboard') — {{ $brand['company_name'] ?? $brand['app_name'] ?? config('app.name') }}</title>
 @if(!empty($brand['favicon_path']))<link rel="icon" href="{{ asset('storage/'.$brand['favicon_path']) }}">@else<link rel="icon" href="{{ asset('favicon.ico') }}">@endif
-<link rel="stylesheet" href="{{ asset('assets/css/app.css').'?v=140' }}">
+<link rel="stylesheet" href="{{ asset('assets/css/app.css').'?v=143' }}">
 @include('brand.theme')
 @yield('head')
 </head>
@@ -292,7 +292,7 @@ foreach ($nav as $item) {
     <div class="confirm-ic" id="confirm-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4m0 4h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></div>
     <h3 id="confirm-title">Are you sure?</h3>
     <p class="hint" id="confirm-msg" style="margin:0 0 18px"></p>
-    <div class="form-actions"><button class="btn danger" id="confirm-ok">Delete</button><button class="btn sec" data-modal-close>Cancel</button></div>
+    <div class="form-actions"><button class="btn danger" type="button" id="confirm-ok">Delete</button><button class="btn sec" type="button" data-modal-close>Cancel</button></div>
   </div>
 </div>
 <div class="spot" id="spot" role="dialog" aria-label="Search" data-search-url="{{ route('search') }}">
@@ -303,11 +303,11 @@ foreach ($nav as $item) {
     <div class="spot-foot"><span><kbd>↑↓</kbd> navigate</span><span><kbd>↵</kbd> open</span><span><kbd>esc</kbd> close</span></div>
   </div>
 </div>
-<div class="modal" id="view-modal" role="dialog" aria-modal="true" aria-labelledby="view-title">
+<div class="modal" id="view-modal" role="dialog" aria-modal="true" aria-labelledby="view-title" aria-describedby="view-hint">
   <div class="modal-bg" data-modal-close></div>
   <div class="modal-card">
     <h3 id="view-title">Save this view</h3>
-    <p class="hint" style="margin:0 0 14px">Remember the filters on this list so you can get back to them in one click.</p>
+    <p class="hint" id="view-hint" style="margin:0 0 14px">Remember the filters on this list so you can get back to them in one click.</p>
     <form id="view-form">
       <label for="view-name">View name</label>
       <input id="view-name" class="in" name="name" maxlength="80" required autocomplete="off" placeholder="e.g. Overdue this month">

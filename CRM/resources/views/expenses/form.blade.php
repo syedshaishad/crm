@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('title',($expense->exists ? 'Edit ' : 'New ').'expense')
 @section('content')
-<div class="card" style="max-width:680px">
+<div class="card form-card" style="max-width:680px">
 <h3>{{ $expense->exists ? 'Edit expense' : 'New expense' }}</h3>
 <form method="POST" action="{{ $expense->exists ? route('expenses.update',$expense) : route('expenses.store') }}" enctype="multipart/form-data">@csrf @if($expense->exists)@method('PUT')@endif
 <div class="form-grid">

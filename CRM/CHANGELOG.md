@@ -6,7 +6,25 @@
 
 ## Unreleased
 
-7 migrations, `?v=140` CSS / `?v=10` dashboard CSS / `?v=84` JS.
+7 migrations, `?v=143` CSS / `?v=12` dashboard CSS / `?v=84` JS.
+
+- Full UI hygiene pass using the shadcn audit rubric (semantic tokens, one
+  spacing/alignment scale, accessible names and structure, no dead or
+  unnecessary UI), checked on the live install at desktop, tablet and phone
+  widths in both themes:
+  - removed the duplicated dashboard footer, the repeated "overdue work" hint
+    and duplicate Settings actions; added the missing Documents page heading;
+  - fixed heading levels on cash flow, money, work, tasks, form pages and the
+    invoice detail, and normalised all settings card headings to `h2`;
+  - `aria-current` on all active filter chips, explicit button types on
+    JS-only controls, matching accessible names on card menus, dialog
+    descriptions, and mobile touch targets for every chip class;
+  - raw status colours replaced with design tokens, a single on-dark text
+    token, removed duplicate avatar rules, one focus-visible ring on the
+    accent token, visible focus for hidden file inputs and the search palette;
+  - form cards now use a `.form-card` class instead of an inline-style
+    selector hack; dropdown and sidebar sizing no longer overflow short
+    viewports; the mobile drawer footer sits fully inside the panel.
 
 - New **Cash flow & collections** page (`/cashflow`, linked from the dashboard
   cashflow card and the sidebar). It shows a forward 13-week money-in/money-out

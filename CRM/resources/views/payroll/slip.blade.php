@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('title','Payslip '.$payroll->label())
 @section('content')
-<div class="card" style="max-width:680px">
+<div class="card form-card" style="max-width:680px">
 <div class="card-head"><h3>Payslip — {{ $payroll->label() }}</h3><button class="btn sm noprint" onclick="window.print()">Print / PDF</button></div>
 <p style="margin-top:0"><b>{{ $payslip->user->name ?? '' }}</b>@if($payslip->user->designation)<span class="hint"> · {{ $payslip->user->designation }}</span>@endif</p>
 <div class="tbl-scroll"><table class="tbl">

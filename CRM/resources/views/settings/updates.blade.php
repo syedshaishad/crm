@@ -113,7 +113,7 @@
 <div class="st-grid">
   <div class="card ix-card">
     <div class="card-head ix-card-head">
-      <div><h3>Upload &amp; apply package</h3><span class="hint">A database and file backup is taken before anything changes.</span></div>
+      <div><h2>Upload &amp; apply package</h2><span class="hint">A database and file backup is taken before anything changes.</span></div>
       <span class="ix-tag">Update</span>
     </div>
     <p class="fhint">Upload a <code class="st-code">.zip</code> containing <code class="st-code">update.php</code> (returning <code class="st-code">['version' =&gt; 'x.y.z']</code>) plus optional <code class="st-code">files/</code> and <code class="st-code">migrations/</code> at the zip root.</p>
@@ -129,7 +129,7 @@
 
   <div class="card ix-card">
     <div class="card-head ix-card-head">
-      <div><h3>Email me backups</h3><span class="hint">Nightly zip straight to your inbox.</span></div>
+      <div><h2>Email me backups</h2><span class="hint">Nightly zip straight to your inbox.</span></div>
       <span class="ix-state {{ setting('backups.email_enabled','0')==='1' ? 'is-green' : 'is-grey' }}"><i></i>{{ setting('backups.email_enabled','0')==='1' ? 'Sending' : 'Off' }}</span>
     </div>
     <form method="POST" action="{{ route('settings.updates.backupmail') }}">@csrf
@@ -150,7 +150,7 @@
 
 <div class="card ix-card">
   <div class="card-head ix-card-head">
-    <div><h3>Backups</h3><span class="hint">Database and all uploaded files as one zip. Nightly auto-backup at 2 AM keeps the last {{ setting('backups.retain_count', 3) }} (maximum 3) — older backups are deleted automatically.</span></div>
+    <div><h2>Backups</h2><span class="hint">Database and all uploaded files as one zip. Nightly auto-backup at 2 AM keeps the last {{ setting('backups.retain_count', 3) }} (maximum 3) — older backups are deleted automatically.</span></div>
     <span class="ix-tag">{{ $backupCount }} on disk</span>
   </div>
   <div class="ix-table-scroll">
@@ -198,7 +198,7 @@
 <div class="st-grid">
   <div class="card ix-card">
     <div class="card-head ix-card-head">
-      <div><h3>Server readiness</h3><span class="hint">Checked live on this page load.</span></div>
+      <div><h2>Server readiness</h2><span class="hint">Checked live on this page load.</span></div>
       <span class="ix-state {{ $readyTone }}"><i></i>{{ $ready }}</span>
     </div>
     <div class="ix-table-scroll">
@@ -221,7 +221,7 @@
 
   <div class="card ix-card">
     <div class="card-head ix-card-head">
-      <div><h3>Packages on disk</h3><span class="hint">Re-apply a package already uploaded to the server.</span></div>
+      <div><h2>Packages on disk</h2><span class="hint">Re-apply a package already uploaded to the server.</span></div>
       <span class="ix-tag">{{ count($packages ?? []) }}</span>
     </div>
     @forelse($packages ?? [] as $p)

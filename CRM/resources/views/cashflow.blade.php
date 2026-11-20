@@ -1,10 +1,10 @@
 @extends('layouts.app')
 @section('title','Cash flow')
-@section('head')<link rel="stylesheet" href="{{ asset('assets/css/dc.css').'?v=10' }}">@endsection
+@section('head')<link rel="stylesheet" href="{{ asset('assets/css/dc.css').'?v=12' }}">@endsection
 @section('content')
 <div class="dc">
   <section class="dc-gc" style="padding:16px;margin-bottom:14px">
-    <div class="dc-sh2"><h2>Cash flow &amp; collections</h2><a href="{{ route('dashboard') }}">← Dashboard</a></div>
+    <div class="dc-sh2"><h1>Cash flow &amp; collections</h1><a href="{{ route('dashboard') }}">← Dashboard</a></div>
     <p class="hint" style="margin:2px 0 14px">Expected money in comes from open invoice balances by due date. Planned money out comes from active recurring expenses. Weeks run Monday to Sunday.</p>
     <div class="dc-kp">
       <div class="dc-k"><small>Outstanding</small><b>{{ money($outstanding) }}</b></div>

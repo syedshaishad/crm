@@ -55,7 +55,7 @@
 <div class="st-grid">
   <div class="card ix-card">
     <div class="card-head ix-card-head">
-      <div><h3>GST</h3><span class="hint">Applies to new invoices. Existing invoices keep their own rates.</span></div>
+      <div><h2>GST</h2><span class="hint">Applies to new invoices. Existing invoices keep their own rates.</span></div>
       <span class="ix-tag">Indirect tax</span>
     </div>
 
@@ -80,7 +80,7 @@
 
   <div class="card ix-card">
     <div class="card-head ix-card-head">
-      <div><h3>TDS — tax deducted at source</h3><span class="hint">Record client deductions on payments and vendor deductions on expenses.</span></div>
+      <div><h2>TDS — tax deducted at source</h2><span class="hint">Record client deductions on payments and vendor deductions on expenses.</span></div>
       <span class="ix-state {{ $tdsOn ? 'is-green' : 'is-grey' }}"><i></i>{{ $tdsOn ? 'Tracking' : 'Off' }}</span>
     </div>
 
@@ -104,7 +104,7 @@
       <span>Changes apply to documents created after saving.</span>
     </div>
     <div class="st-actions-btns">
-      <a class="btn sec" href="{{ route('settings.index') }}">Cancel</a>
+      
       <button class="btn" type="submit">Save tax settings</button>
     </div>
   </div>

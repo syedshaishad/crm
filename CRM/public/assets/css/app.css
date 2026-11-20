@@ -748,7 +748,7 @@ details.adv[open] > *:not(summary){animation:rise .25s var(--ease-out)}
 .top-actions .has-drop{position:relative}
 .has-drop > .icon-pill{position:relative}
 .bell-badge{position:absolute;top:-5px;right:-6px;min-width:17px;height:17px;border-radius:9px;background:var(--primary);color:#fff;font-size:10.5px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;padding:0 4px;line-height:1;box-shadow:0 0 0 2px var(--surface-2)}
-.drop-notes{min-width:300px;max-width:min(360px,90vw);right:0;left:auto}
+.drop-notes{min-width:min(300px,90vw);max-width:min(360px,90vw);right:0;left:auto}
 .notes-head{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 13px;border-bottom:1px solid var(--line);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;opacity:.85}
 .notes-head form{margin:0}
 .link-btn{background:none;border:0;color:var(--primary);font-size:11.5px;text-decoration:underline;cursor:pointer;padding:0}
@@ -925,6 +925,7 @@ html[data-theme="dark"] input.in,html[data-theme="dark"] select.in,html[data-the
 .spot-bar{display:flex;align-items:center;gap:12px;padding:16px 18px;border-bottom:1px solid var(--line)}
 .spot-bar svg{width:19px;height:19px;color:var(--muted);flex:0 0 19px}
 .spot-bar input{border:0;background:none;outline:0;font-size:17px;width:100%;color:var(--ink);font-family:inherit}
+.spot-bar input:focus-visible{box-shadow:0 2px 0 var(--dc-accent)}
 .spot-bar input::placeholder{color:var(--muted)}
 .spot-results{max-height:min(46vh,420px);overflow:auto;padding:8px}
 .spot-results .sp-g{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:700;padding:10px 14px 4px}
@@ -1084,7 +1085,7 @@ html[data-theme="dark"]{
 /* ================= App shell round 2: skip link, collapsible groups, quick-create ================= */
 .skip-link{position:absolute;left:-9999px;top:0;background:var(--ink);color:var(--surface);padding:10px 18px;border-radius:0 0 10px 0;z-index:200;font-weight:600;font-size:13px}
 .skip-link:focus{left:0;text-decoration:none}
-:focus-visible{outline:2px solid var(--primary);outline-offset:2px;border-radius:6px}
+:focus-visible{outline:2px solid var(--dc-accent);outline-offset:2px}
 .avatar.sm{width:24px;height:24px;font-size:11px;top:0}
 .drop form button{display:flex;align-items:center;gap:9px;padding:9px 13px;border-radius:11px;font-size:13.5px;font-weight:500;color:var(--ink);background:none;border:0;cursor:pointer;font-family:inherit;width:100%;text-align:left}
 .drop form button:hover{background:var(--surface-2)}
@@ -1324,7 +1325,7 @@ html:root[data-theme="dark"] .auth-side,html:root:not([data-theme="light"]) .aut
   --dc-green:var(--brand-success,#0f7049); --dc-amber:var(--brand-warning,#f0b429);
   --dc-amber-ink:#8a5706;
   --dc-red:var(--brand-danger,#b32446); --dc-blue:var(--brand-info,#0a5fd0);
-  --dc-dark:#111111;
+  --dc-dark:#111111; --dc-on-dark:#d6d0d0;
   --dc-shadow:0 4px 18px rgba(70,50,50,.05);
   --dc-shadow-lg:0 24px 60px rgba(70,50,50,.14);
 }
@@ -1378,7 +1379,7 @@ html:has(.dc-app){background:var(--dc-page)}
 .dc-ibtn .avatar{margin:0}
 /* body: rail + tree + panel */
 .dc-bd{display:flex;gap:6px;align-items:flex-start}
-.dc-rl{width:62px;flex:none;display:flex;flex-direction:column;align-items:center;gap:14px;padding:8px 0;position:sticky;top:16px;height:calc(100vh - 132px);min-height:300px}
+.dc-rl{width:62px;flex:none;display:flex;flex-direction:column;align-items:center;gap:14px;padding:8px 0;position:sticky;top:16px;height:calc(100vh - 132px);min-height:min(300px,calc(100vh - 132px))}
 .dc-rb{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--dc-ink2);text-decoration:none;position:relative}
 .dc-rb svg{width:18px;height:18px}
 .dc-rb:hover{background:var(--dc-panel)}
@@ -1409,7 +1410,7 @@ html:has(.dc-app){background:var(--dc-page)}
 /* main panel */
 .dc-main{flex:1;min-width:0;background:var(--dc-panel);border-radius:28px;padding:20px 24px 26px;box-shadow:var(--dc-shadow);min-width:0}
 /* standalone width-capped form cards sit centered on the wide canvas */
-.dc-main .card[style*="max-width:6"],.dc-main .card[style*="max-width:7"]{margin-left:auto;margin-right:auto}
+.dc-main .form-card{margin-left:auto;margin-right:auto}
 .dc-main .content{padding:0;max-width:none;margin:0;animation:none}
 .dc-main .footer-note{margin:18px 4px 0}
 /* desktop burger collapses the tree, rail stays */
@@ -1426,7 +1427,7 @@ body.side-min .dc-tr{display:none}
 @media(max-width:1000px){
   /* pinned to the foot of the drawer so Settings is reachable without
      scrolling a long HR/tree list */
-  body.nav-open .dc-tmore{display:flex;flex-direction:column;gap:2px;margin-top:auto;padding-top:10px;border-top:1px solid var(--dc-line2);position:sticky;bottom:-16px;background:var(--dc-shell);box-shadow:0 -10px 14px -12px rgba(20,18,14,.35)}
+  body.nav-open .dc-tmore{display:flex;flex-direction:column;gap:2px;margin-top:auto;padding-top:10px;border-top:1px solid var(--dc-line2);position:sticky;bottom:0;background:var(--dc-shell);box-shadow:0 -10px 14px -12px rgba(20,18,14,.35)}
   body.nav-open .dc-tmore .dc-t0.link{margin-top:0;min-height:40px;padding:0 8px}
 }
 /* ============================================================================
@@ -3370,3 +3371,7 @@ html:root[data-theme="dark"] .auth-side,html:root:not([data-theme="light"]) .aut
 .sv-chip.on .sv-act{border-left-color:var(--dc-accent-soft)}
 .sv-add{border-style:dashed;padding:0 14px}
 @media(max-width:640px){.sv-go,.sv-act,.sv-add{min-height:44px}}
+
+/* keyboard focus must remain visible on hidden file inputs */
+.file-field:focus-within,.fm-upload:focus-within{outline:2px solid var(--dc-accent);outline-offset:2px;border-radius:12px}
+@media(max-width:640px){.chip,.badge,.ix-chip,.cl-status-chip,.ld-stage-chip,.kb-kind,.ql-sev,.ql-state,.mtg-count,.ix-tag,.api-method{min-height:34px;padding:7px 12px}}

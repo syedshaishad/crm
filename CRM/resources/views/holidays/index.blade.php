@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('title','Holidays')
 @section('content')
-<div class="card" style="max-width:680px">
+<div class="card form-card" style="max-width:680px">
 <div class="card-head"><h3>Company holidays ({{ date('Y') }})</h3><span class="hint">payroll + rosters skip these</span></div>
 <form method="POST" action="{{ route('holidays.store') }}" class="noprint" style="display:flex;gap:8px;align-items:end;margin-bottom:12px">@csrf
 <div><label class="f">Day</label><input class="in" type="date" name="day" style="margin:0" required></div>

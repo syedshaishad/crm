@@ -15,7 +15,7 @@
   <div class="card-head ix-card-head"><div><h2>Requests</h2><span class="hint">Newest first</span></div></div>
   <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">
     @foreach($statuses as $s)
-    <a class="ix-chip {{ $status === $s ? 'on' : '' }}" href="{{ $urlFor($s) }}">{{ ucfirst(str_replace('_',' ',$s)) }}</a>
+    <a class="ix-chip {{$status === $s ? 'on' : ''}}" @if($status === $s ? 'on' : '') aria-current="page" @endif href="{{ $urlFor($s) }}">{{ ucfirst(str_replace('_',' ',$s)) }}</a>
     @endforeach
   </div>
   @if($rows->isEmpty())

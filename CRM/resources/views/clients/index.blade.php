@@ -25,7 +25,7 @@
     </div>
   </div>
   <div class="cl-head-actions noprint">
-    <button class="btn sm sec" data-modal-open="import-modal">
+    <button class="btn sm sec" type="button" data-modal-open="import-modal">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m-4-4 4 4 4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
       Import
     </button>

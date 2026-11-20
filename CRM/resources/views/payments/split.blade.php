@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('title','Split payment')
 @section('content')
-<div class="card" style="max-width:760px">
+<div class="card form-card" style="max-width:760px">
 <h3>Split one receipt across invoices</h3>
 <p class="fhint">One cheque / transfer paying several bills? Allocate it here — oldest due first. Each line becomes its own receipt with the same reference.</p>
 <form method="GET" action="{{ route('payments.split') }}" style="display:flex;gap:8px;align-items:end;margin-bottom:12px">

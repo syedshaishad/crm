@@ -51,7 +51,7 @@
 
 <div class="card ix-card">
   <div class="card-head ix-card-head">
-    <div><h3>Recent attempts</h3><span class="hint">{{ $webhook->url }}</span></div>
+    <div><h2>Recent attempts</h2><span class="hint">{{ $webhook->url }}</span></div>
     <span class="ix-state {{ $failed ? 'is-red' : ($total ? 'is-green' : 'is-grey') }}"><i></i>{{ $failed ? 'Attention' : ($total ? 'Healthy' : 'Idle') }}</span>
   </div>
   <p class="fhint" style="margin-top:-4px">Verify <code class="st-code">X-CRM-Signature</code> — an HMAC-SHA256 of the raw body using your secret.</p>

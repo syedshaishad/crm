@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('title', $doc->exists ? 'Edit '.$doc->number : 'New document')
 @section('content')
-<div class="card" style="max-width:680px">
+<div class="card form-card" style="max-width:680px">
 <h3>{{ $doc->exists ? 'Edit '.$doc->number : 'Track a document' }}</h3>
 <form method="POST" action="{{ $doc->exists ? route('expiry.update',$doc) : route('expiry.store') }}">@csrf @if($doc->exists)@method('PUT')@endif
 <label class="f">Title <span class="req">*</span></label>

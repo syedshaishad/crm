@@ -53,7 +53,7 @@
   </div>
   <div class="ix-filters" style="display:flex;gap:6px;flex-wrap:wrap;margin:0 0 12px">
     @foreach($statuses as $s)
-    <a class="ix-chip {{ $status === $s ? 'on' : '' }}" href="{{ $urlFor($s) }}">{{ ucfirst($s) }}</a>
+    <a class="ix-chip {{$status === $s ? 'on' : ''}}" @if($status === $s ? 'on' : '') aria-current="page" @endif href="{{ $urlFor($s) }}">{{ ucfirst($s) }}</a>
     @endforeach
   </div>
   @if($rows->isEmpty())

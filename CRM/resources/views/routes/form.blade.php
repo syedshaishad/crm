@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('title','Plan route')
 @section('content')
-<div class="card" style="max-width:720px">
+<div class="card form-card" style="max-width:720px">
 <h3>Plan a delivery route</h3>
 <form method="POST" action="{{ route('routes.store') }}">@csrf
 <div class="form-grid">

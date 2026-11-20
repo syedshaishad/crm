@@ -56,7 +56,7 @@
 <div class="st-grid">
   <div class="card ix-card">
     <div class="card-head ix-card-head">
-      <div><h3>Razorpay</h3><span class="hint">Payment gateway keys. Leave blank to disable online payments.</span></div>
+      <div><h2>Razorpay</h2><span class="hint">Payment gateway keys. Leave blank to disable online payments.</span></div>
       <span class="ix-state {{ $rzpTone }}"><i></i>{{ ucfirst($rzpState) }}</span>
     </div>
     <form id="integrations-form" method="POST" action="{{ route('settings.integrations.store') }}">@csrf
@@ -78,7 +78,7 @@
       </div>
       <div class="st-actions-inline">
         <button class="btn" type="submit">Save integrations</button>
-        <a class="btn sec" href="{{ route('settings.index') }}">Cancel</a>
+        
         <span class="hint">Saved to this installation’s <code class="st-code">.env</code>.</span>
       </div>
     </form>
@@ -98,7 +98,7 @@
 
   <div class="card ix-card">
     <div class="card-head ix-card-head">
-      <div><h3>WhatsApp Cloud API</h3><span class="hint">Business-initiated reminders go out as an approved Meta template with four body parameters: client name, invoice number, balance and due date.</span></div>
+      <div><h2>WhatsApp Cloud API</h2><span class="hint">Business-initiated reminders go out as an approved Meta template with four body parameters: client name, invoice number, balance and due date.</span></div>
       <span class="ix-state {{ $waOn ? 'is-green' : 'is-grey' }}"><i></i>{{ $waOn ? 'Configured' : 'Off' }}</span>
     </div>
     <form method="POST" action="{{ route('settings.whatsapp.store') }}">@csrf

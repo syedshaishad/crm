@@ -1,8 +1,9 @@
 @extends('layouts.app')
 @section('title',($client->exists ? 'Edit ' : 'New ').'client')
 @section('content')
-<div class="card" style="max-width:680px">
-<h3>{{ $client->exists ? 'Edit client' : 'New client' }}</h3>
+<h1 class="sr-only">{{ $client->exists ? 'Edit client' : 'New client' }}</h1>
+<div class="card form-card" style="max-width:680px">
+<h2>{{ $client->exists ? 'Edit client' : 'New client' }}</h2>
 <p class="fhint">Just the name is required — everything else can wait.</p>
 <form method="POST" action="{{ $client->exists ? route('clients.update',$client) : route('clients.store') }}">@csrf @if($client->exists)@method('PUT')@endif
 <label class="f">Name <span class="req">*</span></label>

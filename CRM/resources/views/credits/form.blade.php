@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('title','New credit note')
 @section('content')
-<div class="card" style="max-width:680px">
+<div class="card form-card" style="max-width:680px">
 <h3>New credit note</h3>
 <form method="POST" action="{{ route('credits.store') }}">@csrf
 <label class="f">Client <span class="req">*</span></label>

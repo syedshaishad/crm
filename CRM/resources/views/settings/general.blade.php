@@ -89,7 +89,7 @@
 
   <div class="card ix-card">
     <div class="card-head ix-card-head">
-      <div><h3>Uploads &amp; limits</h3><span class="hint">File caps for receipts and documents.</span></div>
+      <div><h2>Uploads &amp; limits</h2><span class="hint">File caps for receipts and documents.</span></div>
       <span class="ix-tag">Storage</span>
     </div>
     <div class="form-grid">
@@ -144,7 +144,7 @@
 <div class="st-grid">
   <div class="card ix-card">
     <div class="card-head ix-card-head">
-      <div><h3>Yearly leave quotas</h3><span class="hint">Default allowance per person, per year.</span></div>
+      <div><h2>Yearly leave quotas</h2><span class="hint">Default allowance per person, per year.</span></div>
       <span class="ix-tag">People</span>
     </div>
     <div class="st-rate-grid is-three">
@@ -166,7 +166,7 @@
 
   <div class="card ix-card">
     <div class="card-head ix-card-head">
-      <div><h3>Maintenance</h3><span class="hint">Housekeeping for the nightly backup run.</span></div>
+      <div><h2>Maintenance</h2><span class="hint">Housekeeping for the nightly backup run.</span></div>
       <span class="ix-tag">System</span>
     </div>
     <div>
@@ -179,7 +179,7 @@
 
 <div class="card ix-card">
   <div class="card-head ix-card-head">
-    <div><h3>Morning digest email</h3><span class="hint">One email every morning with follow-ups, due tasks, overdue invoices and expiring proposals. Sent by the daily scheduler.</span></div>
+    <div><h2>Morning digest email</h2><span class="hint">One email every morning with follow-ups, due tasks, overdue invoices and expiring proposals. Sent by the daily scheduler.</span></div>
     <span class="ix-state {{ $digestOn ? 'is-green' : 'is-grey' }}"><i></i>{{ $digestOn ? 'Sending' : 'Paused' }}</span>
   </div>
   <div class="st-checks">
@@ -203,7 +203,7 @@
       <span>Currency, locale, listing defaults and digest delivery.</span>
     </div>
     <div class="st-actions-btns">
-      <a class="btn sec" href="{{ route('settings.index') }}">Cancel</a>
+      
       <button class="btn" type="submit">Save general settings</button>
     </div>
   </div>

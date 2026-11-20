@@ -54,15 +54,15 @@
 
 <div class="card ix-card">
   <div class="card-head ix-card-head">
-    <div><h3>Team directory</h3><span class="hint">Search, filter and manage roles, activation and module access.</span></div>
+    <div><h2>Team directory</h2><span class="hint">Search, filter and manage roles, activation and module access.</span></div>
     <span class="ix-tag">{{ $users->total() }} shown</span>
   </div>
 
   <div class="ix-statuses noprint">
-    <a class="ix-chip {{ ! $hasFilters ? 'on' : '' }}" href="{{ $base }}">All <b>{{ $stats['total'] }}</b></a>
-    <a class="ix-chip {{ $filters['status'] === 'active' ? 'on' : '' }}" href="{{ $base }}?status=active"><i style="background:var(--dc-green)"></i>Active <b>{{ $stats['active'] }}</b></a>
-    <a class="ix-chip {{ $filters['status'] === 'disabled' ? 'on' : '' }}" href="{{ $base }}?status=disabled"><i style="background:var(--dc-muted)"></i>Disabled <b>{{ $stats['disabled'] }}</b></a>
-    <a class="ix-chip {{ $filters['role'] === 'admin' ? 'on' : '' }}" href="{{ $base }}?role=admin"><i style="background:var(--dc-blue)"></i>Admins <b>{{ $stats['admins'] }}</b></a>
+    <a class="ix-chip {{! $hasFilters ? 'on' : ''}}" @if(! $hasFilters ? 'on' : '') aria-current="page" @endif href="{{ $base }}">All <b>{{ $stats['total'] }}</b></a>
+    <a class="ix-chip {{$filters['status'] === 'active' ? 'on' : ''}}" @if($filters['status'] === 'active' ? 'on' : '') aria-current="page" @endif href="{{ $base }}?status=active"><i style="background:var(--dc-green)"></i>Active <b>{{ $stats['active'] }}</b></a>
+    <a class="ix-chip {{$filters['status'] === 'disabled' ? 'on' : ''}}" @if($filters['status'] === 'disabled' ? 'on' : '') aria-current="page" @endif href="{{ $base }}?status=disabled"><i style="background:var(--dc-muted)"></i>Disabled <b>{{ $stats['disabled'] }}</b></a>
+    <a class="ix-chip {{$filters['role'] === 'admin' ? 'on' : ''}}" @if($filters['role'] === 'admin' ? 'on' : '') aria-current="page" @endif href="{{ $base }}?role=admin"><i style="background:var(--dc-blue)"></i>Admins <b>{{ $stats['admins'] }}</b></a>
   </div>
 
   <form method="GET" data-ajax-filter data-region="users-list" class="ix-filters noprint">

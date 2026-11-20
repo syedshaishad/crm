@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('title', $order->exists ? 'Edit '.$order->number : 'New purchase order')
 @section('content')
-<div class="card" style="max-width:780px">
+<div class="card form-card" style="max-width:780px">
 <h3>{{ $order->exists ? 'Edit '.$order->number : 'New purchase order' }}</h3>
 <form method="POST" action="{{ $order->exists ? route('purchase-orders.update',$order) : route('purchase-orders.store') }}">@csrf @if($order->exists)@method('PUT')@endif
 <label class="f">Vendor <span class="req">*</span></label>

@@ -36,7 +36,7 @@
     </div>
   </div>
   <div class="ix-head-actions noprint">
-    <a class="btn sm sec" href="{{ route('settings.integrations') }}">Test mail setup</a>
+    
     <button class="btn sm" type="submit" form="emails-form">Save templates</button>
   </div>
 </div>
@@ -113,7 +113,7 @@
       <span>Applies to the next email sent from each workflow.</span>
     </div>
     <div class="st-actions-btns">
-      <a class="btn sec" href="{{ route('settings.index') }}">Cancel</a>
+      
       <a class="btn sec" href="{{ route('settings.integrations') }}">Test mail setup</a>
       <button class="btn" type="submit">Save email templates</button>
     </div>
@@ -123,7 +123,7 @@
 
 <div class="card ix-card">
   <div class="card-head ix-card-head">
-    <div><h3>Outbox — recent mail</h3><span class="hint">Auto-logged on send; the latest 25 messages.</span></div>
+    <div><h2>Outbox — recent mail</h2><span class="hint">Auto-logged on send; the latest 25 messages.</span></div>
     <span class="ix-tag">{{ number_format($outboxTotal) }} total</span>
   </div>
   <div class="ix-table-scroll">
