@@ -28,6 +28,12 @@
   1000px, so the navigation drawer now ends with a pinned footer holding
   Notifications, Settings and My account. It stays visible at the foot of the
   drawer instead of hiding below the long section list.
+- Deleting a record from its own page no longer lands on a 404. Contracts,
+  challans, delivery routes, cheques, expenses, expiry documents, purchase
+  orders and payments all redirected "back" after the delete, which pointed at
+  the record that had just gone; the AJAX handler then reported "Could not
+  delete" even though the row was already in the trash. They now return to
+  their list, matching invoices, proposals and payroll.
 - Updates can now come from the license server. Settings → Updates has an
   **Automatic updates** card that asks Licensify what this install may run
   (`POST /updates/check`) and shows the release notes, type, publish date and

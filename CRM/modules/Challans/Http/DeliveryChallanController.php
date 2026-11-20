@@ -156,7 +156,7 @@ class DeliveryChallanController extends Controller
     {
         $challan->delete();
 
-        return back()->with('ok', 'Challan moved to Trash.');
+        return redirect()->route('challans.index')->with('ok', 'Challan moved to Trash.');
     }
 
     public function issue(DeliveryChallan $challan)

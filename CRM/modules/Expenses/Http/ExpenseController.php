@@ -141,7 +141,7 @@ class ExpenseController extends Controller
         DB::table('tds_entries')->where('expense_id', $expense->id)->where('kind', 'payable')->delete();
         $expense->delete(); // soft: receipt file stays so restore works
 
-        return back()->with('ok', 'Expense moved to Trash.');
+        return redirect()->route('expenses.index')->with('ok', 'Expense moved to Trash.');
     }
 
     /** Manager decision on a staff claim (pending only, either way). */

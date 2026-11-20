@@ -88,7 +88,7 @@ class ExpiryDocumentController extends Controller
     {
         $expiryDocument->delete();
 
-        return back()->with('ok', 'Document moved to Trash.');
+        return redirect()->route('expiry.index')->with('ok', 'Document moved to Trash.');
     }
 
     /** Renew in place: new validity starts where the old one ends. */

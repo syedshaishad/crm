@@ -117,7 +117,7 @@ class AmcContractController extends Controller
     {
         $amcContract->delete();
 
-        return back()->with('ok', 'Contract moved to Trash.');
+        return redirect()->route('amc.index')->with('ok', 'Contract moved to Trash.');
     }
 
     /** Renew: fresh 12-month contract continuing where this one ends. */

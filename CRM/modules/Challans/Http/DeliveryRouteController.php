@@ -109,6 +109,6 @@ class DeliveryRouteController extends Controller
     {
         $route->delete();
 
-        return back()->with('ok', 'Route moved to Trash.');
+        return redirect()->route('routes.index')->with('ok', 'Route moved to Trash.');
     }
 }

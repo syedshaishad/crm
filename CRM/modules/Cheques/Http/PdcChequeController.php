@@ -89,7 +89,7 @@ class PdcChequeController extends Controller
         abort_if($cheque->status === 'cleared', 400, 'A cleared cheque stays on record — cancel instead.');
         $cheque->delete();
 
-        return back()->with('ok', 'Cheque moved to Trash.');
+        return redirect()->route('cheques.index')->with('ok', 'Cheque moved to Trash.');
     }
 
     public function deposit(Request $r, PdcCheque $cheque)

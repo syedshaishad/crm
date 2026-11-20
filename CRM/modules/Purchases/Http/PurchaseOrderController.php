@@ -166,7 +166,7 @@ class PurchaseOrderController extends Controller
     {
         $purchaseOrder->delete();
 
-        return back()->with('ok', 'Purchase order moved to Trash.');
+        return redirect()->route('purchase-orders.index')->with('ok', 'Purchase order moved to Trash.');
     }
 
     public function send(PurchaseOrder $purchaseOrder)

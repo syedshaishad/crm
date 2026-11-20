@@ -248,7 +248,7 @@ class PaymentController extends Controller
         }
         $payment->delete();
 
-        return back()->with('ok', 'Payment moved to Trash.');
+        return redirect()->route('payments.index')->with('ok', 'Payment moved to Trash.');
     }
 
     /** (Re)generate the no-login public receipt link for sharing with the client. */
