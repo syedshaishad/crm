@@ -27,6 +27,10 @@ dependency on any vendor server**.
    requirements → database → admin → company → mail/SMTP → Razorpay/GST/storage → finish.
 6. Installer writes `.env`, runs migrations, creates admin, links storage,
     then writes `storage/framework/installed.lock` and locks itself.
+7. If you enable online payments, set **both** Razorpay keys *and*
+   `RAZORPAY_WEBHOOK_SECRET`. Without the webhook secret the payment webhook
+   endpoint refuses all events, so no gateway payment can be recorded without
+   a verified signature.
 
 ## 3. Cron (overdue invoices + scheduler)
 Set one cron entry so `invoices:mark-overdue` runs daily (cPanel → Cron Jobs):
