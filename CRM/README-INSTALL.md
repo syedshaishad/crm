@@ -1,18 +1,24 @@
 # Standalone Self-Hosted CRM — Install & Resale Guide (v1.0.0)
 
 This is a **single-tenant, self-hosted Laravel CRM**. Each buyer gets an independent
-install: own files, own MySQL database, own users/data. There is **no SaaS, no
-multi-tenancy, no shared database, and no dependency on any vendor server**.
+install: own files, own database (MySQL/MariaDB or a single SQLite file), own
+users/data. There is **no SaaS, no multi-tenancy, no shared database, and no
+dependency on any vendor server**.
 
 ## 1. Sell / deliver
 - Ship the release zip (`crm-v1.0.0.zip`). It bundles `vendor/` and excludes
   `.env*`, `database/*.sqlite`, logs/backups, generated caches and every
   install/licence identity file (`storage/app/.installation_id`, `.license_*`,
   `license.key`).
-- Buyer uploads to their hosting (cPanel shared, VPS, any PHP 8.2+ + MySQL/MariaDB host).
+- Buyer uploads to their hosting (cPanel shared, VPS, any PHP 8.2+ host with
+  `pdo_mysql` or `pdo_sqlite`).
 
 ## 2. Install on cPanel shared hosting
-1. Create MySQL database + user in cPanel → MySQL Databases. Note host/db/user/pass.
+1. **Database:** either create a MySQL database + user in cPanel → MySQL
+   Databases and note host/db/user/pass, **or** choose SQLite in the wizard and
+   leave `database/database.sqlite` as the file path (the installer creates it;
+   the containing folder must be writable). SQLite needs no database server and
+   suits a single small team; MySQL is better for heavier concurrent use.
 2. Upload zip to `/home/USER/crm-app`, extract. `composer install --no-dev -o` via
    cPanel Terminal/SSH (or upload a pre-built `vendor/` from your machine).
 3. Copy `crm-app/public/*` → `public_html/` (or point addon domain at `crm-app/public/`).
@@ -62,6 +68,8 @@ It is informational — hiding a module is done by removing its nav entry, not
 by config alone.
 
 ## 7. Requirements
-PHP ≥ 8.2, extensions: openssl, pdo(+mysql), mbstring, tokenizer, xml, ctype,
-json, bcmath, fileinfo. Writable: `storage/`, `bootstrap/cache`.
+PHP ≥ 8.2, extensions: openssl, pdo, mbstring, tokenizer, xml, ctype,
+json, bcmath, fileinfo, plus `pdo_mysql` (MySQL install) or `pdo_sqlite`
+(SQLite install). Writable: `storage/`, `bootstrap/cache`, and — for SQLite —
+the folder holding the database file.
 

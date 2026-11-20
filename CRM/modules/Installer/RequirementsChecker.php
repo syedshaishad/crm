@@ -62,4 +62,40 @@ class RequirementsChecker
             }
         }
     }
+
+    /**
+     * SQLite: no server, no credentials — just a file PHP must be able to
+     * create and write. Opening it proves the pdo_sqlite driver is present;
+     * the table round-trip proves the directory is actually writable (an
+     * existing read-only file opens fine but fails on the first write).
+     */
+    public function testSqlite(string $path): array
+    {
+        try {
+            if (! extension_loaded('pdo_sqlite')) {
+                return ['ok' => false, 'error' => 'PHP has no pdo_sqlite extension, so a single-file database cannot be used here. Ask your host to enable it, or install MySQL instead.'];
+            }
+            $dir = dirname($path);
+            if (! is_dir($dir)) {
+                return ['ok' => false, 'error' => 'That folder does not exist: '.$dir];
+            }
+            if (is_dir($path)) {
+                return ['ok' => false, 'error' => 'That path is a folder. Give the SQLite file a name, e.g. database/crm.sqlite.'];
+            }
+            if (file_exists($path) ? ! is_writable($path) : ! is_writable($dir)) {
+                return ['ok' => false, 'error' => 'Not writable: '.$path.'. Fix the permissions on that folder, then retry.'];
+            }
+            $pdo = new \PDO('sqlite:'.$path, null, null, [
+                \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+                \PDO::ATTR_TIMEOUT => 5,
+            ]);
+            $pdo->exec('CREATE TABLE IF NOT EXISTS _crm_probe (id INTEGER PRIMARY KEY)');
+            $pdo->exec('DROP TABLE _crm_probe');
+            $pdo = null;
+
+            return ['ok' => true];
+        } catch (\Throwable $e) {
+            return ['ok' => false, 'error' => 'SQLite could not open that file: '.$e->getMessage()];
+        }
+    }
 }

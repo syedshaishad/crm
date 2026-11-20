@@ -6,7 +6,17 @@
 
 ## Unreleased
 
-2 migrations, `?v=137` CSS / `?v=7` dashboard CSS / `?v=81` JS.
+2 migrations, `?v=138` CSS / `?v=7` dashboard CSS / `?v=82` JS.
+
+- The installer can now set up a **SQLite** database as well as MySQL/MariaDB.
+  Step 2 offers the two side by side: SQLite creates `database/database.sqlite`
+  (or a path you choose) after checking the directory is writable, migrates it,
+  and only writes `.env` once the migration succeeded, so a failed attempt can
+  be retried cleanly. MySQL keeps its existing flow and now switches the live
+  connection as well as writing `.env`. Both options are disabled when PHP
+  lacks their PDO driver, and the install guide documents the choice.
+- The settings sub-tab strip on phones now fades whichever edge has more tabs
+  behind it, so the swipeable row reads as swipeable at either end.
 
 - Interface audit pass, checked on every route at 1440, 1024 and 390 px:
   status text on tinted chips now clears 4.5:1 (the amber "Partial",

@@ -6,7 +6,7 @@
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <title>@yield('title', 'Dashboard') — {{ $brand['company_name'] ?? $brand['app_name'] ?? config('app.name') }}</title>
 @if(!empty($brand['favicon_path']))<link rel="icon" href="{{ asset('storage/'.$brand['favicon_path']) }}">@else<link rel="icon" href="{{ asset('favicon.ico') }}">@endif
-<link rel="stylesheet" href="{{ asset('assets/css/app.css').'?v=137' }}">
+<link rel="stylesheet" href="{{ asset('assets/css/app.css').'?v=138' }}">
 @include('brand.theme')
 @yield('head')
 </head>
@@ -300,6 +300,6 @@ foreach ($nav as $item) {
     <div class="spot-foot"><span><kbd>↑↓</kbd> navigate</span><span><kbd>↵</kbd> open</span><span><kbd>esc</kbd> close</span></div>
   </div>
 </div>
-<script src="{{ asset('assets/js/app.js').'?v=81' }}"></script>
+<script src="{{ asset('assets/js/app.js').'?v=82' }}"></script>
 </body>
 </html>

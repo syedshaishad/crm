@@ -25,11 +25,19 @@ class InstallController extends Controller
 
     public function database()
     {
-        return view('installer.database');
+        return view('installer.database', [
+            'sqliteReady' => extension_loaded('pdo_sqlite'),
+            'mysqlReady' => extension_loaded('pdo_mysql'),
+            'sqliteDefault' => 'database/database.sqlite',
+        ]);
     }
 
     public function databaseStore(Request $request, RequirementsChecker $check)
     {
+        if ($request->input('DB_CONNECTION') === 'sqlite') {
+            return $this->databaseStoreSqlite($request, $check);
+        }
+
         $data = $request->validate([
             'DB_HOST' => 'required|string', 'DB_PORT' => 'required|numeric',
             'DB_DATABASE' => 'required|string', 'DB_USERNAME' => 'required|string',
@@ -41,12 +49,16 @@ class InstallController extends Controller
         }
         // Real domain from the first write — asset() links and emailed public
         // URLs must point at the host, never localhost.
-        app(EnvWriter::class)->write($data + ['APP_URL' => $request->getSchemeAndHttpHost()]);
+        app(EnvWriter::class)->write($data + [
+            'DB_CONNECTION' => 'mysql',
+            'APP_URL' => $request->getSchemeAndHttpHost(),
+        ]);
         // .env was written, but its values are NOT reloaded within this request —
         // the running process still holds the bootstrap defaults (root/empty).
         // Apply the submitted credentials to the live config too, or the migrate
         // call below reconnects as root@localhost and fails with access denied.
         config([
+            'database.default' => 'mysql',
             'database.connections.mysql.host' => $data['DB_HOST'],
             'database.connections.mysql.port' => $data['DB_PORT'],
             'database.connections.mysql.database' => $data['DB_DATABASE'],
@@ -55,6 +67,7 @@ class InstallController extends Controller
         ]);
         DB::purge('mysql');
         DB::reconnect('mysql');
+        DB::setDefaultConnection('mysql');
         try {
             Artisan::call('migrate', ['--force' => true]);
         } catch (\Throwable $e) {
@@ -62,6 +75,81 @@ class InstallController extends Controller
         }
 
         return redirect()->route('installer.admin');
+    }
+
+    /**
+     * Single-file install: create the database beside the app, hand it to the
+     * SQLite connection for THIS request, migrate, and only then write .env.
+     * Writing last means a failed migration leaves the previous settings in
+     * place and a half-built file can be deleted without stranding the wizard.
+     */
+    protected function databaseStoreSqlite(Request $request, RequirementsChecker $check)
+    {
+        if (! extension_loaded('pdo_sqlite')) {
+            return back()->withErrors(['db' => 'This server has no pdo_sqlite extension. Pick MySQL, or ask your host to enable SQLite.'])->withInput();
+        }
+        $request->validate(['DB_DATABASE' => 'nullable|string|max:500']);
+
+        $path = $this->sqlitePath($request);
+        if (preg_match('/[\x00-\x1F]/', $path)) {
+            return back()->withErrors(['db' => 'That file path contains control characters.'])->withInput();
+        }
+
+        $created = ! file_exists($path);
+        $test = $check->testSqlite($path);
+        if (! $test['ok']) {
+            if ($created && file_exists($path) && filesize($path) === 0) {
+                @unlink($path);
+            }
+
+            return back()->withErrors(['db' => $test['error']])->withInput();
+        }
+
+        config([
+            'database.default' => 'sqlite',
+            'database.connections.sqlite.database' => $path,
+        ]);
+        DB::purge('sqlite');
+        DB::reconnect('sqlite');
+        DB::setDefaultConnection('sqlite');
+        try {
+            Artisan::call('migrate', ['--force' => true, '--database' => 'sqlite']);
+        } catch (\Throwable $e) {
+            // Nothing is installed yet, so the empty file is safe to remove and
+            // the wizard can be retried with another path or with MySQL.
+            if ($created) {
+                foreach ([$path, $path.'-wal', $path.'-shm', $path.'-journal'] as $f) {
+                    if (is_file($f)) {
+                        @unlink($f);
+                    }
+                }
+            }
+
+            return back()->withErrors(['db' => 'Migration failed: '.$e->getMessage()])->withInput();
+        }
+
+        app(EnvWriter::class)->write([
+            'DB_CONNECTION' => 'sqlite',
+            'DB_DATABASE' => $path,
+            'APP_URL' => $request->getSchemeAndHttpHost(),
+        ]);
+
+        return redirect()->route('installer.admin');
+    }
+
+    /** Absolute, forward-slashed SQLite path; a bare name lands in the app root. */
+    protected function sqlitePath(Request $request): string
+    {
+        $raw = trim((string) $request->input('DB_DATABASE', ''));
+        if ($raw === '') {
+            $raw = database_path('database.sqlite');
+        }
+        $path = str_replace('\\', '/', $raw);
+        if (! preg_match('#^(?:[a-zA-Z]:/|/)#', $path)) {
+            $path = str_replace('\\', '/', base_path($path));
+        }
+
+        return $path;
     }
 
     public function admin()

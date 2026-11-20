@@ -75,6 +75,33 @@
       if (label) el.setAttribute('aria-label', label);
     });
   })();
+  // Horizontal chip rows hide their scrollbar on phones. Fade whichever edge
+  // still has tabs behind it so the strip reads as swipeable. app.js sets the
+  // data attribute; CSS supplies the mask, and removes it at the ends.
+  (function scrollEdges() {
+    function mark(el) {
+      var max = el.scrollWidth - el.clientWidth;
+      if (max <= 1) { el.removeAttribute('data-overflow'); return; }
+      var left = el.scrollLeft > 1;
+      var right = el.scrollLeft < max - 1;
+      var where = left && right ? 'both' : (right ? 'end' : (left ? 'start' : ''));
+      if (where) el.setAttribute('data-overflow', where);
+      else el.removeAttribute('data-overflow');
+    }
+    function init() {
+      document.querySelectorAll('.subtabs').forEach(function (el) {
+        if (!el.dataset.edgeReady) {
+          el.dataset.edgeReady = '1';
+          el.addEventListener('scroll', function () { mark(el); }, { passive: true });
+        }
+        mark(el);
+      });
+    }
+    window.addEventListener('resize', init);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(init);
+    setTimeout(init, 300);
+    init();
+  })();
   // Central motion gate: every JS-driven flourish checks this (CSS-only
   // motion is covered by the prefers-reduced-motion kill-switch in app.css).
   function motionOK() {
