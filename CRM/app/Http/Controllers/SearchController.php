@@ -99,6 +99,32 @@ class SearchController extends Controller
                 ])->all()];
             }
 
+            // Command-style actions: typing "new inv" or "cash" jumps straight
+            // to a screen. Same shape as search results, so the spot renders it.
+            $actions = [
+                ['New client', 'Action · Sales', 'clients.create', 'Clients', 'sales', 'new client add client'],
+                ['New invoice', 'Action · Billing', 'invoices.create', 'Invoices', 'billing', 'new invoice bill'],
+                ['New proposal', 'Action · Sales', 'proposals.create', 'Proposals', 'sales', 'new proposal quote'],
+                ['New task', 'Action · Work', 'tasks.create', 'Tasks', 'work', 'new task todo'],
+                ['New project', 'Action · Work', 'projects.create', 'Projects', 'work', 'new project'],
+                ['New lead', 'Action · Sales', 'leads.create', 'Leads', 'sales', 'new lead'],
+                ['New expense', 'Action · Billing', 'expenses.create', 'Expenses', 'billing', 'new expense spend'],
+                ['New product', 'Action · Sales', 'products.create', 'Products', 'sales', 'new product item'],
+                ['Cash flow', 'Go to · Dashboard', 'dashboard.cashflow', null, null, 'cash flow collections forecast'],
+                ['Settings', 'Go to · Workspace', 'settings.index', null, null, 'settings preferences config'],
+            ];
+            $hits = [];
+            foreach ($actions as $a) {
+                if ($a[3] && ! module_enabled($a[3])) continue;
+                if ($a[4] && ! user_can($a[4], 'view')) continue;
+                if (str_contains(strtolower($a[0].' '.$a[5]), strtolower($q))) {
+                    $hits[] = ['title' => $a[0], 'sub' => $a[1], 'url' => route($a[2])];
+                }
+            }
+            if ($hits) {
+                array_unshift($groups, ['label' => 'Actions', 'items' => array_slice($hits, 0, 6)]);
+            }
+
             // Switched-off modules leak no data through search either.
             $modFor = ['Clients' => 'Clients', 'Projects' => 'Projects', 'Tasks' => 'Tasks', 'Leads' => 'Leads', 'Invoices' => 'Invoices', 'Proposals' => 'Proposals', 'Payments' => 'Payments', 'Expenses' => 'Expenses', 'Documents' => 'Documents', 'Products' => 'Products'];
             $groups = array_values(array_filter($groups, fn ($g) => ! isset($modFor[$g['label']]) || module_enabled($modFor[$g['label']])));

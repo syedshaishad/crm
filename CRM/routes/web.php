@@ -7,6 +7,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ImportExportController;
 use App\Http\Controllers\NotificationsController;
 use App\Http\Controllers\PushSubscriptionController;
+use App\Http\Controllers\SavedViewController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\TrashController;
 use Illuminate\Support\Facades\Route;
@@ -75,6 +76,10 @@ Route::middleware(['installed', 'license'])->group(function () {
 
     Route::middleware(['auth', 'module'])->group(function () {
         Route::get('search', [SearchController::class, 'index'])->name('search');
+        Route::get('saved-views', [SavedViewController::class, 'index'])->name('saved-views.index');
+        Route::post('saved-views', [SavedViewController::class, 'store'])->name('saved-views.store');
+        Route::post('saved-views/{savedView}/default', [SavedViewController::class, 'makeDefault'])->name('saved-views.default');
+        Route::delete('saved-views/{savedView}', [SavedViewController::class, 'destroy'])->name('saved-views.destroy');
         Route::get('activity', [ActivityController::class, 'index'])->name('activity.index');
         Route::get('notifications', [NotificationsController::class, 'index'])->name('notifications.index');
         Route::post('notifications/{id}/read', [NotificationsController::class, 'markRead'])->name('notifications.read');

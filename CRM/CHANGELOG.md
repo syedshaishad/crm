@@ -6,7 +6,7 @@
 
 ## Unreleased
 
-2 migrations, `?v=138` CSS / `?v=9` dashboard CSS / `?v=82` JS.
+2 migrations, `?v=139` CSS / `?v=9` dashboard CSS / `?v=83` JS.
 
 - New **Cash flow & collections** page (`/cashflow`, linked from the dashboard
   cashflow card and the sidebar). It shows a forward 13-week money-in/money-out
@@ -14,6 +14,12 @@
   running cash position, receivables ageing buckets, and a ranked "who to
   chase" list with one-click reminder buttons that reuse the existing reminder
   endpoint.
+- Lists can now save their filters as **named views**. A chip bar appears above
+  every AJAX-filtered list; views are per user and per route, can be set as the
+  default, and are removed with the × on the chip. The global search palette
+  also understands actions — typing "new inv" or "cash" offers direct jumps to
+  create screens and the cash-flow page, gated by the same module and
+  permission checks as search results.
 
 - The installer can now set up a **SQLite** database as well as MySQL/MariaDB.
   Step 2 offers the two side by side: SQLite creates `database/database.sqlite`

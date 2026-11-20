@@ -6,7 +6,7 @@
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <title>@yield('title', 'Dashboard') — {{ $brand['company_name'] ?? $brand['app_name'] ?? config('app.name') }}</title>
 @if(!empty($brand['favicon_path']))<link rel="icon" href="{{ asset('storage/'.$brand['favicon_path']) }}">@else<link rel="icon" href="{{ asset('favicon.ico') }}">@endif
-<link rel="stylesheet" href="{{ asset('assets/css/app.css').'?v=138' }}">
+<link rel="stylesheet" href="{{ asset('assets/css/app.css').'?v=139' }}">
 @include('brand.theme')
 @yield('head')
 </head>
@@ -296,11 +296,32 @@ foreach ($nav as $item) {
 <div class="spot" id="spot" role="dialog" aria-label="Search" data-search-url="{{ route('search') }}">
   <div class="spot-bg" data-spot-close></div>
   <div class="spot-panel">
-    <div class="spot-bar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="spot-input" placeholder="Search clients, invoices, tasks…" autocomplete="off" role="combobox" aria-expanded="false"></div>
+    <div class="spot-bar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="spot-input" placeholder="Search anything, or type an action…" autocomplete="off" role="combobox" aria-expanded="false"></div>
     <div class="spot-results" id="spot-results"></div>
     <div class="spot-foot"><span><kbd>↑↓</kbd> navigate</span><span><kbd>↵</kbd> open</span><span><kbd>esc</kbd> close</span></div>
   </div>
 </div>
-<script src="{{ asset('assets/js/app.js').'?v=82' }}"></script>
+<div class="modal" id="view-modal" role="dialog" aria-modal="true" aria-labelledby="view-title">
+  <div class="modal-bg" data-modal-close></div>
+  <div class="modal-card">
+    <h3 id="view-title">Save this view</h3>
+    <p class="hint" style="margin:0 0 14px">Remember the filters on this list so you can get back to them in one click.</p>
+    <form id="view-form">
+      <label for="view-name">View name</label>
+      <input id="view-name" class="in" name="name" maxlength="80" required autocomplete="off" placeholder="e.g. Overdue this month">
+      <div class="form-actions"><button class="btn" type="submit">Save view</button><button class="btn sec" type="button" data-modal-close>Cancel</button></div>
+    </form>
+  </div>
+</div>
+<script>
+window.CRM_VIEWS = {
+  route: @json(request()->route() ? request()->route()->getName() : ''),
+  list: @json(route('saved-views.index')),
+  store: @json(route('saved-views.store')),
+  base: @json(url('saved-views')),
+  token: @json(csrf_token())
+};
+</script>
+<script src="{{ asset('assets/js/app.js').'?v=83' }}"></script>
 </body>
 </html>

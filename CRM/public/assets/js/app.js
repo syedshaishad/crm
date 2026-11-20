@@ -102,6 +102,110 @@
     setTimeout(init, 300);
     init();
   })();
+  // Saved filter views: every list with an AJAX filter gets a small chip bar.
+  // The server owns the records; this only renders them and posts changes.
+  (function savedViews() {
+    var cfg = window.CRM_VIEWS;
+    if (!cfg || !cfg.route) return;
+    var form = document.querySelector('form[data-ajax-filter]');
+    if (!form) return;
+    var bar = document.createElement('div');
+    bar.className = 'sv-bar noprint';
+    if (form.parentNode) form.parentNode.insertBefore(bar, form);
+
+    function request(url, options) {
+      var headers = { 'Accept': 'application/json', 'X-CSRF-TOKEN': cfg.token };
+      if (options && options.body) headers['Content-Type'] = 'application/json';
+      return fetch(url, Object.assign({ headers: headers }, options || {}));
+    }
+    function currentQuery() {
+      var q = {};
+      new FormData(form).forEach(function (v, k) { if (v !== '' && k !== 'page') q[k] = v; });
+      return q;
+    }
+    function chip(v) {
+      var wrap = document.createElement('span');
+      wrap.className = 'sv-chip' + (v.is_default ? ' on' : '');
+      var go = document.createElement('button');
+      go.type = 'button';
+      go.className = 'sv-go';
+      go.textContent = v.name;
+      go.title = 'Apply ' + v.name;
+      go.onclick = function () {
+        var u = new URL(form.getAttribute('action') || location.href, location.origin);
+        Object.keys(v.query || {}).forEach(function (k) { u.searchParams.set(k, v.query[k]); });
+        u.searchParams.delete('page');
+        location.href = u.href;
+      };
+      wrap.appendChild(go);
+      var star = document.createElement('button');
+      star.type = 'button';
+      star.className = 'sv-act';
+      star.textContent = '★';
+      star.title = 'Make default';
+      star.setAttribute('aria-label', 'Make ' + v.name + ' the default view');
+      star.onclick = function () {
+        request(cfg.base + '/' + v.id + '/default', { method: 'POST' }).then(function (r) { return r.json(); }).then(load).catch(function () {});
+      };
+      wrap.appendChild(star);
+      var del = document.createElement('button');
+      del.type = 'button';
+      del.className = 'sv-act';
+      del.textContent = '×';
+      del.title = 'Delete view';
+      del.setAttribute('aria-label', 'Delete ' + v.name);
+      del.onclick = function () {
+        request(cfg.base + '/' + v.id, { method: 'DELETE' }).then(function (r) { return r.json(); }).then(load).catch(function () {});
+      };
+      wrap.appendChild(del);
+      return wrap;
+    }
+    function render(views) {
+      bar.innerHTML = '';
+      var label = document.createElement('span');
+      label.className = 'sv-label';
+      label.textContent = 'Saved views';
+      bar.appendChild(label);
+      (views || []).forEach(function (v) { bar.appendChild(chip(v)); });
+      var add = document.createElement('button');
+      add.type = 'button';
+      add.className = 'sv-add';
+      add.textContent = '+ Save this view';
+      add.onclick = function () {
+        var m = document.getElementById('view-modal');
+        if (!m) return;
+        m.classList.add('open');
+        var input = document.getElementById('view-name');
+        if (input) input.focus();
+      };
+      bar.appendChild(add);
+    }
+    function load() {
+      request(cfg.list + '?route=' + encodeURIComponent(cfg.route))
+        .then(function (r) { return r.json(); })
+        .then(function (d) { render(d.views || []); })
+        .catch(function () {});
+    }
+    var form2 = document.getElementById('view-form');
+    if (form2) {
+      form2.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var input = document.getElementById('view-name');
+        var name = input ? input.value.trim() : '';
+        if (!name) return;
+        request(cfg.store, {
+          method: 'POST',
+          body: JSON.stringify({ name: name, route: cfg.route, query: currentQuery() })
+        }).then(function (r) { return r.json(); }).then(function () {
+          var m = document.getElementById('view-modal');
+          if (m) m.classList.remove('open');
+          form2.reset();
+          load();
+        }).catch(function () {});
+      });
+    }
+    load();
+  })();
   // Central motion gate: every JS-driven flourish checks this (CSS-only
   // motion is covered by the prefers-reduced-motion kill-switch in app.css).
   function motionOK() {
