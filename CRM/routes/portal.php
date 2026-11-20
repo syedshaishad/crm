@@ -36,6 +36,10 @@ Route::middleware('installed')->prefix('portal')->name('portal.')->group(functio
         Route::get('/receipts', [PortalController::class, 'receipts'])->name('receipts');
         Route::get('/statement', [PortalController::class, 'statement'])->name('statement');
         Route::get('/work', [PortalController::class, 'work'])->name('work');
+        Route::get('/documents', [PortalController::class, 'documents'])->name('documents');
+        Route::get('/requests', [PortalController::class, 'requests'])->name('requests');
+        Route::post('/requests', [PortalController::class, 'requestStore'])->name('requests.store');
+        Route::post('/requests/{clientRequest}/reply', [PortalController::class, 'requestReply'])->name('requests.reply');
         Route::post('/work/{project}/feedback', [PortalController::class, 'feedback'])->name('work.feedback');
         Route::get('/password', [PortalController::class, 'passwordForm'])->name('password');
         Route::post('/password', [PortalController::class, 'passwordStore'])->name('password.store');

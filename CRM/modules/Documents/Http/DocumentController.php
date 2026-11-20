@@ -14,7 +14,7 @@ class DocumentController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('perm:documents');
+        $this->middleware('perm:documents')->except(['publicSign', 'publicSignStore']);
     }
     public function index(Request $r)
     {
@@ -148,5 +148,46 @@ class DocumentController extends Controller
         $document->delete(); // soft: file stays so restore works
 
         return back()->with('ok', 'Document moved to Trash.');
+    }
+
+    public function requestSign(Document $document)
+    {
+        if (! $document->sign_token) {
+            $document->update(['sign_token' => \Illuminate\Support\Str::random(32)]);
+        }
+
+        return back()->with('ok', 'Signature link ready. The client can open it from the portal.');
+    }
+
+    public function publicSign(string $token)
+    {
+        $doc = Document::where('sign_token', $token)->firstOrFail();
+
+        return view('documents.sign', compact('doc'));
+    }
+
+    public function publicSignStore(Request $r, string $token)
+    {
+        $doc = Document::where('sign_token', $token)->firstOrFail();
+        $data = $r->validate([
+            'signed_by' => 'required|string|max:255',
+            'signature' => 'required|string',
+        ]);
+        if (! preg_match('/^data:image\/png;base64,(.+)$/s', $data['signature'], $m)) {
+            return back()->withErrors(['signature' => 'Draw your signature and try again.']);
+        }
+        $binary = base64_decode($m[1], true);
+        if (! $binary || strlen($binary) > 1000000 || substr($binary, 0, 8) !== "\x89PNG\r\n\x1a\n") {
+            return back()->withErrors(['signature' => 'That signature image could not be accepted.']);
+        }
+        $path = 'signatures/doc_'.$doc->id.'_'.time().'.png';
+        Storage::disk('public')->put($path, $binary);
+        $doc->update([
+            'signed_by' => $data['signed_by'],
+            'signed_at' => now(),
+            'signature_path' => $path,
+        ]);
+
+        return back()->with('ok', 'Document signed. Thank you.');
     }
 }

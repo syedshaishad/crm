@@ -6,7 +6,7 @@
 
 ## Unreleased
 
-4 migrations, `?v=139` CSS / `?v=9` dashboard CSS / `?v=83` JS.
+6 migrations, `?v=139` CSS / `?v=9` dashboard CSS / `?v=83` JS.
 
 - New **Cash flow & collections** page (`/cashflow`, linked from the dashboard
   cashflow card and the sidebar). It shows a forward 13-week money-in/money-out
@@ -26,6 +26,15 @@
   in one click; `renewals:sync` runs nightly and auto-drafts proposals for
   renewals inside 45 days. Drafts are idempotent — repeat runs reuse the
   existing proposal.
+- Client portal upgrades:
+  - the statement now leads with a **Pay outstanding** action that opens the
+    oldest open invoice with its secure pay widget;
+  - a shared **Requests** board lets clients open a request and reply in one
+    thread, with a staff-side inbox to answer and change status;
+  - **Documents** are listed in the portal with download and signature status.
+    Staff can request a signature from the document explorer; the client gets
+    a token-guarded signing page with a drawn signature, stored against the
+    document and shown in both the portal and the explorer.
 
 - The installer can now set up a **SQLite** database as well as MySQL/MariaDB.
   Step 2 offers the two side by side: SQLite creates `database/database.sqlite`

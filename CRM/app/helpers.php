@@ -90,7 +90,7 @@ if (! function_exists('perm_module_for_route')) {
         }
         foreach ([
             'dashboard' => 'dashboard',
-            'leads.' => 'sales', 'clients.' => 'sales', 'proposals.' => 'sales', 'products.' => 'sales', 'challans.' => 'sales', 'routes.' => 'sales', 'amc.' => 'sales', 'renewals.' => 'sales',
+            'leads.' => 'sales', 'clients.' => 'sales', 'proposals.' => 'sales', 'products.' => 'sales', 'challans.' => 'sales', 'routes.' => 'sales', 'amc.' => 'sales', 'client-requests.' => 'sales', 'renewals.' => 'sales',
             'projects.' => 'work', 'tasks.' => 'work', 'attendance.' => 'work', 'salary.' => 'work',
             'quality.' => 'work', 'meetings.' => 'work', 'knowledge.' => 'work', 'automations.' => 'work',
             'leaves.' => 'work', 'shifts.' => 'work', 'appraisals.' => 'work', 'holidays.' => 'work',

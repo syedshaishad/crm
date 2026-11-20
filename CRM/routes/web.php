@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ActivityController;
 use App\Http\Controllers\Api\V1\ApiTokenController;
+use App\Http\Controllers\ClientRequestController;
 use App\Http\Controllers\ClientUserController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ImportExportController;
@@ -242,6 +243,10 @@ Route::middleware(['installed', 'license'])->group(function () {
         Route::post('renewals/sync', [RenewalsController::class, 'sync'])->name('renewals.sync');
         Route::post('renewals/{renewal}/draft', [RenewalsController::class, 'draft'])->name('renewals.draft');
         Route::post('renewals/{renewal}/mark', [RenewalsController::class, 'mark'])->name('renewals.mark');
+        Route::get('client-requests', [ClientRequestController::class, 'index'])->name('client-requests.index');
+        Route::get('client-requests/{clientRequest}', [ClientRequestController::class, 'show'])->name('client-requests.show');
+        Route::post('client-requests/{clientRequest}/reply', [ClientRequestController::class, 'reply'])->name('client-requests.reply');
+        Route::post('client-requests/{clientRequest}/status', [ClientRequestController::class, 'status'])->name('client-requests.status');
         Route::post('invoices/{invoice}/email', [InvoiceController::class, 'sendEmail'])->name('invoices.email');
         Route::post('invoices/{invoice}/whatsapp', [InvoiceController::class, 'whatsapp'])->name('invoices.whatsapp');
         Route::post('invoices/{invoice}/tds', [InvoiceController::class, 'claimTds'])->name('invoices.tds.claim');
@@ -338,6 +343,7 @@ Route::middleware(['installed', 'license'])->group(function () {
         Route::post('documents', [DocumentController::class, 'store'])->name('documents.store');
         Route::patch('documents/{document}/move', [DocumentController::class, 'move'])->name('documents.move');
         Route::get('documents/{document}/download', [DocumentController::class, 'download'])->name('documents.download');
+        Route::post('documents/{document}/request-sign', [DocumentController::class, 'requestSign'])->name('documents.request-sign');
         Route::delete('documents/{document}', [DocumentController::class, 'destroy'])->name('documents.destroy');
 
         Route::prefix('settings')->name('settings.')->group(function () {
@@ -412,6 +418,10 @@ Route::post('proposals/sign/{token}/reply', [ProposalController::class, 'signRep
 // Public invoice / receipt view + download for clients (token-guarded, no login).
 Route::get('invoices/view/{token}', [InvoiceController::class, 'publicView'])->name('invoices.public');
 Route::get('payments/receipt/{token}', [PaymentController::class, 'publicView'])->name('payments.public');
+
+// Public document signing link (token-guarded, no login).
+Route::get('documents/sign/{token}', [DocumentController::class, 'publicSign'])->name('documents.sign');
+Route::post('documents/sign/{token}', [DocumentController::class, 'publicSignStore'])->name('documents.sign.store');
 // Public client checkout (token-guarded, throttled, balance-capped server-side).
 Route::post('invoices/pay/{token}/order', [PaymentController::class, 'publicOrder'])->middleware('throttle:20,1')->name('invoices.pay.order');
 Route::post('invoices/pay/{token}/verify', [PaymentController::class, 'publicVerify'])->middleware('throttle:20,1')->name('invoices.pay.verify');

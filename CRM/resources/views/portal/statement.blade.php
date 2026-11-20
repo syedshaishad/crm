@@ -8,6 +8,15 @@
   <div class="stat"><div class="lbl">Credit notes</div><b>{{ money($totals['credits']) }}</b></div>
   <div class="stat"><div class="lbl">Balance due</div><b>{{ money($totals['balance']) }}</b></div>
 </div>
+@if(!empty($payNow) && $totals['balance'] > 0)
+<div class="card" style="margin-bottom:14px">
+  <div class="card-head"><div><h2>Pay outstanding</h2><span class="hint">{{ money($totals['balance']) }} due across {{ $openCount }} open {{ \Illuminate\Support\Str::plural('invoice', $openCount) }}</span></div></div>
+  <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+    <a class="btn" href="{{ $payNow }}">Pay oldest invoice →</a>
+    <span class="hint">Each invoice opens with its own secure payment options. Other open invoices are listed below.</span>
+  </div>
+</div>
+@endif
 <div class="card">
 <div class="tbl-scroll roomy"><table class="tbl"><tr><th>Date</th><th>Type</th><th>Reference</th><th>Details</th><th style="text-align:right">Debit</th><th style="text-align:right">Credit</th><th style="text-align:right">Balance</th><th></th></tr>
 @forelse($rows as $e)<tr><td class="nowrap">{{ d($e['date']) }}</td><td>{{ $e['type'] }}</td><td><b>{{ $e['ref'] }}</b></td><td>{{ $e['details'] }}</td><td class="nowrap" style="text-align:right">@if($e['debit'] > 0){{ money($e['debit']) }}@else<span class="hint">—</span>@endif</td><td class="nowrap" style="text-align:right">@if($e['credit'] > 0){{ money($e['credit']) }}@else<span class="hint">—</span>@endif</td><td class="nowrap" style="text-align:right"><b>{{ money($e['balance']) }}</b></td><td style="text-align:right">@if(!empty($e['link']))<a class="btn sm sec" href="{{ $e['link'] }}">Open</a>@else<span class="hint">—</span>@endif</td></tr>@empty<tr><td colspan="8"><div class="empty">Nothing on your account yet.</div></td></tr>@endforelse</table></div>

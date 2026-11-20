@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ClientRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Modules\Invoices\Invoice;
@@ -82,8 +83,69 @@ class PortalController extends Controller
     public function statement()    {
         $client = $this->client();
         $data = app(\Modules\Clients\Http\ClientController::class)->ledgerData($client, true);
+        $open = $client->invoices()->whereNotIn('status', ['paid', 'cancelled', 'draft'])->get()
+            ->filter(fn ($i) => $i->balance() > 0)->sortBy('due_date');
+        $first = $open->first();
+        $data['payNow'] = $first && $first->public_token
+            ? route('invoices.public', $first->public_token) : null;
+        $data['openCount'] = $open->count();
 
         return view('portal.statement', array_merge(compact('client'), $data));
+    }
+
+    /** Documents shared with this client, plus any signature request. */
+    public function documents()
+    {
+        $documents = $this->client()->documents()->orderByDesc('id')->get();
+
+        return view('portal.documents', compact('documents'));
+    }
+
+    /** Shared request board: clients open requests and reply in the same thread. */
+    public function requests()
+    {
+        $requests = ClientRequest::where('client_id', $this->client()->id)
+            ->orderByDesc('id')->paginate(perPage());
+
+        return view('portal.requests', compact('requests'));
+    }
+
+    public function requestStore(Request $r)
+    {
+        $d = $r->validate([
+            'subject' => 'required|string|max:180',
+            'body' => 'required|string|max:4000',
+            'priority' => 'nullable|in:low,normal,high',
+        ]);
+        $who = auth('client')->user()->name;
+        ClientRequest::create([
+            'client_id' => $this->client()->id,
+            'client_user_id' => auth('client')->id(),
+            'subject' => $d['subject'],
+            'body' => $d['body'],
+            'priority' => $d['priority'] ?? 'normal',
+            'status' => 'open',
+            'messages' => [[
+                'from' => 'client', 'author' => $who,
+                'body' => $d['body'], 'at' => now()->toIso8601String(),
+            ]],
+        ]);
+
+        return back()->with('ok', 'Request sent. Our team will reply here.');
+    }
+
+    public function requestReply(Request $r, ClientRequest $clientRequest)
+    {
+        $req = ClientRequest::where('client_id', $this->client()->id)->findOrFail($clientRequest->id);
+        $d = $r->validate(['body' => 'required|string|max:4000']);
+        $messages = $req->messages ?: [];
+        $messages[] = [
+            'from' => 'client', 'author' => auth('client')->user()->name,
+            'body' => $d['body'], 'at' => now()->toIso8601String(),
+        ];
+        $req->update(['messages' => $messages]);
+
+        return back()->with('ok', 'Reply added.');
     }
 
     public function passwordForm()

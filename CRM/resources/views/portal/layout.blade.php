@@ -34,6 +34,8 @@
     <a class="icon-pill" href="{{ route('portal.receipts') }}" title="Receipts">Receipts</a>
     <a class="icon-pill" href="{{ route('portal.statement') }}" title="Statement">Statement</a>
     <a class="icon-pill" href="{{ route('portal.work') }}" title="Work">Work</a>
+    <a class="icon-pill" href="{{ route('portal.requests') }}" title="Requests">Requests</a>
+    <a class="icon-pill" href="{{ route('portal.documents') }}" title="Documents">Documents</a>
     <a class="icon-pill" href="{{ route('portal.password') }}" title="Change password">{{ auth('client')->user()->name }}</a>
     <form method="POST" action="{{ route('portal.logout') }}" style="display:inline">@csrf<button class="icon-pill" type="submit" style="border:0;cursor:pointer">Logout</button></form>
     @endauth
