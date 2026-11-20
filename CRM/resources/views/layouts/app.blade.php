@@ -6,7 +6,7 @@
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <title>@yield('title', 'Dashboard') — {{ $brand['company_name'] ?? $brand['app_name'] ?? config('app.name') }}</title>
 @if(!empty($brand['favicon_path']))<link rel="icon" href="{{ asset('storage/'.$brand['favicon_path']) }}">@else<link rel="icon" href="{{ asset('favicon.ico') }}">@endif
-<link rel="stylesheet" href="{{ asset('assets/css/app.css').'?v=135' }}">
+<link rel="stylesheet" href="{{ asset('assets/css/app.css').'?v=136' }}">
 @include('brand.theme')
 @yield('head')
 </head>
@@ -241,6 +241,20 @@ foreach ($nav as $item) {
         <a class="dc-t0 link{{ request()->routeIs($s[1], ...$s[2]) ? ' on' : '' }}" href="{{ route($s[1]) }}" @if(request()->routeIs($s[1], ...$s[2])) aria-current="page" @endif>{{ $s[0] }}</a>
         @endif
         @endforeach
+        {{-- The section rail is desktop-only, so its workspace links
+             (notifications, settings, account) live at the end of the
+             mobile drawer instead. Hidden above 1000px. --}}
+        <div class="dc-tsec dc-tmore">
+          @if($canSee('notifications.index'))
+          <a class="dc-t0 link{{ request()->routeIs('notifications.*') ? ' on' : '' }}" href="{{ route('notifications.index') }}" @if(request()->routeIs('notifications.*')) aria-current="page" @endif>Notifications</a>
+          @endif
+          @auth
+          @if(auth()->user()->isAdmin())
+          <a class="dc-t0 link{{ request()->routeIs('settings.*') && ! request()->routeIs('settings.account*') ? ' on' : '' }}" href="{{ route('settings.index') }}" @if(request()->routeIs('settings.*') && ! request()->routeIs('settings.account*')) aria-current="page" @endif>Settings</a>
+          @endif
+          <a class="dc-t0 link{{ request()->routeIs('settings.account*') ? ' on' : '' }}" href="{{ route('settings.account') }}" @if(request()->routeIs('settings.account*')) aria-current="page" @endif>My account</a>
+          @endauth
+        </div>
       </nav>
       <div class="side-backdrop noprint" data-nav-toggle aria-hidden="true"></div>
       <div class="dc-main">

@@ -1419,6 +1419,14 @@ body.side-min .dc-tr{display:none}
 @media(max-width:1000px){.dc-app{padding:8px}.dc-shell{border-radius:24px;padding:14px 12px}.dc-rl,.dc-tr{display:none}.dc-ibtn.dc-burger{display:inline-flex}body.nav-open .dc-tr{display:flex;flex-direction:column;position:fixed;left:12px;top:12px;bottom:12px;width:min(300px,84vw);z-index:90;background:var(--dc-shell);border-radius:22px;padding:16px 12px;box-shadow:var(--dc-shadow-lg);max-height:none;overflow-y:auto}body.nav-open .side-backdrop{display:block;position:fixed;inset:0;background:rgba(20,18,14,.45);z-index:80}.dc-search{flex:1 1 100%;order:5}.dc-search kbd{display:none}.dc-ws{width:auto;max-width:38vw}.dc-main{padding:14px}.dc-tb-actions{margin-left:0}.acct-drop{display:none}}
 
 @media print{.dc-app,.dc-shell{background:#fff!important;padding:0!important;box-shadow:none!important;min-height:0}.dc-tb,.dc-rl,.dc-tr{display:none!important}.dc-main{padding:0;box-shadow:none;border-radius:0}}
+/* Workspace links that normally live in the desktop icon rail. The rail
+   and the account menu are both hidden on phones, so the drawer carries
+   Notifications / Settings / My account instead. */
+.dc-tmore{display:none}
+@media(max-width:1000px){
+  body.nav-open .dc-tmore{display:flex;flex-direction:column;gap:2px;margin-top:12px;padding-top:10px;border-top:1px solid var(--dc-line2)}
+  body.nav-open .dc-tmore .dc-t0.link{margin-top:0;min-height:36px;padding:0 8px}
+}
 /* ============================================================================
    DC COMPONENTS — shared primitives in the dashboard design language.
    Flat surfaces, hairline borders. Shadow ONLY on floating layers:
