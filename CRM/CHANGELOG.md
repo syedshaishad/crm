@@ -34,6 +34,13 @@
   depending on the screen; draft and cancelled had their own mismatched
   greys. All tags are now the same pill with the same dot and wording, with
   a darker ink token for label text so light-theme contrast holds.
+- Accounting screens passed the same UI audit: all 29 pages in the group were
+  checked at desktop, tablet and phone widths in both themes. Added the missing
+  page `h1` on detail and form screens (receipts, credit notes, expenses,
+  recurring schedules and the create/edit forms), changed top-level card
+  headings from `h3` to `h2` so the outline no longer skips a level, and made
+  every displayed date use `j M Y`. The sidebar now calls the reminders page
+  "Reminder log", matching its heading.
 - `.sr-only` was used by six templates but never defined, so those hidden page
   headings rendered as visible 47px titles duplicating the page name. The
   utility is now a real rule in `app.css`.

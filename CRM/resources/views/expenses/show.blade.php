@@ -3,7 +3,7 @@
 @section('content')
 @php $ext = strtolower(pathinfo($expense->receipt_path ?? '', PATHINFO_EXTENSION)); @endphp
 <div class="inv-hero noprint">
-  <div><div class="inv-num">{{ $expense->number ?? $expense->title }}</div>
+  <div><h1 class="inv-num">{{ $expense->number ?? $expense->title }}</h1>
     <div class="inv-chips">
       <span class="badge b-grey">{{ $expense->category ?? 'general' }}</span>
       <span class="badge {{ ($expense->status ?? 'approved')==='approved' ? 'b-green' : (($expense->status ?? '')==='pending' ? 'b-amber' : 'b-grey') }}">{{ ucfirst($expense->status ?? 'approved') }}</span>
@@ -37,7 +37,7 @@
 </div>
 
 @if($expense->receipt_path)
-<div class="card"><div class="card-head"><h3>Receipt</h3><a class="btn sm sec noprint" href="{{ asset('storage/'.$expense->receipt_path) }}" target="_blank">Open full</a></div>
+<div class="card"><div class="card-head"><h2>Receipt</h2><a class="btn sm sec noprint" href="{{ asset('storage/'.$expense->receipt_path) }}" target="_blank">Open full</a></div>
   @if(in_array($ext, ['jpg','jpeg','png','webp','gif']))
   <a href="{{ asset('storage/'.$expense->receipt_path) }}" target="_blank"><img src="{{ asset('storage/'.$expense->receipt_path) }}" alt="receipt" style="max-width:100%;max-height:520px;border-radius:14px;border:1px solid var(--line)"></a>
   @else
@@ -48,7 +48,7 @@
 <div class="modal" id="recurring-modal" role="dialog" aria-label="Make recurring">
   <div class="modal-bg" data-modal-close></div>
   <div class="modal-card">
-    <h3>Repeat {{ $expense->title }}</h3>
+    <h2>Repeat {{ $expense->title }}</h2>
     <p class="hint" style="margin:0 0 12px">Auto-books a copy of {{ money($expense->amount) }} on each run day.</p>
     <form method="POST" action="{{ route('expenses.recurring.store',$expense) }}">@csrf
     <div class="form-grid">

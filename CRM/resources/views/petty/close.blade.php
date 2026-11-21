@@ -30,7 +30,7 @@
 
 <div class="card ix-card dc-card">
   <div class="card-head ix-card-head">
-    <div><h3>Close · {{ d($today, 'j F Y') }}</h3><span class="hint">Count the drawer and tick off the day.</span></div>
+    <div><h2>Close · {{ d($today, 'j F Y') }}</h2><span class="hint">Count the drawer and tick off the day.</span></div>
     @if($done)
       <span class="ix-state is-green"><i></i>Closed</span>
     @else
@@ -75,7 +75,7 @@
 
 <div class="card ix-card dc-past">
   <div class="card-head ix-card-head">
-    <div><h3>Past closes</h3><span class="hint">Last 30 closes, newest first</span></div>
+    <div><h2>Past closes</h2><span class="hint">Last 30 closes, newest first</span></div>
   </div>
   <div class="tbl-scroll roomy ix-table-scroll">
     <table class="tbl ix-table dc-table">

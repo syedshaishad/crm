@@ -1,8 +1,9 @@
 @extends('layouts.app')
 @section('title','Edit '.$invoice->number)
 @section('content')
+<h1 class="sr-only">Edit {{ $invoice->number }}</h1>
 <div class="card form-card" style="max-width:760px">
-<h3>Edit {{ $invoice->number }}</h3>
+<h2>Edit {{ $invoice->number }}</h2>
 @if(in_array($invoice->status,['paid','cancelled']))<div class="err">This invoice is <b>{{ $invoice->status }}</b> — changing amounts will update its status to match what is paid.</div>@endif
 <p class="fhint">Change the header, or append new lines below. Saved lines are kept as-is.</p>
 <form method="POST" action="{{ route('invoices.update',$invoice) }}">@csrf @method('PUT')

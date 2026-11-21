@@ -1,8 +1,9 @@
 @extends('layouts.app')
 @section('title','Split payment')
 @section('content')
+<h1 class="sr-only">Split payment</h1>
 <div class="card form-card" style="max-width:760px">
-<h3>Split one receipt across invoices</h3>
+<h2>Split one receipt across invoices</h2>
 <p class="fhint">One cheque / transfer paying several bills? Allocate it here — oldest due first. Each line becomes its own receipt with the same reference.</p>
 <form method="GET" action="{{ route('payments.split') }}" style="display:flex;gap:8px;align-items:end;margin-bottom:12px">
 <div style="flex:1"><label class="f">Client</label><select class="in" name="client_id" onchange="this.form.submit()" style="margin:0">@foreach($clients as $c)<option value="{{ $c->id }}" {{ ($client->id ?? null)===$c->id?'selected':'' }}>{{ $c->company ?: $c->name }}</option>@endforeach</select></div>
@@ -12,7 +13,7 @@
 <input type="hidden" name="client_id" value="{{ $client->id }}">
 @forelse($open as $i)
 <div style="display:flex;gap:10px;align-items:center;margin-bottom:8px">
-<div style="flex:2"><b>{{ $i->number }}</b><div class="hint">due {{ $i->due_date ? d($i->due_date) : '—' }} · balance {{ money($i->balance()) }}</div></div>
+<div style="flex:2"><b>{{ $i->number }}</b><div class="hint">due {{ $i->due_date ? d($i->due_date, 'j M Y') : '—' }} · balance {{ money($i->balance()) }}</div></div>
 <div style="flex:1"><input class="in alloc" style="margin:0" type="number" step="0.01" min="0" max="{{ $i->balance() }}" name="alloc[{{ $i->id }}]" data-balance="{{ $i->balance() }}" placeholder="0.00"></div>
 </div>
 @empty

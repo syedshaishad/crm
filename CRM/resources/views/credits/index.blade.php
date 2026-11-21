@@ -32,7 +32,7 @@
 
 <div class="card ix-card" data-ajax-region="credits-list">
   <div class="card-head ix-card-head">
-    <div><h3>Credit register</h3><span class="hint">{{ $notes->total() }} {{ \Illuminate\Support\Str::plural('credit note', $notes->total()) }}{{ $hasFilters ? ' matching filters' : ' in this workspace' }}</span></div>
+    <div><h2>Credit register</h2><span class="hint">{{ $notes->total() }} {{ \Illuminate\Support\Str::plural('credit note', $notes->total()) }}{{ $hasFilters ? ' matching filters' : ' in this workspace' }}</span></div>
   </div>
 
   <div class="ix-statuses noprint">

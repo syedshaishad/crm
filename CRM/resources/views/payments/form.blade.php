@@ -1,8 +1,9 @@
 @extends('layouts.app')
 @section('title','Record payment')
 @section('content')
+<h1 class="sr-only">Record payment</h1>
 <div class="card form-card" style="max-width:680px">
-<h3>Record payment</h3>
+<h2>Record payment</h2>
 <p class="fhint">Pick an invoice and the client + outstanding amount fill in automatically.</p>
 <form method="POST" action="{{ route('payments.store') }}">@csrf
 <label class="f">Invoice</label>

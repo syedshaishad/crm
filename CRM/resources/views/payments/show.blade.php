@@ -6,7 +6,7 @@
   $invDark = setting('invoice.logo_path') ? (setting('invoice.logo_dark_path') ?: ($brand['logo_dark_path'] ?? '')) : ($brand['logo_dark_path'] ?? '');
 @endphp
 <div class="inv-hero noprint">
-  <div><div class="inv-num">{{ $payment->number ?? '—' }}</div>
+  <div><h1 class="inv-num">{{ $payment->number ?? '—' }}</h1>
     <div class="inv-chips">
       <span class="badge b-green">{{ ucfirst($payment->method) }}</span>
       <span class="chip">Received {{ d($payment->paid_on, 'j M Y') }}</span>
@@ -21,10 +21,10 @@
 </div>
 
 @if($payment->public_token)
-<div class="card noprint"><div class="card-head"><h3>Client public link</h3><span class="btnrow" style="gap:8px"><button class="btn sec sm" onclick="navigator.clipboard.writeText('{{ route('payments.public', $payment->public_token) }}');this.textContent='Copied!';setTimeout(()=>this.textContent='Copy link',1500)">Copy link</button><form method="POST" action="{{ route('payments.link',$payment) }}" data-ajax-post data-refresh="page" style="display:inline" data-confirm="Generate a new link? The old one stops working.">@csrf<button class="btn sec sm">New link</button></form></span></div>
+<div class="card noprint"><div class="card-head"><h2>Client public link</h2><span class="btnrow" style="gap:8px"><button class="btn sec sm" onclick="navigator.clipboard.writeText('{{ route('payments.public', $payment->public_token) }}');this.textContent='Copied!';setTimeout(()=>this.textContent='Copy link',1500)">Copy link</button><form method="POST" action="{{ route('payments.link',$payment) }}" data-ajax-post data-refresh="page" style="display:inline" data-confirm="Generate a new link? The old one stops working.">@csrf<button class="btn sec sm">New link</button></form></span></div>
 <p class="hint" style="margin:0">No login needed — the client can view and download (PDF) this receipt.</p></div>
 @else
-<div class="card noprint"><div class="card-head"><h3>Client public link</h3><form method="POST" action="{{ route('payments.link',$payment) }}" style="display:inline">@csrf<button class="btn sec sm">Create link</button></form></div></div>
+<div class="card noprint"><div class="card-head"><h2>Client public link</h2><form method="POST" action="{{ route('payments.link',$payment) }}" style="display:inline">@csrf<button class="btn sec sm">Create link</button></form></div></div>
 @endif
 
 <div class="card">

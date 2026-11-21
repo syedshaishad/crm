@@ -30,7 +30,7 @@
 
   <div class="card ix-card">
     <div class="card-head ix-card-head">
-      <div><h3>Asset register</h3><span class="hint">{{ $count }} {{ \Illuminate\Support\Str::plural('asset', $count) }} · assign custody from the row</span></div>
+      <div><h2>Asset register</h2><span class="hint">{{ $count }} {{ \Illuminate\Support\Str::plural('asset', $count) }} · assign custody from the row</span></div>
     </div>
 
     <form method="POST" action="{{ route('assets.store') }}" data-ajax-add data-region="assets-list" class="ix-quick as-quick noprint">@csrf

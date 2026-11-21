@@ -28,7 +28,7 @@
 
 <div class="card ix-card">
   <div class="card-head ix-card-head">
-    <div><h3>Invoice reminders</h3><span class="hint">Last 100 attempts, newest first · nightly auto (max once / 3 days per invoice) and manual nudges</span></div>
+    <div><h2>Invoice reminders</h2><span class="hint">Last 100 attempts, newest first · nightly auto (max once / 3 days per invoice) and manual nudges</span></div>
   </div>
   <div class="tbl-scroll roomy ix-table-scroll">
     <table class="tbl ix-table rm-table rm-inv">
@@ -79,7 +79,7 @@
 
 <div class="card ix-card rm-card">
   <div class="card-head ix-card-head">
-    <div><h3>Proposal follow-ups</h3><span class="hint">Last 100 attempts, newest first · max once / 3 days each</span></div>
+    <div><h2>Proposal follow-ups</h2><span class="hint">Last 100 attempts, newest first · max once / 3 days each</span></div>
   </div>
   <div class="tbl-scroll roomy ix-table-scroll">
     <table class="tbl ix-table rm-table rm-prop">
@@ -130,7 +130,7 @@
 
 <div class="card ix-card rm-card">
   <div class="card-head ix-card-head">
-    <div><h3>WhatsApp nudges</h3><span class="hint">Last 100 attempts, newest first · max once / 3 days each</span></div>
+    <div><h2>WhatsApp nudges</h2><span class="hint">Last 100 attempts, newest first · max once / 3 days each</span></div>
   </div>
   <div class="tbl-scroll roomy ix-table-scroll">
     <table class="tbl ix-table rm-table rm-wa">

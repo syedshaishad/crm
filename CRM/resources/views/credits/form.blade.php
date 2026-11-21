@@ -1,8 +1,9 @@
 @extends('layouts.app')
 @section('title','New credit note')
 @section('content')
+<h1 class="sr-only">New credit note</h1>
 <div class="card form-card" style="max-width:680px">
-<h3>New credit note</h3>
+<h2>New credit note</h2>
 <form method="POST" action="{{ route('credits.store') }}">@csrf
 <label class="f">Client <span class="req">*</span></label>
 <select class="in" name="client_id" required>@foreach($clients as $c)<option value="{{ $c->id }}" {{ (string)($note->client_id ?? '')===(string)$c->id?'selected':'' }}>{{ $c->company ? $c->company.' ('.$c->name.')' : $c->name }}</option>@endforeach</select>

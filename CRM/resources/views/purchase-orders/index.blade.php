@@ -32,7 +32,7 @@
 
 <div class="card ix-card" data-ajax-region="pos-list">
   <div class="card-head ix-card-head">
-    <div><h3>Purchase order register</h3><span class="hint">{{ $orders->total() }} {{ \Illuminate\Support\Str::plural('order', $orders->total()) }}{{ $hasFilters ? ' matching filters' : ' in this workspace' }}</span></div>
+    <div><h2>Purchase order register</h2><span class="hint">{{ $orders->total() }} {{ \Illuminate\Support\Str::plural('order', $orders->total()) }}{{ $hasFilters ? ' matching filters' : ' in this workspace' }}</span></div>
   </div>
 
   <div class="ix-statuses noprint">

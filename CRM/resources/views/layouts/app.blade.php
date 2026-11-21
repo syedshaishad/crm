@@ -46,7 +46,7 @@ $nav = [
     ['Day-end Close','dayclose.index',['dayclose.*'],'<path d="M5 13l4 4L19 7"/>'],
     ['Assets','assets.index',['assets.*'],'<path d="M21 8 12 3 3 8v8l9 5 9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/>'],
     ['Purchase orders','purchase-orders.index',['purchase-orders.*'],'<circle cx="9" cy="20" r="1.6"/><circle cx="17" cy="20" r="1.6"/><path d="M3 4h2l2.4 11h10.4l2-8H7"/>'],
-    ['Payment Reminders','reminders.index',['reminders.*'],'<path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/>'],
+    ['Reminder log','reminders.index',['reminders.*'],'<path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/>'],
   ]],
   ['Reports',null,['reports.*'],'<path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/>',[
     ['Overview','reports.index',['reports.index'],'<rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/>'],

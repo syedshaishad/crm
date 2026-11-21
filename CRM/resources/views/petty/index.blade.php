@@ -30,7 +30,7 @@
 
   <div class="card ix-card">
     <div class="card-head ix-card-head">
-      <div><h3>Cash book · {{ d($from, 'M Y') }}</h3><span class="hint">{{ $rows->count() }} {{ \Illuminate\Support\Str::plural('entry', $rows->count()) }} · opening {{ money($opening) }}</span></div>
+      <div><h2>Cash book · {{ d($from, 'M Y') }}</h2><span class="hint">{{ $rows->count() }} {{ \Illuminate\Support\Str::plural('entry', $rows->count()) }} · opening {{ money($opening) }}</span></div>
     </div>
 
     <form method="POST" action="{{ route('petty.store') }}" data-ajax-add data-region="petty-list" class="ix-quick pc-quick noprint">@csrf

@@ -14,7 +14,7 @@
 <div class="tbl-scroll roomy"><table class="tbl"><tr><th style="width:4%">#</th><th>Description</th><th>HSN/SAC</th><th>Qty</th><th>Unit</th><th style="text-align:right">Rate</th><th style="text-align:right">GST%</th><th style="text-align:right">Amount</th></tr>
 @foreach($order->items as $i => $it)<tr><td>{{ $i + 1 }}</td><td>{{ $it->description }}</td><td class="nowrap">{{ $it->hsn_code ?: '—' }}</td><td class="nowrap">{{ $it->qty }}</td><td class="nowrap">{{ $it->unit }}</td><td class="nowrap" style="text-align:right">{{ money($it->rate) }}</td><td class="nowrap" style="text-align:right">{{ $it->tax_rate }}%</td><td class="nowrap" style="text-align:right">{{ money($it->amount) }}</td></tr>@endforeach</table></div>
 <div class="tot-band"><div class="tot-row"><span>Subtotal</span><span>{{ money($order->subtotal) }}</span></div><div class="tot-row"><span>GST</span><span>{{ money($order->gst_amount) }}</span></div><div class="tot-row grand"><span>Total</span><span>{{ money($order->total) }}</span></div></div>
-<div class="words">Vendor: {{ $order->vendor }}@if($order->vendor_email) · {{ $order->vendor_email }} @endif @if($order->expected_on) · expected {{ d($order->expected_on) }} @endif</div>
+<div class="words">Vendor: {{ $order->vendor }}@if($order->vendor_email) · {{ $order->vendor_email }} @endif @if($order->expected_on) · expected {{ d($order->expected_on, 'j M Y') }} @endif</div>
 @if($order->notes)<div class="bill-box" style="margin-top:14px"><div class="cap">Notes</div><div class="sub" style="white-space:pre-line">{{ $order->notes }}</div></div>@endif
 </div>
 @endsection

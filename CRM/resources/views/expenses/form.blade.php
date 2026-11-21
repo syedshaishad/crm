@@ -1,8 +1,9 @@
 @extends('layouts.app')
 @section('title',($expense->exists ? 'Edit ' : 'New ').'expense')
 @section('content')
+<h1 class="sr-only">{{ $expense->exists ? 'Edit expense' : 'New expense' }}</h1>
 <div class="card form-card" style="max-width:680px">
-<h3>{{ $expense->exists ? 'Edit expense' : 'New expense' }}</h3>
+<h2>{{ $expense->exists ? 'Edit expense' : 'New expense' }}</h2>
 <form method="POST" action="{{ $expense->exists ? route('expenses.update',$expense) : route('expenses.store') }}" enctype="multipart/form-data">@csrf @if($expense->exists)@method('PUT')@endif
 <div class="form-grid">
 <div><label class="f">What for? <span class="req">*</span></label><input class="in" name="title" value="{{ old('title',$expense->title) }}" required autofocus placeholder="e.g. Domain renewal"></div>
