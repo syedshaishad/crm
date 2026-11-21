@@ -145,7 +145,7 @@
   <div class="dc-g2" style="margin-top:16px">
     <section class="dc-gc" style="flex:1 1 440px;padding:16px"><div class="dc-sh2"><h2>Recent invoices</h2><a class="dc-btn" href="{{ route('invoices.create') }}" style="text-decoration:none">+ New</a></div>
       <div class="dc-th"><span style="flex:1.4">Number</span><span style="flex:1.2">Total</span><span style="flex:1;text-align:right">Status</span></div>
-      @forelse($recentInvoices->take(4) as $ri)<a class="dc-rw" href="{{ route('invoices.show', $ri->id) }}" style="text-decoration:none"><b style="flex:1.4">{{ $ri->number }}</b><span style="flex:1.2">{{ money($ri->total) }}</span><span style="flex:1;text-align:right"><span class="dc-tg {{ $ri->status === 'overdue' ? 'r' : 'l' }}">{{ ucfirst($ri->status) }}</span></span></a>@empty<div class="dc-em">No invoices yet.</div>@endforelse
+      @forelse($recentInvoices->take(4) as $ri)<a class="dc-rw" href="{{ route('invoices.show', $ri->id) }}" style="text-decoration:none"><b style="flex:1.4">{{ $ri->number }}</b><span style="flex:1.2">{{ money($ri->total) }}</span><span style="flex:1;text-align:right">{!! invoice_status_tag($ri->status) !!}</span></a>@empty<div class="dc-em">No invoices yet.</div>@endforelse
       <small style="margin:8px 4px 0">Showing {{ min(4, $recentInvoiceShown) }} of {{ $recentInvoiceShown }} recent invoices</small>
     </section>
     <section class="dc-gc" style="flex:1 1 440px;padding:16px"><div class="dc-sh2"><h2>Recent tasks</h2><a class="dc-btn" href="{{ route('tasks.create') }}" style="text-decoration:none">+ New</a></div>

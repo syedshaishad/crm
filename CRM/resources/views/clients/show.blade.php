@@ -49,7 +49,7 @@
 @forelse($client->projects as $p)<tr><td><a href="{{ route('projects.show',$p) }}">{{ $p->name }}</a></td><td><span class="badge b-grey">{{ $p->status }}</span></td></tr>@empty<tr><td colspan="2"><div class="empty">No projects.</div></td></tr>@endforelse</table></div></div>
 <div class="card"><div class="card-head"><h3>Invoices</h3><a class="btn sm sec" href="{{ route('invoices.create',['client_id'=>$client->id]) }}">+ New</a></div>
 <div class="tbl-scroll"><table class="tbl"><tr><th>Number</th><th style="text-align:right">Total</th><th>Status</th></tr>
-@forelse($client->invoices as $i)<tr><td><a href="{{ route('invoices.show',$i) }}">{{ $i->number }}</a></td><td style="text-align:right;font-variant-numeric:tabular-nums">{{ money($i->total) }}</td><td><span class="badge b-blue">{{ $i->status }}</span></td></tr>@empty<tr><td colspan="3"><div class="empty">No invoices.</div></td></tr>@endforelse</table></div></div>
+@forelse($client->invoices as $i)<tr><td><a href="{{ route('invoices.show',$i) }}">{{ $i->number }}</a></td><td style="text-align:right;font-variant-numeric:tabular-nums">{{ money($i->total) }}</td><td>{!! invoice_status_tag($i->status) !!}</td></tr>@empty<tr><td colspan="3"><div class="empty">No invoices.</div></td></tr>@endforelse</table></div></div>
 </div>
 <div class="card"><div class="card-head"><h3>Documents</h3><a class="hint" href="{{ route('documents.index',['client_id'=>$client->id]) }}">Open folder →</a></div>@php $hasDocs = $client->documents->isNotEmpty() || $client->projects->contains(fn ($p) => $p->documents->isNotEmpty()); @endphp
 @if($client->documents->isNotEmpty())

@@ -28,7 +28,7 @@
 <div class="inv-hero noprint">
   <div><div class="inv-num">{{ $invoice->number }}</div>
     <div class="inv-chips">
-      <span class="badge {{ $invoice->status==='paid' ? 'b-green' : ($invoice->status==='overdue' ? 'b-red' : ($invoice->status==='cancelled' ? 'b-grey' : 'b-blue')) }}">{{ ucfirst($invoice->status) }}</span>
+      {!! invoice_status_tag($invoice->status) !!}
       <span class="chip">Issued {{ d($invoice->issue_date, 'j M Y') }}</span>
       @if($invoice->due_date)<span class="chip {{ $isOver ? 'overdue' : '' }}">Due {{ d($invoice->due_date, 'j M Y') }}</span>@endif
       @if($invoice->reverse_charge)<span class="chip overdue">Reverse charge</span>@endif

@@ -92,7 +92,7 @@ $crit = $project->criticalPath();
 <div class="hint" style="margin-top:8px">Labor so far {{ money($project->laborTotal()) }} · to complete ≈ {{ money($project->remainingCost()) }}</div></div>
 <div><div class="fsec" style="margin-top:0">Billed ({{ $pInvoices->count() }})</div>
 <div class="tbl-scroll"><table class="tbl"><tr><th>Invoice</th><th>Status</th><th style="text-align:right">Total</th></tr>
-@forelse($pInvoices as $inv)<tr><td><a href="{{ route('invoices.show',$inv) }}">{{ $inv->number }}</a></td><td>{{ ucfirst($inv->status) }}</td><td class="nowrap" style="text-align:right">{{ money($inv->total) }}</td></tr>@empty<tr><td colspan="3"><div class="empty">Nothing billed yet.</div></td></tr>@endforelse</table></div></div>
+@forelse($pInvoices as $inv)<tr><td><a href="{{ route('invoices.show',$inv) }}">{{ $inv->number }}</a></td><td>{!! invoice_status_tag($inv->status) !!}</td><td class="nowrap" style="text-align:right">{{ money($inv->total) }}</td></tr>@empty<tr><td colspan="3"><div class="empty">Nothing billed yet.</div></td></tr>@endforelse</table></div></div>
 </div></div>
 
 <div class="card"><div class="card-head"><h3>Documents ({{ $project->documents->count() }})</h3><a class="hint" href="{{ route('documents.index',['project_id'=>$project->id]) }}">All files →</a></div>

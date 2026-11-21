@@ -159,6 +159,57 @@ if (! function_exists('money')) {
     }
 }
 
+if (! function_exists('invoice_status_key')) {
+    // One palette and one label set for invoice statuses. Tags, filters and
+    // charts all use these helpers, so a status never changes colour or name
+    // from one screen to the next.
+    function invoice_status_key($status): string
+    {
+        $key = is_string($status) ? strtolower(trim($status)) : 'draft';
+
+        return in_array($key, ['draft', 'sent', 'partial', 'paid', 'overdue', 'cancelled'], true)
+            ? $key
+            : 'draft';
+    }
+}
+
+if (! function_exists('invoice_status_labels')) {
+    function invoice_status_labels(): array
+    {
+        return [
+            'draft' => 'Draft',
+            'sent' => 'Unpaid',
+            'partial' => 'Partial',
+            'paid' => 'Paid',
+            'overdue' => 'Overdue',
+            'cancelled' => 'Cancelled',
+        ];
+    }
+}
+
+if (! function_exists('invoice_status_label')) {
+    function invoice_status_label($status): string
+    {
+        return invoice_status_labels()[invoice_status_key($status)];
+    }
+}
+
+if (! function_exists('invoice_status_color')) {
+    // Usable inline: style="background:{{ invoice_status_color($status) }}".
+    function invoice_status_color($status): string
+    {
+        return 'var(--st-'.invoice_status_key($status).')';
+    }
+}
+
+if (! function_exists('invoice_status_tag')) {
+    function invoice_status_tag($status): string
+    {
+        return '<span class="inv-status st-'.invoice_status_key($status).'"><i></i>'
+            .e(invoice_status_label($status)).'</span>';
+    }
+}
+
 if (! function_exists('upi_intent')) {
     // UPI collect intent understood by GPay/PhonePe/Paytm/BHIM.
     function upi_intent(string $upiId, string $payee, float $amount, string $note = ''): string

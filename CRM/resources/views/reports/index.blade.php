@@ -3,7 +3,7 @@
 @section('content')
 @php
   // iOS system palette — the Apple Health / Fitness look.
-  $ios = ['paid'=>'#30d158','partial'=>'#ff9f0a','sent'=>'#0a84ff','draft'=>'#8e8e93','overdue'=>'#ff453a','cancelled'=>'#48484a'];
+  
   $catPalette = ['#0a84ff','#30d158','#ff9f0a','#ff6482','#bf5af2','#64d2ff','#ff453a'];
   // Compact axis labels in Indian units: ₹4.2L, ₹56k.
   $short = fn ($v) => '₹'.($v >= 10000000 ? round($v / 10000000, 1).' Cr' : ($v >= 100000 ? round($v / 100000, 1).'L' : ($v >= 1000 ? round($v / 1000, 1).'k' : round($v))));
@@ -96,15 +96,15 @@
           @php
             $len = round($s['frac'] * $C - (count($segs) > 1 ? 5 : 0), 1); $len = max($len, 1);
             $o = -$off; $off += $s['frac'] * $C;
-            $col = $ios[$s['status']] ?? '#94a3b8';
+            $col = invoice_status_color($s['status']);
           @endphp
-          <circle class="seg" cx="75" cy="75" r="{{ $R }}" fill="none" stroke="{{ $col }}" stroke-width="17" stroke-linecap="round" stroke-dasharray="{{ $len }} {{ $C }}" stroke-dashoffset="{{ round($o, 1) }}" transform="rotate(-90 75 75)"><title>{{ ucfirst($s['status']) }}: {{ money($s['t']) }}</title></circle>
+          <circle class="seg" cx="75" cy="75" r="{{ $R }}" fill="none" stroke="{{ $col }}" stroke-width="17" stroke-linecap="round" stroke-dasharray="{{ $len }} {{ $C }}" stroke-dashoffset="{{ round($o, 1) }}" transform="rotate(-90 75 75)"><title>{{ invoice_status_label($s['status']) }}: {{ money($s['t']) }}</title></circle>
         @endforeach
       </svg>
       <div class="donut-center"><b>{{ $byStatus->sum('c') }}</b><span>invoices</span></div>
     </div>
     <div class="legend">
-      @foreach($segs as $s)<div class="row"><span class="dot" style="background:{{ $ios[$s['status']] ?? '#94a3b8' }}"></span>{{ ucfirst($s['status']) }} ({{ $s['c'] }})<span class="pct">{{ round($s['frac'] * 100) }}%</span><span class="amt">{{ money($s['t']) }}</span></div>@endforeach
+      @foreach($segs as $s)<div class="row"><span class="dot" style="background:{{ invoice_status_color($s['status']) }}"></span>{{ invoice_status_label($s['status']) }} ({{ $s['c'] }})<span class="pct">{{ round($s['frac'] * 100) }}%</span><span class="amt">{{ money($s['t']) }}</span></div>@endforeach
     </div>
   </div>
 </div>

@@ -5,7 +5,7 @@
   $statusVal = $status ?? '';
   $hasFilters = ($q ?? '') !== '' || $statusVal !== '';
   $statusUrl = fn ($s) => route('invoices.index', array_merge(request()->except(['page', 'status']), $s ? ['status' => $s] : []));
-  $labels = ['draft' => 'Draft', 'sent' => 'Unpaid', 'partial' => 'Partial', 'paid' => 'Paid', 'overdue' => 'Overdue', 'cancelled' => 'Cancelled'];
+  $labels = invoice_status_labels();
 @endphp
 <div class="page-head ix-head">
   <div class="ix-head-main">
@@ -40,12 +40,12 @@
 
   <div class="ix-statuses noprint">
     <a class="ix-chip {{$statusVal === '' ? 'on' : ''}}" @if($statusVal === '' ? 'on' : '') aria-current="page" @endif href="{{ $statusUrl('') }}"><i style="background:var(--dc-ink2)"></i>All <b>{{ $stats['total'] }}</b></a>
-    <a class="ix-chip {{$statusVal === 'draft' ? 'on' : ''}}" @if($statusVal === 'draft' ? 'on' : '') aria-current="page" @endif href="{{ $statusUrl('draft') }}"><i style="background:var(--dc-blue)"></i>Draft <b>{{ $stats['draft'] }}</b></a>
-    <a class="ix-chip {{$statusVal === 'sent' ? 'on' : ''}}" @if($statusVal === 'sent' ? 'on' : '') aria-current="page" @endif href="{{ $statusUrl('sent') }}"><i style="background:var(--dc-amber)"></i>Unpaid <b>{{ $stats['sent'] }}</b></a>
-    <a class="ix-chip {{$statusVal === 'partial' ? 'on' : ''}}" @if($statusVal === 'partial' ? 'on' : '') aria-current="page" @endif href="{{ $statusUrl('partial') }}"><i style="background:var(--dc-amber)"></i>Partial <b>{{ $stats['partial'] }}</b></a>
-    <a class="ix-chip {{$statusVal === 'overdue' ? 'on' : ''}}" @if($statusVal === 'overdue' ? 'on' : '') aria-current="page" @endif href="{{ $statusUrl('overdue') }}"><i style="background:var(--dc-red)"></i>Overdue <b>{{ $stats['overdue'] }}</b></a>
-    <a class="ix-chip {{$statusVal === 'paid' ? 'on' : ''}}" @if($statusVal === 'paid' ? 'on' : '') aria-current="page" @endif href="{{ $statusUrl('paid') }}"><i style="background:var(--dc-green)"></i>Paid <b>{{ $stats['paid'] }}</b></a>
-    <a class="ix-chip {{$statusVal === 'cancelled' ? 'on' : ''}}" @if($statusVal === 'cancelled' ? 'on' : '') aria-current="page" @endif href="{{ $statusUrl('cancelled') }}"><i style="background:var(--dc-muted)"></i>Cancelled <b>{{ $stats['cancelled'] }}</b></a>
+    <a class="ix-chip {{$statusVal === 'draft' ? 'on' : ''}}" @if($statusVal === 'draft' ? 'on' : '') aria-current="page" @endif href="{{ $statusUrl('draft') }}"><i style="background:{{ invoice_status_color('draft') }}"></i>Draft <b>{{ $stats['draft'] }}</b></a>
+    <a class="ix-chip {{$statusVal === 'sent' ? 'on' : ''}}" @if($statusVal === 'sent' ? 'on' : '') aria-current="page" @endif href="{{ $statusUrl('sent') }}"><i style="background:{{ invoice_status_color('sent') }}"></i>Unpaid <b>{{ $stats['sent'] }}</b></a>
+    <a class="ix-chip {{$statusVal === 'partial' ? 'on' : ''}}" @if($statusVal === 'partial' ? 'on' : '') aria-current="page" @endif href="{{ $statusUrl('partial') }}"><i style="background:{{ invoice_status_color('partial') }}"></i>Partial <b>{{ $stats['partial'] }}</b></a>
+    <a class="ix-chip {{$statusVal === 'overdue' ? 'on' : ''}}" @if($statusVal === 'overdue' ? 'on' : '') aria-current="page" @endif href="{{ $statusUrl('overdue') }}"><i style="background:{{ invoice_status_color('overdue') }}"></i>Overdue <b>{{ $stats['overdue'] }}</b></a>
+    <a class="ix-chip {{$statusVal === 'paid' ? 'on' : ''}}" @if($statusVal === 'paid' ? 'on' : '') aria-current="page" @endif href="{{ $statusUrl('paid') }}"><i style="background:{{ invoice_status_color('paid') }}"></i>Paid <b>{{ $stats['paid'] }}</b></a>
+    <a class="ix-chip {{$statusVal === 'cancelled' ? 'on' : ''}}" @if($statusVal === 'cancelled' ? 'on' : '') aria-current="page" @endif href="{{ $statusUrl('cancelled') }}"><i style="background:{{ invoice_status_color('cancelled') }}"></i>Cancelled <b>{{ $stats['cancelled'] }}</b></a>
   </div>
 
   <form method="GET" data-ajax-filter data-region="invoices-list" class="ix-filters noprint">
@@ -72,7 +72,7 @@
       @forelse($invoices as $i)
         @php
           $st = $i->status ?? 'draft';
-          $stateClass = ['draft' => 'is-blue', 'sent' => 'is-blue', 'partial' => 'is-amber', 'paid' => 'is-green', 'overdue' => 'is-red', 'cancelled' => 'is-grey'][$st] ?? 'is-grey';
+          
           $balance = $i->balance();
           $client = $i->client;
           $clientName = $client?->company ?: ($client?->name ?: 'No client');
@@ -96,7 +96,7 @@
               @if($contact)<span class="ix-sub">{{ $contact }}</span>@endif
             </div>
           </td>
-          <td class="ix-c-status"><span class="ix-state {{ $stateClass }}"><i></i>{{ $labels[$st] ?? ucfirst($st) }}</span></td>
+          <td class="ix-c-status">{!! invoice_status_tag($st) !!}</td>
           @if(auth()->user()->canManageInvoices())
             <td class="ix-c-assigned">
               <div class="ix-main-txt">

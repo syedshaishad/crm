@@ -6,7 +6,7 @@
 
 ## Unreleased
 
-7 migrations, `?v=158` CSS / `?v=12` dashboard CSS / `?v=84` JS.
+7 migrations, `?v=160` CSS / `?v=12` dashboard CSS / `?v=84` JS.
 
 - The **Money** overview was rebuilt on the same design tokens:
   - a real page header with the collected / outstanding / overdue summary and
@@ -25,6 +25,15 @@
   - phones: tables stay on one line down to 340px, then read as two-line rows
     (number, amount, status) instead of clipping; the four totals sit one per
     row on the smallest screens; the chart scrolls inside its card only.
+- Invoice status tags now have one palette and one label set everywhere.
+  `invoice_status_label()`, `invoice_status_color()` and `invoice_status_tag()`
+  in `app/helpers.php` drive the register, filter chips, invoice detail and
+  edit form, client and project invoices, the dashboard, reports, the portal
+  and the Money donut. Previously "sent" was amber in the filter chip but
+  blue in the table, and appeared as "Sent", "Unpaid" or lowercase "sent"
+  depending on the screen; draft and cancelled had their own mismatched
+  greys. All tags are now the same pill with the same dot and wording, with
+  a darker ink token for label text so light-theme contrast holds.
 - `.sr-only` was used by six templates but never defined, so those hidden page
   headings rendered as visible 47px titles duplicating the page name. The
   utility is now a real rule in `app.css`.

@@ -12,7 +12,7 @@
 
 <div class="card" style="margin-top:22px"><div class="card-head"><h3>Invoices by status</h3><span class="hint">{{ $byStatus->sum('c') }} invoices</span></div>
 <div class="tbl-scroll"><table class="tbl"><tr><th>Status</th><th style="text-align:right">Count</th><th style="text-align:right">Total</th></tr>
-@forelse($byStatus as $r)<tr><td><span class="badge">{{ ucfirst($r->status) }}</span></td><td class="nowrap" style="text-align:right">{{ $r->c }}</td><td class="nowrap" style="text-align:right"><b>{{ money($r->t) }}</b></td></tr>@empty<tr><td colspan="3"><div class="empty">No invoices in range.</div></td></tr>@endforelse</table></div></div>
+@forelse($byStatus as $r)<tr><td>{!! invoice_status_tag($r->status) !!}</td><td class="nowrap" style="text-align:right">{{ $r->c }}</td><td class="nowrap" style="text-align:right"><b>{{ money($r->t) }}</b></td></tr>@empty<tr><td colspan="3"><div class="empty">No invoices in range.</div></td></tr>@endforelse</table></div></div>
 
 <div class="card" style="margin-top:22px"><div class="card-head"><h3>Collections by method</h3><span class="hint">{{ money($byMethod->sum('t')) }} received</span></div>
 <div class="tbl-scroll"><table class="tbl"><tr><th>Method</th><th style="text-align:right">Receipts</th><th style="text-align:right">Amount</th></tr>

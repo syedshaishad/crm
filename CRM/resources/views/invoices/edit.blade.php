@@ -30,7 +30,7 @@
 <p class="fhint">GST is disabled in Settings → Tax, so lines are zero-rated.</p>
 @endif
 <label class="f">Status</label>
-<select class="in" name="status" style="max-width:240px">@foreach(['draft','sent','partial','paid','overdue','cancelled'] as $s)<option {{ $invoice->status===$s?'selected':'' }}>{{ $s }}</option>@endforeach</select>
+<select class="in" name="status" style="max-width:240px">@foreach(['draft','sent','partial','paid','overdue','cancelled'] as $s)<option value="{{ $s }}" {{ $invoice->status===$s?'selected':'' }}>{{ invoice_status_label($s) }}</option>@endforeach</select>
 <label class="f">Notes</label><textarea class="in" name="notes" rows="2">{{ old('notes',$invoice->notes) }}</textarea>
 <div class="form-grid">
 <div><label class="f">Currency</label><select class="in" name="currency" id="inv-currency">@foreach($currencies as $cu)<option value="{{ $cu }}" {{ ($invoice->currency ?? 'INR')===$cu?'selected':'' }}>{{ $cu }}</option>@endforeach</select></div>

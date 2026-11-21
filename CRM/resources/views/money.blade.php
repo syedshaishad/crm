@@ -2,7 +2,6 @@
 @section('title','Money')
 @section('content')
 @php
-  $ios = ['paid'=>'var(--dc-green)','partial'=>'var(--dc-amber)','sent'=>'var(--dc-blue)','draft'=>'var(--dc-pale)','overdue'=>'var(--dc-red)','cancelled'=>'color-mix(in srgb, var(--dc-pale) 45%, var(--dc-panel))'];
   $order = ['paid'=>0,'partial'=>1,'sent'=>2,'overdue'=>3,'draft'=>4,'cancelled'=>5];
   $R = 60; $C = round(2 * M_PI * $R, 1); $off = 0;
   $dsegs = [];
@@ -110,9 +109,8 @@
           @php
             $len = round($s['frac'] * $C - (count($dsegs) > 1 ? 5 : 0), 1); $len = max($len, 1);
             $o = -$off; $off += $s['frac'] * $C;
-            $col = $ios[$s['status']] ?? 'var(--dc-pale)';
           @endphp
-          <circle cx="75" cy="75" r="{{ $R }}" fill="none" stroke="{{ $col }}" stroke-width="17" stroke-linecap="round" stroke-dasharray="{{ $len }} {{ $C }}" stroke-dashoffset="{{ round($o, 1) }}" transform="rotate(-90 75 75)"><title>{{ ucfirst($s['status']) }}: {{ money($s['t']) }}</title></circle>
+          <circle cx="75" cy="75" r="{{ $R }}" fill="none" stroke="{{ invoice_status_color($s['status']) }}" stroke-width="17" stroke-linecap="round" stroke-dasharray="{{ $len }} {{ $C }}" stroke-dashoffset="{{ round($o, 1) }}" transform="rotate(-90 75 75)"><title>{{ invoice_status_label($s['status']) }}: {{ money($s['t']) }}</title></circle>
         @endforeach
       </svg>
       <div class="donut-center"><b>{{ $collectionRate }}%</b><span>collected</span></div>
@@ -120,8 +118,8 @@
     <ul class="mp-legend">
       @foreach($dsegs as $s)
       <li>
-        <i class="mdot" style="background:{{ $ios[$s['status']] ?? 'var(--dc-pale)' }}"></i>
-        <span class="mp-name">{{ ucfirst($s['status']) }} <em>({{ $s['c'] }})</em></span>
+        <i class="mdot" style="background:{{ invoice_status_color($s['status']) }}"></i>
+        <span class="mp-name">{{ invoice_status_label($s['status']) }} <em>({{ $s['c'] }})</em></span>
         <span class="mp-pct">{{ round($s['frac'] * 100) }}%</span>
         <span class="mp-amt">{{ money($s['t']) }}</span>
       </li>
@@ -151,7 +149,7 @@
           <tr>
             <td class="nowrap"><a href="{{ route('invoices.show',$i->id) }}">{{ $i->number }}</a></td>
             <td class="nowrap">{{ money($i->total) }}</td>
-            <td><span class="badge {{ $i->status==='paid' ? 'b-green' : ($i->status==='overdue' ? 'b-red' : (in_array($i->status,['sent','partial']) ? 'b-blue' : 'b-grey')) }}">{{ $i->status }}</span></td>
+            <td>{!! invoice_status_tag($i->status) !!}</td>
           </tr>
         @empty
           <tr><td colspan="3"><div class="empty">No invoices yet.<a class="btn sm" href="{{ route('invoices.create') }}">Create your first invoice</a></div></td></tr>
