@@ -3374,4 +3374,126 @@ html:root[data-theme="dark"] .auth-side,html:root:not([data-theme="light"]) .aut
 
 /* keyboard focus must remain visible on hidden file inputs */
 .file-field:focus-within,.fm-upload:focus-within{outline:2px solid var(--dc-accent);outline-offset:2px;border-radius:12px}
-@media(max-width:640px){.chip,.badge,.ix-chip,.cl-status-chip,.ld-stage-chip,.kb-kind,.ql-sev,.ql-state,.mtg-count,.ix-tag,.api-method{min-height:34px;padding:7px 12px}}
+@media(max-width:640px){.chip,.ix-chip,.cl-status-chip,.ld-stage-chip,.kb-kind,.ql-sev,.ql-state,.mtg-count,.ix-tag,.api-method{min-height:34px;padding:7px 12px}}
+/* ---------------------------------------------------------------------------
+   Money overview
+   Semantic tokens only: the charts and legends read correctly in both themes.
+   --------------------------------------------------------------------------- */
+
+/* Visually hidden but available to assistive tech. */
+.sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+.money-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;margin-bottom:20px}
+.money-grid-top{grid-template-columns:minmax(0,1.55fr) minmax(0,1fr)}
+.money-grid.is-single{grid-template-columns:minmax(0,1fr)}
+.money-grid>.card{margin-bottom:0;min-width:0}
+/* the chart card absorbs leftover height so both top cards finish together */
+.money-grid-top>.card{display:flex;flex-direction:column}
+.money-grid-top .mchart-scroll{flex:1 1 auto;display:flex;flex-direction:column;min-height:180px}
+.money-grid-top .mchart{flex:1 1 auto;grid-auto-rows:1fr}
+.money-grid-top .mbars{height:auto;flex:1 1 auto;min-height:150px}
+
+/* bar chart */
+.mchart-scroll{overflow-x:auto;overflow-y:hidden;padding-bottom:2px}
+.mchart{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(28px,1fr);gap:10px;min-width:250px}
+.mcol{display:flex;flex-direction:column;align-items:center;gap:8px;min-width:0}
+.mbars{width:100%;height:152px;display:flex;align-items:flex-end;justify-content:center;gap:5px;border-bottom:1px solid var(--dc-line2);background-image:linear-gradient(to top,color-mix(in srgb,var(--dc-line) 80%,transparent) 1px,transparent 1px);background-size:100% 25%;background-repeat:repeat-y}
+.mbar{width:18%;min-width:12px;max-width:26px;min-height:3px;border-radius:6px 6px 2px 2px}
+.mbar.in{background:var(--dc-green)}
+.mbar.out{background:var(--dc-amber)}
+.mbar.fc{background:color-mix(in srgb,var(--dc-green) 38%,var(--dc-panel))}
+.mlabel{font-size:11px;color:var(--dc-muted);white-space:nowrap;font-variant-numeric:tabular-nums}
+
+/* legend */
+.mlegend{display:flex;align-items:center;flex-wrap:wrap;gap:8px 18px;margin-top:14px;font-size:12px;color:var(--dc-muted)}
+.mlegend>span{display:inline-flex;align-items:center;gap:7px;min-width:0}
+.mlegend b{color:var(--dc-ink);font-variant-numeric:tabular-nums}
+.mlegend .mnet{margin-left:auto}
+.mlegend b.neg{color:var(--dc-red)}
+.mdot{display:inline-block;width:9px;height:9px;border-radius:3px;flex:0 0 9px;background:var(--dc-pale)}
+.mdot.in{background:var(--dc-green)}
+.mdot.out{background:var(--dc-amber)}
+.mdot.fc{background:color-mix(in srgb,var(--dc-green) 38%,var(--dc-panel))}
+
+/* target card */
+.mline{display:flex;align-items:baseline;justify-content:space-between;gap:12px;font-size:13.5px;color:var(--dc-muted)}
+.mline b{color:var(--dc-ink);font-size:15px;font-variant-numeric:tabular-nums}
+.money-grid .progress{height:10px;background:var(--dc-soft);margin:8px 0 14px}
+.money-grid .progress>div{background:var(--dc-accent)}
+.mfoot{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:16px;padding-top:14px;border-top:1px solid var(--dc-line)}
+.mfoot>div{display:flex;flex-direction:column;gap:2px;min-width:0}
+.mfoot span{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--dc-muted);font-weight:600}
+.mfoot b{font-size:15px;color:var(--dc-ink);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.mfoot small{font-size:11.5px;color:var(--dc-muted)}
+
+/* money position */
+.mp-body{display:flex;align-items:center;justify-content:center;gap:32px;flex-wrap:wrap}
+.mp-body .donut-svg{width:164px;flex:0 0 164px}
+.mp-body .donut-center b{font-size:22px;color:var(--dc-ink)}
+.mp-body .donut-center span{color:var(--dc-muted)}
+/* Legend items keep their amounts next to the labels instead of drifting to the card edge. */
+.mp-legend{list-style:none;margin:0;padding:0;flex:1 1 620px;min-width:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));column-gap:32px}
+.mp-legend li{display:grid;grid-template-columns:9px minmax(0,1fr) auto auto;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--dc-line);font-size:13.5px;color:var(--dc-ink)}
+.mp-legend li:last-child{border-bottom:0}
+.mp-legend .mp-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mp-legend .mp-name em{font-style:normal;color:var(--dc-muted)}
+.mp-legend .mp-pct{color:var(--dc-muted);font-variant-numeric:tabular-nums;text-align:right;min-width:38px}
+.mp-legend .mp-amt{font-weight:600;font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+.mp-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:18px;padding-top:18px;border-top:1px solid var(--dc-line)}
+.mp-stat{display:flex;flex-direction:column;gap:3px;min-width:0}
+.mp-stat span{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--dc-muted);font-weight:600}
+.mp-stat b{font-size:clamp(13px,3.5vw,17px);color:var(--dc-ink);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.mp-stat.is-overdue b{color:var(--dc-red)}
+
+.empty .btn{margin-top:12px}
+
+@media(max-width:1000px){
+  .money-grid,.money-grid-top{grid-template-columns:minmax(0,1fr)}
+}
+@media(max-width:640px){
+  .money-grid .tbl-scroll table.tbl{font-size:12.5px}
+  .money-grid .tbl th,.money-grid .tbl td{padding:10px 5px}
+  .money-grid .badge{padding:3px 7px;min-height:0;font-size:9.5px;letter-spacing:.03em}
+}
+/* Below 380px the three columns cannot all fit, so the table scrolls instead of breaking numbers. */
+@media(max-width:380px){
+  .money-grid .tbl-scroll table.tbl{font-size:11.5px}
+  .money-grid .tbl th,.money-grid .tbl td{padding:9px 4px}
+  .money-grid .badge{font-size:9px;padding:2px 5px}
+}
+/* Tiny phones: two lines per invoice stay readable where three columns cannot. */
+@media(max-width:340px){
+  .money-grid .tbl-scroll{margin:0;padding:0}
+  .money-grid .tbl-scroll table.tbl{display:block;width:100%}
+  .money-grid .tbl thead{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0,0,0,0)}
+  .money-grid .tbl tbody{display:block}
+  .money-grid .tbl tr{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"num main" "sub main";align-items:center;column-gap:12px;padding:10px 0;border-bottom:1px solid var(--dc-line)}
+  .money-grid .tbl tr:last-child{border-bottom:0}
+  .money-grid .tbl td{display:block;min-width:0;padding:0;border:0;white-space:nowrap;overflow-wrap:normal;font-size:13px}
+  .money-grid .tbl td:nth-child(1){grid-area:num}
+  .money-grid .tbl td:nth-child(2){grid-area:sub;font-size:11.5px;color:var(--dc-muted)}
+  .money-grid .tbl td:nth-child(3){grid-area:main;text-align:right;justify-self:end}
+  .money-grid .tbl td[colspan]{grid-area:num;grid-column:1/-1;white-space:normal}
+}
+
+@media(max-width:640px){
+  .mp-body{gap:20px}
+  .mp-body .donut-svg{width:142px;flex-basis:142px;margin:0 auto}
+  .mp-legend{flex-basis:100%}
+  .mp-legend li{grid-template-columns:9px minmax(0,1fr) auto auto;gap:8px;padding:8px 0;font-size:13px}
+  .mp-legend .mp-amt{font-size:12.5px}
+  .mp-legend .mp-pct{min-width:34px}
+  .mp-summary{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+  .mp-stat b{font-size:15.5px}
+  .mlegend{font-size:11.5px;gap:6px 14px}
+  .mlegend .mnet{margin-left:0}
+  .mbars{gap:4px}
+}
+
+/* Four amounts do not fit two-by-two on the narrowest phones: one per row. */
+@media(max-width:420px){
+  .mp-summary{grid-template-columns:minmax(0,1fr);gap:0}
+  .mp-stat{flex-direction:row;align-items:baseline;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--dc-line)}
+  .mp-stat:last-child{border-bottom:0}
+  .mp-stat b{font-size:15px;white-space:nowrap;overflow-wrap:normal}
+}

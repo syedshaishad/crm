@@ -1,79 +1,187 @@
 @extends('layouts.app')
 @section('title','Money')
 @section('content')
-<h1 class="sr-only">Money</h1>
 @php
-  $ios = ['paid'=>'var(--dc-green)','partial'=>'var(--dc-amber)','sent'=>'var(--dc-blue)','draft'=>'var(--dc-pale)','overdue'=>'var(--dc-red)','cancelled'=>'var(--dc-muted)'];
+  $ios = ['paid'=>'var(--dc-green)','partial'=>'var(--dc-amber)','sent'=>'var(--dc-blue)','draft'=>'var(--dc-pale)','overdue'=>'var(--dc-red)','cancelled'=>'color-mix(in srgb, var(--dc-pale) 45%, var(--dc-panel))'];
+  $order = ['paid'=>0,'partial'=>1,'sent'=>2,'overdue'=>3,'draft'=>4,'cancelled'=>5];
   $R = 60; $C = round(2 * M_PI * $R, 1); $off = 0;
   $dsegs = [];
-  foreach ($pipeline as $p) { $dsegs[] = ['status' => $p->status, 'c' => $p->c, 't' => $p->t ?? 0, 'frac' => ($p->t ?? 0) / $pipelineTotal]; }
-  $dsegs = array_values(array_filter($dsegs, fn ($s) => $s['frac'] > 0));
+  foreach ($pipeline as $p) {
+      if (($p->t ?? 0) > 0) $dsegs[] = ['status' => $p->status, 'c' => $p->c, 't' => $p->t, 'frac' => $p->t / $pipelineTotal];
+  }
+  usort($dsegs, fn ($a, $b) => ($order[$a['status']] ?? 9) <=> ($order[$b['status']] ?? 9));
+
+  $inTotal = (float) collect($months)->sum('revenue');
+  $outTotal = (float) collect($months)->sum('expenses');
+  $netTotal = $inTotal - $outTotal;
+
+  // Trailing three months of actuals plus the three-month forecast, one scale.
+  $series = [];
+  foreach (array_slice($months, -3) as $t) $series[] = ['label' => $t['label'], 'value' => $t['revenue'], 'fc' => false];
+  foreach ($forecast as $f) $series[] = ['label' => $f['label'], 'value' => $f['value'], 'fc' => true];
+  $seriesMax = max(1, (float) collect($series)->max('value'));
+  $avgFc = (float) ($forecast[0]['value'] ?? 0);
+  $pipeCover = $target > 0 ? round($openPipe / $target * 100) : 0;
 @endphp
-<div class="cols-2">
-<div class="card"><div class="card-head"><div><h2>Cashflow — last 6 months</h2><span class="hint">Money in vs money out</span></div><div class="btnrow" style="gap:8px">@if(module_visible('Reports'))<a class="hint" href="{{ route('reports.index') }}">Full reports →</a>@endif<div class="has-drop"><button type="button" class="icon-btn" data-drop-toggle><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="5" cy="12" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="19" cy="12" r="1.4"/></svg>Menu</button><div class="drop">@if(module_visible('Reports'))<a href="{{ route('reports.index') }}">Full reports</a><a href="{{ route('reports.exports') }}">Data exports</a>@endif</div></div></div></div>
-  <div class="bars">
-  @foreach($months as $m)
-    <div class="bar-group"><div class="bar-pair">
-      <div class="bar in" style="height:{{ round($m['revenue']/$maxBar*100) }}%" title="In: {{ money($m['revenue']) }}"></div>
-      <div class="bar out" style="height:{{ round($m['expenses']/$maxBar*100) }}%" title="Out: {{ money($m['expenses']) }}"></div>
-    </div><div class="bar-label">{{ $m['label'] }}</div></div>
-  @endforeach
+
+<div class="page-head ix-head">
+  <div class="ix-head-main">
+    <span class="ix-head-ic">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="13" rx="2.5"/><path d="M2.5 10h19M16 14.5h2.5"/></svg>
+    </span>
+    <div>
+      <h1>Money</h1>
+      <div class="crumb">{{ money($collected) }} collected · {{ money($outstanding) }} outstanding{{ $overdueTotal > 0 ? ' · '.money($overdueTotal).' overdue' : '' }}</div>
+    </div>
   </div>
-  <div class="chart-legend"><span><span class="dot" style="background:#0a84ff"></span>Money in ({{ money(collect($months)->sum('revenue')) }})</span><span><span class="dot" style="background:#3a4668"></span>Money out ({{ money(collect($months)->sum('expenses')) }})</span></div>
-</div>
-@if(($target ?? 0) > 0)
-<div class="card"><div class="card-head"><div><h2>Ahead — target & forecast</h2><span class="hint">{{ date('F Y') }}</span></div><div class="btnrow" style="gap:8px"><div class="has-drop"><button type="button" class="icon-btn" data-drop-toggle><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="5" cy="12" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="19" cy="12" r="1.4"/></svg>Menu</button><div class="drop">@if(module_visible('Reports'))<a href="{{ route('reports.index') }}">Full reports</a>@endif @if(module_visible('Invoices'))<a href="{{ route('invoices.index') }}">All invoices</a>@endif</div></div></div></div>
-  <div class="mrow" style="display:flex;justify-content:space-between;gap:12px"><span>Collected vs {{ money($target) }} target</span><b>{{ $targetPct }}%</b></div>
-  <div class="progress" style="margin:6px 0 12px"><div style="width:{{ $targetPct }}%"></div></div>
-  <div class="bars">
-  @foreach($forecast as $f)
-    <div class="bar-group"><div class="bar-pair">
-      <div class="bar in" style="height:{{ round($f['value']/$forecastMax*100) }}%;background:#30d158" title="Forecast: {{ money($f['value']) }}"></div>
-    </div><div class="bar-label">{{ $f['label'] }}</div></div>
-  @endforeach
+  <div class="ix-head-actions noprint">
+    @if(module_visible('Invoices'))<a class="btn sm sec" href="{{ route('invoices.create') }}">+ New invoice</a>@endif
+    @if(module_visible('Payments'))<a class="btn sm" href="{{ route('payments.create') }}">Record payment</a>@endif
   </div>
-  <div class="chart-legend"><span><span class="dot" style="background:#30d158"></span>Forecast {{ money($forecast[0]['value'] ?? 0) }}/mo (3-mo avg)</span><span>Open pipeline {{ money($openPipe) }} = {{ $target > 0 ? round($openPipe/$target*100) : 0 }}% of target</span></div>
 </div>
-@endif
+
+<div class="money-grid money-grid-top{{ $target > 0 ? '' : ' is-single' }}">
+  <section class="card">
+    <div class="card-head">
+      <div><h2>Cashflow — last 6 months</h2><span class="hint">Money in vs money out</span></div>
+      @if(module_visible('Reports'))<a class="hint" href="{{ route('reports.index') }}">Full reports →</a>@endif
+    </div>
+    <div class="mchart-scroll">
+      <div class="mchart" role="img" aria-label="Money in and money out for each of the last six months">
+        @foreach($months as $m)
+        <div class="mcol">
+          <div class="mbars">
+            <div class="mbar in" style="height:{{ round($m['revenue'] / $maxBar * 100) }}%" title="In {{ $m['label'] }}: {{ money($m['revenue']) }}"></div>
+            <div class="mbar out" style="height:{{ round($m['expenses'] / $maxBar * 100) }}%" title="Out {{ $m['label'] }}: {{ money($m['expenses']) }}"></div>
+          </div>
+          <span class="mlabel">{{ $m['label'] }}</span>
+        </div>
+        @endforeach
+      </div>
+    </div>
+    <div class="mlegend">
+      <span><i class="mdot in"></i>Money in <b>{{ money($inTotal) }}</b></span>
+      <span><i class="mdot out"></i>Money out <b>{{ money($outTotal) }}</b></span>
+      <span class="mnet">Net <b class="{{ $netTotal < 0 ? 'neg' : '' }}">{{ money($netTotal) }}</b></span>
+    </div>
+  </section>
+
+  @if($target > 0)
+  <section class="card">
+    <div class="card-head">
+      <div><h2>Ahead — target &amp; forecast</h2><span class="hint">{{ date('F Y') }}</span></div>
+    </div>
+    <div class="mline"><span>Collected vs {{ money($target) }} target</span><b>{{ $targetPct }}%</b></div>
+    <div class="progress" role="img" aria-label="{{ $targetPct }}% of the monthly target collected"><div style="width:{{ $targetPct }}%"></div></div>
+    <div class="mlegend">
+      <span><i class="mdot in"></i>Actual</span>
+      <span><i class="mdot fc"></i>Forecast</span>
+    </div>
+    <div class="mchart-scroll">
+      <div class="mchart" role="img" aria-label="Last three months collected and the next three months forecast">
+        @foreach($series as $s)
+        <div class="mcol">
+          <div class="mbars">
+            <div class="mbar {{ $s['fc'] ? 'fc' : 'in' }}" style="height:{{ round($s['value'] / $seriesMax * 100) }}%" title="{{ $s['fc'] ? 'Forecast' : 'Collected' }} {{ $s['label'] }}: {{ money($s['value']) }}"></div>
+          </div>
+          <span class="mlabel">{{ $s['label'] }}</span>
+        </div>
+        @endforeach
+      </div>
+    </div>
+    <div class="mfoot">
+      <div><span>Projected / month</span><b>{{ money($avgFc) }}</b></div>
+      <div><span>Open pipeline</span><b>{{ money($openPipe) }}</b><small>{{ $pipeCover }}% of target</small></div>
+    </div>
+  </section>
+  @endif
 </div>
-<div class="card"><div class="card-head"><div><h2>Money position</h2><span class="hint">Where the money sits</span></div><div class="btnrow" style="gap:8px">@if(module_visible('Invoices'))<a class="hint" href="{{ route('invoices.index') }}">Invoices →</a>@endif<div class="has-drop"><button type="button" class="icon-btn" data-drop-toggle><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="5" cy="12" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="19" cy="12" r="1.4"/></svg>Menu</button><div class="drop">@if(module_visible('Invoices'))<a href="{{ route('invoices.index') }}">All invoices</a><a href="{{ route('payments.create') }}">Record payment</a>@endif</div></div></div></div>
-  <div class="donut-wrap">
+
+<section class="card">
+  <div class="card-head">
+    <div><h2>Money position</h2><span class="hint">Where the money sits</span></div>
+    @if(module_visible('Invoices'))<a class="hint" href="{{ route('invoices.index') }}">Invoices →</a>@endif
+  </div>
+  <div class="mp-body">
     <div class="donut-svg">
-      <svg viewBox="0 0 150 150" role="img" aria-label="Money position">
-        <circle cx="75" cy="75" r="{{ $R }}" fill="none" stroke="#ece5d3" stroke-width="17"/>
+      <svg viewBox="0 0 150 150" role="img" aria-label="Invoice value by status">
+        <circle cx="75" cy="75" r="{{ $R }}" fill="none" stroke="var(--dc-line)" stroke-width="17"/>
         @foreach($dsegs as $s)
           @php
             $len = round($s['frac'] * $C - (count($dsegs) > 1 ? 5 : 0), 1); $len = max($len, 1);
             $o = -$off; $off += $s['frac'] * $C;
-            $col = $ios[$s['status']] ?? '#94a3b8';
+            $col = $ios[$s['status']] ?? 'var(--dc-pale)';
           @endphp
-          <circle class="seg" cx="75" cy="75" r="{{ $R }}" fill="none" stroke="{{ $col }}" stroke-width="17" stroke-linecap="round" stroke-dasharray="{{ $len }} {{ $C }}" stroke-dashoffset="{{ round($o, 1) }}" transform="rotate(-90 75 75)"><title>{{ ucfirst($s['status']) }}: {{ money($s['t']) }}</title></circle>
+          <circle cx="75" cy="75" r="{{ $R }}" fill="none" stroke="{{ $col }}" stroke-width="17" stroke-linecap="round" stroke-dasharray="{{ $len }} {{ $C }}" stroke-dashoffset="{{ round($o, 1) }}" transform="rotate(-90 75 75)"><title>{{ ucfirst($s['status']) }}: {{ money($s['t']) }}</title></circle>
         @endforeach
       </svg>
       <div class="donut-center"><b>{{ $collectionRate }}%</b><span>collected</span></div>
     </div>
-    <div class="legend">
-      @foreach($dsegs as $s)<div class="row"><span class="dot" style="background:{{ $ios[$s['status']] ?? '#94a3b8' }}"></span>{{ ucfirst($s['status']) }} ({{ $s['c'] }})<span class="pct">{{ round($s['frac'] * 100) }}%</span><span class="amt">{{ money($s['t']) }}</span></div>@endforeach
-    </div>
+    <ul class="mp-legend">
+      @foreach($dsegs as $s)
+      <li>
+        <i class="mdot" style="background:{{ $ios[$s['status']] ?? 'var(--dc-pale)' }}"></i>
+        <span class="mp-name">{{ ucfirst($s['status']) }} <em>({{ $s['c'] }})</em></span>
+        <span class="mp-pct">{{ round($s['frac'] * 100) }}%</span>
+        <span class="mp-amt">{{ money($s['t']) }}</span>
+      </li>
+      @endforeach
+    </ul>
   </div>
-  <div class="progress"><div style="width:{{ $collectionRate }}%"></div></div>
-  <div class="money-rows">
-    <div class="mrow"><span>Billed</span><b>{{ money($billed) }}</b></div>
-    <div class="mrow"><span>Collected</span><b>{{ money($collected) }}</b></div>
-    <div class="mrow"><span>Outstanding</span><b>{{ money($outstanding) }}</b></div>
-    @if($overdueTotal > 0)<div class="mrow"><span>Overdue</span><b style="color:var(--bad)">{{ money($overdueTotal) }}</b></div>@endif
+  <div class="mp-summary">
+    <div class="mp-stat"><span>Billed</span><b>{{ money($billed) }}</b></div>
+    <div class="mp-stat"><span>Collected</span><b>{{ money($collected) }}</b></div>
+    <div class="mp-stat"><span>Outstanding</span><b>{{ money($outstanding) }}</b></div>
+    <div class="mp-stat is-overdue"><span>Overdue</span><b>{{ money($overdueTotal) }}</b></div>
   </div>
-</div>
-<div class="cols-2">
+</section>
+
 @if(module_visible('Invoices'))
-<div class="card"><div class="card-head"><div><h2>Recent invoices</h2><span class="hint">Latest bills</span></div><div class="btnrow" style="gap:8px"><a class="btn sm sec" href="{{ route('invoices.create') }}">+ New</a><div class="has-drop"><button type="button" class="icon-btn" data-drop-toggle><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="5" cy="12" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="19" cy="12" r="1.4"/></svg>Menu</button><div class="drop"><a href="{{ route('invoices.index') }}">View all invoices</a><a href="{{ route('invoices.create') }}">New invoice</a></div></div></div></div>
-<div class="tbl-scroll"><table class="tbl"><tr><th>Number</th><th>Total</th><th>Status</th></tr>
-@forelse($recentInvoices as $i)<tr><td><a href="{{ route('invoices.show',$i->id) }}">{{ $i->number }}</a></td><td>{{ money($i->total) }}</td><td><span class="badge {{ $i->status==='paid' ? 'b-green' : ($i->status==='overdue' ? 'b-red' : (in_array($i->status,['sent','partial']) ? 'b-blue' : 'b-grey')) }}">{{ $i->status }}</span></td></tr>@empty<tr><td colspan="3"><div class="empty">No invoices yet.<br><br><a class="btn sm" href="{{ route('invoices.create') }}">Create your first invoice</a></div></td></tr>@endforelse
-</table></div></div>
-@endif
-<div class="card"><div class="card-head"><div><h2>Overdue invoices</h2><span class="hint">Needs chasing</span></div><div class="btnrow" style="gap:8px"><a class="hint" href="{{ route('invoices.index',['status'=>'overdue']) }}">View all →</a><div class="has-drop"><button type="button" class="icon-btn" data-drop-toggle><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="5" cy="12" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="19" cy="12" r="1.4"/></svg>Menu</button><div class="drop"><a href="{{ route('invoices.index',['status'=>'overdue']) }}">View all overdue</a><a href="{{ route('payments.create') }}">Record payment</a></div></div></div></div>
-<div class="tbl-scroll"><table class="tbl"><tr><th>Number</th><th>Due</th><th>Total</th></tr>
-@forelse($overdue as $i)<tr><td><a href="{{ route('invoices.show',$i->id) }}">{{ $i->number }}</a></td><td>{{ d($i->due_date) }}</td><td>{{ money($i->total) }}</td></tr>@empty<tr><td colspan="3"><div class="empty">Nothing overdue. Nice.</div></td></tr>@endforelse
-</table></div></div>
+<div class="money-grid">
+  <section class="card">
+    <div class="card-head">
+      <div><h2>Recent invoices</h2><span class="hint">Latest bills</span></div>
+      <div class="btnrow"><a class="btn sm sec" href="{{ route('invoices.create') }}">+ New</a><a class="hint" href="{{ route('invoices.index') }}">View all →</a></div>
+    </div>
+    <div class="tbl-scroll">
+      <table class="tbl">
+        <thead><tr><th scope="col">Number</th><th scope="col">Total</th><th scope="col">Status</th></tr></thead>
+        <tbody>
+        @forelse($recentInvoices as $i)
+          <tr>
+            <td class="nowrap"><a href="{{ route('invoices.show',$i->id) }}">{{ $i->number }}</a></td>
+            <td class="nowrap">{{ money($i->total) }}</td>
+            <td><span class="badge {{ $i->status==='paid' ? 'b-green' : ($i->status==='overdue' ? 'b-red' : (in_array($i->status,['sent','partial']) ? 'b-blue' : 'b-grey')) }}">{{ $i->status }}</span></td>
+          </tr>
+        @empty
+          <tr><td colspan="3"><div class="empty">No invoices yet.<a class="btn sm" href="{{ route('invoices.create') }}">Create your first invoice</a></div></td></tr>
+        @endforelse
+        </tbody>
+      </table>
+    </div>
+  </section>
+  <section class="card">
+    <div class="card-head">
+      <div><h2>Overdue invoices</h2><span class="hint">Needs chasing</span></div>
+      <a class="hint" href="{{ route('invoices.index',['status'=>'overdue']) }}">View all →</a>
+    </div>
+    <div class="tbl-scroll">
+      <table class="tbl">
+        <thead><tr><th scope="col">Number</th><th scope="col">Due</th><th scope="col">Total</th></tr></thead>
+        <tbody>
+        @forelse($overdue as $i)
+          <tr>
+            <td class="nowrap"><a href="{{ route('invoices.show',$i->id) }}">{{ $i->number }}</a></td>
+            <td class="nowrap">{{ d($i->due_date, 'j M Y') }}</td>
+            <td class="nowrap">{{ money($i->total) }}</td>
+          </tr>
+        @empty
+          <tr><td colspan="3"><div class="empty">Nothing overdue. Nice.</div></td></tr>
+        @endforelse
+        </tbody>
+      </table>
+    </div>
+  </section>
 </div>
+@endif
 @endsection

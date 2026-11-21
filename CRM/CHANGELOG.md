@@ -6,7 +6,30 @@
 
 ## Unreleased
 
-7 migrations, `?v=143` CSS / `?v=12` dashboard CSS / `?v=84` JS.
+7 migrations, `?v=158` CSS / `?v=12` dashboard CSS / `?v=84` JS.
+
+- The **Money** overview was rebuilt on the same design tokens:
+  - a real page header with the collected / outstanding / overdue summary and
+    the two create actions, so the page no longer renders two different titles;
+  - the cashflow and target cards sit side by side on desktop and share a
+    height; money in is green and money out amber in both themes, the chart
+    keeps a baseline and 25% gridlines, and month labels no longer overlap;
+  - the target card shows three actual and three forecast months (it used to
+    draw three identical forecast bars) with projected-per-month and open
+    pipeline totals underneath;
+  - the money-position card lists each invoice status once, in a fixed order,
+    with percentage and amount beside the label instead of ~800px away, and
+    the duplicate progress bar under the donut is gone;
+  - invoice tables use short dates (`6 Jun 2026`), keep numbers on one line,
+    and drop the five duplicate "… Menu" buttons and their repeated links.
+  - phones: tables stay on one line down to 340px, then read as two-line rows
+    (number, amount, status) instead of clipping; the four totals sit one per
+    row on the smallest screens; the chart scrolls inside its card only.
+- `.sr-only` was used by six templates but never defined, so those hidden page
+  headings rendered as visible 47px titles duplicating the page name. The
+  utility is now a real rule in `app.css`.
+- Badges are labels, not tap targets, so the phone rule that forced every badge
+  to 34px tall now applies only to interactive chips.
 
 - Full UI hygiene pass using the shadcn audit rubric (semantic tokens, one
   spacing/alignment scale, accessible names and structure, no dead or
