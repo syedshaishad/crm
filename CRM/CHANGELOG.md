@@ -6,6 +6,17 @@
 
 ## Unreleased
 
+- The primitives themselves are now unified, not just the page shells. A
+  final token layer gives every button family (`.btn`, `.icon-btn`, `.ix-act`,
+  `.cl-act`, pagination, tabs, pills and the upload label) the same box,
+  radius, type scale and hover treatment; every tag (`.badge`, `.chip`,
+  `.ix-tag`, `.ix-state`, `.cl-status`, `.inv-status`) the same pill, dot and
+  title-case label; every inline link in app content the same accent colour
+  and hover underline; and every active/highlighted state (filter chips,
+  tabs, segmented controls, selected radio pills, pagination, table rows)
+  the same primary treatment. The old cream/glass/uppercase skins can no
+  longer leak back in.
+
 - A second, deeper pass covered the rest of the app rather than only the
   sidebar: 131 unique routes (forms, detail pages, ledger/stock/compare,
   activity, notifications, search, trash, HR overview, all settings and
@@ -49,7 +60,7 @@
     desktop and phone widths in both themes with one `h1`, no duplicate ids,
     no page-level overflow and no console errors.
 
-7 migrations, `?v=162` CSS / `?v=12` dashboard CSS / `?v=84` JS.
+7 migrations, `?v=163` CSS / `?v=12` dashboard CSS / `?v=84` JS.
 
 - The **Money** overview was rebuilt on the same design tokens:
   - a real page header with the collected / outstanding / overdue summary and
