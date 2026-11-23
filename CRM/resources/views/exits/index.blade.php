@@ -1,8 +1,10 @@
 @extends('layouts.app')
 @section('title','Exits')
 @section('content')
-<div class="card">
-<div class="card-head"><h3>Employee exits</h3><span class="hint">dues + assets must clear first</span></div>
+
+<x-page-header title="Employee exits" :crumb="'dues and assets clear before close'" icon='<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5M21 12H9"/>'/>
+<div class="card ix-card">
+<div class="card-head"><h2>Employee exits</h2><span class="hint">dues + assets must clear first</span></div>
 <form method="POST" action="{{ route('exits.store') }}" class="noprint" style="display:flex;gap:8px;flex-wrap:wrap;align-items:end;margin-bottom:12px">@csrf
 <div><label class="f">Who</label><select class="in" name="user_id" style="margin:0">@foreach($users as $u)<option value="{{ $u->id }}">{{ $u->name }}</option>@endforeach</select></div>
 <div><label class="f">Resigned on</label><input class="in" type="date" name="resigned_on" style="margin:0"></div>
@@ -12,8 +14,8 @@
 <div class="tbl-scroll roomy"><table class="tbl"><tr><th>Who</th><th>Resigned</th><th>Last day</th><th>Status</th><th></th></tr>
 @forelse($rows as $e)<tr>
 <td><b>{{ $e->user->name ?? '—' }}</b>@if($e->reason)<div class="hint">{{ \Str::limit($e->reason,60) }}</div>@endif @if($e->clearance)<div class="hint">Clearance: {{ \Str::limit($e->clearance,80) }}</div>@endif</td>
-<td class="nowrap">{{ $e->resigned_on ? d($e->resigned_on) : '—' }}</td>
-<td class="nowrap">{{ $e->last_day ? d($e->last_day) : '—' }}</td>
+<td class="nowrap">{{ $e->resigned_on ? d($e->resigned_on, 'j M Y') : '—' }}</td>
+<td class="nowrap">{{ $e->last_day ? d($e->last_day, 'j M Y') : '—' }}</td>
 <td><span class="badge {{ $e->status==='completed' ? 'b-green' : 'b-amber' }}">{{ ucfirst($e->status) }}</span></td>
 <td><div class="row-actions">
 @if($e->status!=='completed')<form method="POST" action="{{ route('exits.complete',$e) }}" style="display:inline-flex;gap:4px;align-items:center" data-confirm="Complete this exit? The login deactivates. Blocked until advances, loans and assets clear.">@csrf<input class="in" name="clearance" maxlength="1000" style="margin:0;width:170px" placeholder="Clearance note…"><button class="icon-btn">Complete</button></form>

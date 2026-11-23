@@ -1,8 +1,10 @@
 @extends('layouts.app')
 @section('title','Import & Export')
 @section('content')
-<div class="card">
-  <div class="card-head"><h3>Import from CSV</h3></div>
+<x-page-header title="Data import & export" crumb="CSV imports and bulk exports" icon='<path d="M12 3v12m0 0 4-4m-4 4-4-4"/><path d="M4 17v3h16v-3"/>'/>
+
+<div class="card ix-card">
+  <div class="card-head"><h2>Import from CSV</h2></div>
   <p class="hint">Upload a CSV with a header row. Supported types: <b>Clients</b> and <b>Leads</b>.<br>
   Columns are matched by name (any order, case-insensitive). Clients with an existing email are skipped, not overwritten.</p>
 

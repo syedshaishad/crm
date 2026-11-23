@@ -1,8 +1,10 @@
 @extends('layouts.app')
 @section('title','Field visits')
 @section('content')
-<div class="card">
-<div class="card-head"><h3>Who is on site</h3>@if($open)<span class="badge b-green">{{ $open->user->name ?? 'You' }} checked in {{ d($open->check_in_at,'h:i A') }}</span>@endif</div>
+
+<x-page-header title="Site visits" :crumb="'check-ins and site notes'" icon='<path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/>'/>
+<div class="card ix-card">
+<div class="card-head"><h2>Who is on site</h2>@if($open)<span class="badge b-green">{{ $open->user->name ?? 'You' }} checked in {{ d($open->check_in_at,'h:i A') }}</span>@endif</div>
 @if(!$open)
 <form method="POST" action="{{ route('field.checkin') }}" class="noprint" id="checkin-form" style="display:flex;gap:8px;flex-wrap:wrap;align-items:end;margin-bottom:12px">@csrf
 <div><label class="f">Site task</label><select class="in" name="task_id" style="margin:0"><option value="">No task</option>@foreach($tasks as $t)<option value="{{ $t->id }}">{{ \Str::limit($t->title,50) }}</option>@endforeach</select></div>

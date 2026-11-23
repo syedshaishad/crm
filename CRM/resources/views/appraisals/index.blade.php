@@ -1,8 +1,10 @@
 @extends('layouts.app')
 @section('title','Appraisals')
 @section('content')
-<div class="card">
-<div class="card-head"><h3>Performance reviews</h3>@if(!$canAll)<span class="hint">your reviews</span>@endif</div>
+
+<x-page-header title="Appraisals" :crumb="'reviews and ratings by period'" icon='<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/>'/>
+<div class="card ix-card">
+<div class="card-head"><h2>Performance reviews</h2>@if(!$canAll)<span class="hint">your reviews</span>@endif</div>
 @if($canAll)
 <form method="POST" action="{{ route('appraisals.store') }}" class="noprint" style="display:flex;gap:8px;flex-wrap:wrap;align-items:end;margin-bottom:12px">@csrf
 <div><label class="f">Who</label><select class="in" name="user_id" style="margin:0" aria-label="Staff member">@foreach($users as $u)<option value="{{ $u->id }}" {{ (string)($user_id ?? '')===(string)$u->id?'selected':'' }}>{{ $u->name }}</option>@endforeach</select></div>

@@ -1,8 +1,10 @@
 @extends('layouts.app')
 @section('title','Shift roster')
 @section('content')
-<div class="card">
-<div class="card-head"><h3>Roster — this week + next</h3>@if($canEdit)<span class="hint">managers set it below</span>@endif</div>
+
+<x-page-header title="Shifts" crumb="Roster for this week and next" icon='<rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 10h18"/>'/>
+<div class="card ix-card">
+<div class="card-head"><h2>Roster — this week + next</h2>@if($canEdit)<span class="hint">managers set it below</span>@endif</div>
 @foreach($weeks as $wi)<div class="fsec">{{ $wi[0]->format('j M') }} – {{ $wi[6]->format('j M Y') }}</div>
 <div class="tbl-scroll"><table class="tbl"><tr><th>Who</th>@foreach($wi as $d)<th class="{{ $d->isToday() ? 'hl' : '' }}">{{ $d->format('D j') }}</th>@endforeach</tr>
 @foreach($users as $u)<tr><td><b>{{ $u->name }}</b></td>@foreach($wi as $d)@php $m = ($marks[$u->id.'|'.$d->toDateString()] ?? collect())->first(); @endphp<td>@if($m)<span class="badge {{ str_contains($m->label,'off') ? 'b-grey' : 'b-blue' }}">{{ $m->label }}</span>@if($m->note)<div class="hint">{{ \Str::limit($m->note,30) }}</div>@endif @if($canEdit)<form method="POST" action="{{ route('shifts.destroy',$m) }}" style="display:inline" data-confirm="Clear this shift?">@csrf @method('DELETE')<button class="link-btn danger">×</button></form>@endif @else<span class="hint">—</span>@endif</td>@endforeach</tr>@endforeach</table></div>

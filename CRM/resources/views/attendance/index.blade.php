@@ -1,16 +1,18 @@
 @extends('layouts.app')
 @section('title','Attendance')
 @section('content')
-<div class="card">
-<div class="card-head"><h3>Attendance · {{ d($start,'M Y') }}</h3><span class="btnrow noprint" style="gap:8px"><a class="btn sec sm" href="{{ route('attendance.index',['month'=>$prev,'user_id'=>$uid]) }}">← {{ d($prev.'-01','M Y') }}</a>@if($next)<a class="btn sec sm" href="{{ route('attendance.index',['month'=>$next,'user_id'=>$uid]) }}">{{ d($next.'-01','M Y') }} →</a>@endif<a class="btn sec sm" href="{{ route('leaves.index') }}">Leave</a><a class="btn sec sm" href="{{ route('shifts.index') }}">Roster</a><a class="btn sec sm" href="{{ route('holidays.index') }}">Holidays</a></span></div>
+
+<x-page-header title="Attendance" :crumb="'monthly marks and leave balances'" icon='<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/>'/>
+<div class="card ix-card">
+<div class="card-head"><h2>Attendance · {{ d($start,'M Y') }}</h2><span class="btnrow noprint" style="gap:8px"><a class="btn sec sm" href="{{ route('attendance.index',['month'=>$prev,'user_id'=>$uid]) }}">← {{ d($prev.'-01','M Y', 'j M Y') }}</a>@if($next)<a class="btn sec sm" href="{{ route('attendance.index',['month'=>$next,'user_id'=>$uid]) }}">{{ d($next.'-01','M Y', 'j M Y') }} →</a>@endif<a class="btn sec sm" href="{{ route('leaves.index') }}">Leave</a><a class="btn sec sm" href="{{ route('shifts.index') }}">Roster</a><a class="btn sec sm" href="{{ route('holidays.index') }}">Holidays</a></span></div>
 <form method="GET" class="noprint" style="display:flex;gap:8px;flex-wrap:wrap;align-items:end;margin-bottom:12px">
 @if($canAll)<div><label class="f">Staff</label><select class="in" name="user_id" style="margin:0" aria-label="Staff member" onchange="this.form.submit()">@foreach($users as $u)<option value="{{ $u->id }}" {{ (int)$uid===(int)$u->id?'selected':'' }}>{{ $u->name }}</option>@endforeach</select></div>@endif
 <div><label class="f">Month</label><input class="in" type="month" name="month" value="{{ $month }}" style="margin:0" aria-label="Attendance month" onchange="this.form.submit()"></div></form>
 <div class="grid stats cols-4" style="margin-bottom:14px">
-  <div class="stat acc" style="--acc:#30d158"><div class="lbl">Present</div><b>{{ $summary['present'] }}</b></div>
-  <div class="stat acc" style="--acc:#0a84ff"><div class="lbl">Half days</div><b>{{ $summary['half'] }}</b></div>
-  <div class="stat acc" style="--acc:#ff9f0a"><div class="lbl">Leave</div><b>{{ $summary['leave'] }}</b></div>
-  <div class="stat acc" style="--acc:#ff453a"><div class="lbl">Absent</div><b>{{ $summary['absent'] }}</b></div>
+  <div class="stat"><div class="lbl">Present</div><b>{{ $summary['present'] }}</b></div>
+  <div class="stat"><div class="lbl">Half days</div><b>{{ $summary['half'] }}</b></div>
+  <div class="stat"><div class="lbl">Leave</div><b>{{ $summary['leave'] }}</b></div>
+  <div class="stat"><div class="lbl">Absent</div><b>{{ $summary['absent'] }}</b></div>
 </div>
 <div class="noprint" style="margin-bottom:12px"><form method="POST" action="{{ route('attendance.store') }}" style="display:flex;gap:8px;flex-wrap:wrap;align-items:end">@csrf
 @if($canAll)<input type="hidden" name="user_id" value="{{ $uid }}">@endif

@@ -1,8 +1,10 @@
 @extends('layouts.app')
 @section('title','Skills matrix')
 @section('content')
-<div class="card">
-<div class="card-head"><h3>Who knows what</h3><span class="hint">1 learning → 5 teaches others</span></div>
+
+<x-page-header title="Skills" :crumb="'1 learning → 5 teaches others'" icon='<circle cx="12" cy="8" r="3.5"/><path d="M5 20c.9-3.8 3.7-5.5 7-5.5s6.1 1.7 7 5.5"/>'/>
+<div class="card ix-card">
+<div class="card-head"><h2>Who knows what</h2><span class="hint">1 learning → 5 teaches others</span></div>
 <div class="tbl-scroll roomy"><table class="tbl"><tr><th>Skill</th>@foreach(\App\Models\User::where('is_active',true)->orderBy('name')->get(['id','name']) as $u)<th>{{ \Str::limit($u->name,14) }}</th>@endforeach</tr>
 @foreach($skills as $sk)<tr><td><b>{{ $sk->name }}</b> <form method="POST" action="{{ route('skills.destroy',$sk) }}" style="display:inline" data-confirm="Remove {{ $sk->name }}?">@csrf @method('DELETE')<button class="link-btn danger">×</button></form></td>
 @foreach(\App\Models\User::where('is_active',true)->orderBy('name')->get(['id','name']) as $u)
@@ -34,6 +36,6 @@
 @if($trainings->isNotEmpty())
 <div class="card" style="margin-top:22px"><div class="card-head"><h3>Recent training</h3></div>
 <div class="tbl-scroll"><table class="tbl"><tr><th>Who</th><th>What</th><th>Done</th><th>Valid till</th></tr>
-@foreach($trainings as $t)<tr><td><b>{{ $t->user->name ?? '—' }}</b></td><td>{{ $t->title }}</td><td class="nowrap">{{ d($t->completed_on) }}</td><td class="nowrap">{{ $t->valid_till ? d($t->valid_till) : '—' }}</td></tr>@endforeach</table></div></div>
+@foreach($trainings as $t)<tr><td><b>{{ $t->user->name ?? '—' }}</b></td><td>{{ $t->title }}</td><td class="nowrap">{{ d($t->completed_on, 'j M Y') }}</td><td class="nowrap">{{ $t->valid_till ? d($t->valid_till, 'j M Y') : '—' }}</td></tr>@endforeach</table></div></div>
 @endif
 @endsection

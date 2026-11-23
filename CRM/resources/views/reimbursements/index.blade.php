@@ -1,8 +1,10 @@
 @extends('layouts.app')
 @section('title','Reimbursements')
 @section('content')
-<div class="card">
-<div class="card-head"><h3>Expense claims</h3><span class="hint">approved ones join the next payroll</span></div>
+
+<x-page-header title="Reimbursements" :crumb="'expense claims · approved ones join payroll'" icon='<rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h4"/>'/>
+<div class="card ix-card">
+<div class="card-head"><h2>Expense claims</h2><span class="hint">approved ones join the next payroll</span></div>
 <form method="POST" action="{{ route('reimbursements.store') }}" class="noprint" style="display:flex;gap:8px;flex-wrap:wrap;align-items:end;margin-bottom:12px">@csrf
 @if($canAll)<div><label class="f">Who</label><select class="in" name="user_id" style="margin:0">@foreach(\App\Models\User::where('is_active',true)->orderBy('name')->get(['id','name']) as $u)<option value="{{ $u->id }}">{{ $u->name }}</option>@endforeach</select></div>@endif
 <div><label class="f">Spent on</label><input class="in" type="date" name="spent_on" value="{{ date('Y-m-d') }}" max="{{ date('Y-m-d') }}" style="margin:0" required></div>
@@ -12,7 +14,7 @@
 <div class="tbl-scroll roomy"><table class="tbl"><tr><th>Who</th><th>Spent</th><th style="text-align:right">Amount</th><th>Status</th><th></th></tr>
 @forelse($rows as $c)<tr>
 <td><b>{{ $c->user->name ?? '—' }}</b><div class="hint">{{ \Str::limit($c->reason ?? '',60) }}</div></td>
-<td class="nowrap">{{ d($c->spent_on) }}</td>
+<td class="nowrap">{{ d($c->spent_on, 'j M Y') }}</td>
 <td class="nowrap" style="text-align:right">{{ money($c->amount) }}</td>
 <td><span class="badge {{ $c->status==='approved' ? 'b-green' : ($c->status==='rejected' ? 'b-red' : 'b-amber') }}">{{ ucfirst($c->status) }}</span>@if($c->payroll_id)<div class="hint">paid in run</div>@endif</td>
 <td><div class="row-actions">

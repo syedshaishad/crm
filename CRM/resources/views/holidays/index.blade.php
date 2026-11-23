@@ -1,8 +1,10 @@
 @extends('layouts.app')
 @section('title','Holidays')
 @section('content')
-<div class="card form-card" style="max-width:680px">
-<div class="card-head"><h3>Company holidays ({{ date('Y') }})</h3><span class="hint">payroll + rosters skip these</span></div>
+
+<x-page-header title="Holidays" :crumb="'company calendar · payroll and rosters skip these'" icon='<rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 2v4M16 2v4M4 10h16"/>'/>
+<div class="card ix-card form-card" style="max-width:680px">
+<div class="card-head"><h2>Company holidays ({{ date('Y') }})</h2><span class="hint">payroll + rosters skip these</span></div>
 <form method="POST" action="{{ route('holidays.store') }}" class="noprint" style="display:flex;gap:8px;align-items:end;margin-bottom:12px">@csrf
 <div><label class="f">Day</label><input class="in" type="date" name="day" style="margin:0" required></div>
 <div style="flex:1"><label class="f">Occasion</label><input class="in" name="name" required maxlength="120" style="margin:0" placeholder="e.g. Diwali"></div>

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Sign {{ $doc->name }} — {{ config('app.name') }}</title>
-<link rel="stylesheet" href="{{ asset('assets/css/app.css').'?v=161' }}">
+<link rel="stylesheet" href="{{ asset('assets/css/app.css').'?v=162' }}">
 @include('brand.theme')
 <style>
   .sign-wrap{max-width:620px;margin:36px auto;padding:0 14px}

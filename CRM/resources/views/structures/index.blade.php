@@ -1,8 +1,10 @@
 @extends('layouts.app')
 @section('title','Salary structures')
 @section('content')
-<div class="card">
-<div class="card-head"><h3>Salary structures</h3><span class="hint">latest effective wins</span></div>
+
+<x-page-header title="Pay structures" :crumb="'latest effective salary per person'" icon='<path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/>'/>
+<div class="card ix-card">
+<div class="card-head"><h2>Salary structures</h2><span class="hint">latest effective wins</span></div>
 <form method="POST" action="{{ route('structures.store') }}" class="noprint" style="display:flex;gap:8px;flex-wrap:wrap;align-items:end;margin-bottom:12px">@csrf
 <div><label class="f">Who</label><select class="in" name="user_id" style="margin:0">@foreach($users as $u)<option value="{{ $u->id }}">{{ $u->name }}</option>@endforeach</select></div>
 <div><label class="f">Effective from</label><input class="in" type="date" name="effective_from" value="{{ date('Y-m-01') }}" style="margin:0" required></div>
@@ -13,7 +15,7 @@
 <div class="tbl-scroll roomy"><table class="tbl"><tr><th>Who</th><th>From</th><th style="text-align:right">Basic</th><th style="text-align:right">HRA</th><th style="text-align:right">Allow.</th><th style="text-align:right">Gross</th><th></th></tr>
 @forelse($rows as $r)<tr>
 <td><b>{{ $r->user->name ?? '—' }}</b></td>
-<td class="nowrap">{{ d($r->effective_from) }}</td>
+<td class="nowrap">{{ d($r->effective_from, 'j M Y') }}</td>
 <td class="nowrap" style="text-align:right">{{ money($r->basic) }}</td>
 <td class="nowrap" style="text-align:right">{{ money($r->hra) }}</td>
 <td class="nowrap" style="text-align:right">{{ money($r->allowances) }}</td>

@@ -1,4 +1,4 @@
-@php
+﻿@php
   $cname = fn ($c) => $c ? ($c->company ?: $c->name) : 'Unknown client';
   $loc = function ($dd) use ($cname) {
     $link = $dd->linkable;
@@ -31,7 +31,7 @@
     @endforeach
   </div>
 
-  <div class="card">
+  <div class="card ix-card">
     <div class="fm-toolbar noprint">
       <div class="crumbs"><a href="{{ route('documents.index', array_filter(['q'=>$q])) }}">All files</a>
         @if(($client_id ?? '')==='general')<span>/</span><b>General</b>
@@ -49,7 +49,7 @@
     @php $ext = file_ext($dd->name); @endphp
     <tr><td><span class="file-cell"><span class="file-ic xs {{ file_icon_class($ext) }}">{{ file_icon_label($ext) }}</span><a href="{{ route('documents.download',$dd) }}" title="Download {{ $dd->name }}">{{ $dd->name }}</a></span></td>
     <td><span class="hint">{{ $loc($dd) }}</span></td>
-    <td class="nowrap">{{ fmt_size($dd->size) }}</td><td class="nowrap">{{ d($dd->created_at) }}</td>
+    <td class="nowrap">{{ fmt_size($dd->size) }}</td><td class="nowrap">{{ d($dd->created_at, 'j M Y') }}</td>
      <td class="noprint"><div class="row-actions"><a class="icon-btn" href="{{ route('documents.download',$dd) }}" title="Download {{ $dd->name }}" aria-label="Download {{ $dd->name }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0 4-4m-4 4-4-4"/><path d="M4 17v3h16v-3"/></svg></a>
      <form method="POST" action="{{ route('documents.request-sign',$dd) }}" style="display:inline">@csrf<button class="icon-btn" title="Request signature for {{ $dd->name }}" aria-label="Request signature for {{ $dd->name }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 5 4 4M4 20l4-1 11-11-3-3L5 16z"/></svg></button></form>
      <form method="POST" action="{{ route('documents.destroy',$dd) }}" style="display:inline" data-confirm="Delete document?">@csrf @method('DELETE')<button class="icon-btn danger" title="Delete {{ $dd->name }}" aria-label="Delete {{ $dd->name }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></button></form></div></td></tr>

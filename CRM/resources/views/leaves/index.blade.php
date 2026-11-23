@@ -1,12 +1,14 @@
 @extends('layouts.app')
 @section('title','Leave')
 @section('content')
+
+<x-page-header title="Leave" :crumb="'balances, requests and approvals'" icon='<path d="M12 21c-5 0-8-3-8-8 0-6 5-9 14-10-.5 9-1.5 18-6 18z"/><path d="M12 21c0-6 2-10 6-13"/>'/>
 <div class="grid stats cols-4" style="margin-bottom:14px">
   @foreach(['sick'=>'Sick','casual'=>'Casual','earned'=>'Earned'] as $t=>$l)<div class="stat"><div class="lbl">{{ $l }} left ({{ date('Y') }})</div><b>{{ $balances[$t]['left'] }}</b><div class="sub">of {{ $balances[$t]['quota'] }} · used {{ $balances[$t]['used'] }}</div></div>@endforeach
   <div class="stat"><div class="lbl">Awaiting decision</div><b>{{ $pending ?? 0 }}</b><div class="sub">pending requests</div></div>
 </div>
-<div class="card">
-<div class="card-head"><h3>Leave requests</h3></div>
+<div class="card ix-card">
+<div class="card-head"><h2>Leave requests</h2></div>
 <form method="POST" action="{{ route('leaves.store') }}" class="noprint" style="display:flex;gap:8px;flex-wrap:wrap;align-items:end;margin-bottom:12px">@csrf
 @if($canAll)<div><label class="f">Who</label><select class="in" name="user_id" style="margin:0">@foreach($users as $u)<option value="{{ $u->id }}">{{ $u->name }}</option>@endforeach</select></div>@endif
 <div><label class="f">From</label><input class="in" type="date" name="from_date" value="{{ date('Y-m-d') }}" style="margin:0" required></div>
@@ -18,7 +20,7 @@
 <div data-ajax-region="leaves-list"><div class="tbl-scroll roomy"><table class="tbl"><tr><th>Who</th><th>Dates</th><th>Type</th><th>Days</th><th>Status</th><th></th></tr>
 @forelse($leaves as $l)<tr>
 <td><b>{{ $l->user->name ?? '—' }}</b>@if($l->reason)<div class="hint">{{ \Str::limit($l->reason,60) }}</div>@endif</td>
-<td class="nowrap">{{ d($l->from_date) }} → {{ d($l->to_date) }}</td>
+<td class="nowrap">{{ d($l->from_date, 'j M Y') }} → {{ d($l->to_date, 'j M Y') }}</td>
 <td><span class="badge b-grey">{{ \Modules\Work\Leave::types()[$l->type] ?? $l->type }}</span></td>
 <td class="nowrap">{{ $l->days() }}</td>
 <td><span class="badge {{ $l->status==='approved' ? 'b-green' : ($l->status==='rejected' ? 'b-red' : 'b-amber') }}">{{ ucfirst($l->status) }}</span></td>

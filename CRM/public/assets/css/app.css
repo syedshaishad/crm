@@ -3531,3 +3531,61 @@ html:root[data-theme="dark"] .auth-side,html:root:not([data-theme="light"]) .aut
   .mp-stat:last-child{border-bottom:0}
   .mp-stat b{font-size:15px;white-space:nowrap;overflow-wrap:normal}
 }
+
+/* ---------------------------------------------------------------------------
+   Shared register shell
+   Every module's list page uses the same header, metric strip, card and table
+   language as the newer registers. Legacy marks only need `card ix-card` and a
+   <x-page-header>; their `.stat` / `.tbl` / `.badge` marks are normalised here.
+   --------------------------------------------------------------------------- */
+.grid.stats{gap:10px;margin:0 0 18px}
+.grid.stats .stat{padding:13px 15px;border:1px solid var(--dc-line);border-radius:14px;background:var(--dc-panel);box-shadow:none;min-width:0}
+.stat.acc::before{display:none}
+.grid.stats .stat .lbl{gap:7px;font-size:10.5px;font-weight:700;letter-spacing:.07em;color:var(--dc-faint);line-height:1.35}
+.grid.stats .stat .lbl svg{width:22px;height:22px;padding:4px;border-radius:7px;background:var(--dc-soft);color:var(--dc-ink2);box-shadow:none;flex:0 0 22px}
+.grid.stats .stat b{margin-top:2px;font-size:22px;font-weight:700;line-height:1.15;letter-spacing:-.03em;color:var(--dc-ink)}
+.grid.stats .stat .sub{font-size:10.5px;line-height:1.35;color:var(--dc-muted)}
+.grid.stats .stat:hover{transform:none;box-shadow:none}
+@media(max-width:1100px){.grid.stats.cols-4,.grid.stats.cols-5{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:900px){.grid.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.grid.stats,.grid.stats.cols-4,.grid.stats.cols-5{grid-template-columns:minmax(0,1fr)}}
+
+.card.ix-card{padding:20px 22px 14px}
+.card.ix-card>.card-head{margin-bottom:12px;align-items:flex-start}
+.card.ix-card>.card-head h2,.card.ix-card>.card-head h3{margin:0;font-size:17px}
+.card.ix-card>.card-head .hint{display:block;margin-top:1px}
+.card.ix-card>.fhint{margin:0 0 12px}
+
+.ix-card .tbl{width:100%;font-size:13px}
+.ix-card .tbl th{padding:8px;background:transparent;border-bottom:1px solid var(--dc-line);color:var(--dc-faint);font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase}
+.ix-card .tbl td{padding:11px 8px;border-bottom:1px solid var(--dc-line);color:var(--dc-ink);font-size:13px;vertical-align:middle}
+.ix-card .tbl th:first-child,.ix-card .tbl td:first-child{padding-left:2px}
+.ix-card .tbl th:last-child,.ix-card .tbl td:last-child{padding-right:2px}
+.ix-card .tbl tbody tr:hover,.ix-card .tbl tr:hover{background:color-mix(in srgb,var(--dc-ink) 2.5%,transparent)}
+.ix-card .tbl tr:last-child td{border-bottom:0}
+.ix-card .tbl .hint{font-size:11.5px;line-height:1.35}
+
+/* Old upper-case badges become the register status pill inside a register card. */
+.ix-card .badge.b-green,.ix-card .badge.b-blue,.ix-card .badge.b-amber,.ix-card .badge.b-red{
+  display:inline-flex;align-items:center;gap:6px;padding:3px 9px;border:0;border-radius:999px;
+  font-size:11.5px;font-weight:700;line-height:1.35;letter-spacing:.01em;text-transform:none;
+  backdrop-filter:none;-webkit-backdrop-filter:none;
+}
+.ix-card .badge.b-green::before,.ix-card .badge.b-blue::before,.ix-card .badge.b-amber::before,.ix-card .badge.b-red::before{
+  content:"";width:6px;height:6px;flex:0 0 6px;border-radius:50%;background:currentColor;
+}
+.ix-card .badge.b-green{background:color-mix(in srgb,var(--dc-green) 14%,transparent);color:var(--dc-green)}
+.ix-card .badge.b-blue{background:color-mix(in srgb,var(--dc-blue) 14%,transparent);color:var(--dc-blue)}
+.ix-card .badge.b-amber{background:color-mix(in srgb,var(--dc-amber) 16%,transparent);color:var(--dc-amber-ink)}
+.ix-card .badge.b-red{background:color-mix(in srgb,var(--dc-red) 13%,transparent);color:var(--dc-red)}
+.ix-card .badge.b-grey{display:inline-flex;align-items:center;padding:3px 7px;border:0;border-radius:6px;background:var(--dc-soft);color:var(--dc-ink2);font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;backdrop-filter:none;-webkit-backdrop-filter:none}
+
+/* Filters inside a register read as one row on desktop and stack on phones. */
+.ix-card .rp-filter{display:flex;align-items:flex-end;gap:8px;flex-wrap:wrap;margin:0 0 12px}
+.ix-card .rp-filter .in{margin:0}
+.ix-card .rp-filter .f{margin-bottom:0}
+@media(max-width:700px){
+  .ix-card .rp-filter{align-items:stretch}
+  .ix-card .rp-filter>div{flex:1 1 100%;min-width:0}
+  .ix-card .rp-filter .btn{width:100%}
+}

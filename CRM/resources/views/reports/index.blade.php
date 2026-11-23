@@ -1,10 +1,10 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 @section('title','Reports')
 @section('content')
 @php
   // iOS system palette — the Apple Health / Fitness look.
   
-  $catPalette = ['#0a84ff','#30d158','#ff9f0a','#ff6482','#bf5af2','#64d2ff','#ff453a'];
+  $catPalette = ['var(--dc-blue)','var(--dc-green)','var(--dc-amber)','var(--dc-red)','var(--dc-accent)','var(--dc-muted)'];
   // Compact axis labels in Indian units: ₹4.2L, ₹56k.
   $short = fn ($v) => '₹'.($v >= 10000000 ? round($v / 10000000, 1).' Cr' : ($v >= 100000 ? round($v / 100000, 1).'L' : ($v >= 1000 ? round($v / 1000, 1).'k' : round($v))));
   // Catmull-Rom → cubic Bézier smoothing for the trend line.
@@ -28,8 +28,12 @@
   $trendFirst = $trend[0]['value'] ?? 0; $trendLast = end($trend)['value'] ?? 0;
   $delta = $trendFirst > 0 ? round(($trendLast - $trendFirst) / $trendFirst * 100, 1) : ($trendLast > 0 ? 100 : 0);
 @endphp
-<div class="card">
-  <div class="card-head"><h3>Filters</h3><a class="btn sm sec" href="{{ route('reports.exports',['from'=>$from,'to'=>$to]) }}">All exports →</a></div>
+<x-page-header title="Reports" :crumb="d($from, 'j M Y').' → '.d($to, 'j M Y').' · cash basis'" icon='<path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/>'>
+  <a class="btn sm sec" href="{{ route('reports.exports',['from'=>$from,'to'=>$to]) }}">All exports →</a>
+</x-page-header>
+
+<div class="card ix-card">
+  <div class="card-head"><h2>Filters</h2></div>
   <form method="GET" class="noprint rp-filter" style="display:flex;gap:10px;flex-wrap:wrap;align-items:end">
     <div><label class="f">From</label><input class="in" style="margin:0" type="date" name="from" value="{{ $from }}" aria-label="Report from date"></div>
     <div><label class="f">To</label><input class="in" style="margin:0" type="date" name="to" value="{{ $to }}" aria-label="Report to date"></div>
@@ -38,12 +42,12 @@
 </div>
 
 <div class="grid stats">
-  <div class="stat acc" style="--acc:#30d158"><div class="lbl">Revenue</div><b>{{ money($revenue) }}</b><div class="sub">collected in range</div></div>
-  <div class="stat acc" style="--acc:#ff9f0a"><div class="lbl">Expenses</div><b>{{ money($expenses) }}</b><div class="sub">spent in range</div></div>
-  <div class="stat acc" style="--acc:{{ $revenue - $expenses >= 0 ? '#0a84ff' : '#ff453a' }}"><div class="lbl">Profit</div><b>{{ money($revenue - $expenses) }}</b><div class="sub">{{ $revenue - $expenses >= 0 ? 'healthy' : 'loss' }}</div></div>
+  <div class="stat"><div class="lbl">Revenue</div><b>{{ money($revenue) }}</b><div class="sub">collected in range</div></div>
+  <div class="stat"><div class="lbl">Expenses</div><b>{{ money($expenses) }}</b><div class="sub">spent in range</div></div>
+  <div class="stat"><div class="lbl">Profit</div><b>{{ money($revenue - $expenses) }}</b><div class="sub">{{ $revenue - $expenses >= 0 ? 'healthy' : 'loss' }}</div></div>
 </div>
 
-<div class="card" style="margin-top:22px"><div class="card-head"><h3>Revenue trend — last 6 months</h3><span style="display:flex;gap:8px;align-items:center"><span class="delta {{ $delta > 0.05 ? 'up' : ($delta < -0.05 ? 'down' : 'flat') }}">{{ $delta > 0.05 ? '▲' : ($delta < -0.05 ? '▼' : '●') }} {{ abs($delta) }}%</span><span class="hint">{{ money(collect($trend)->sum('value')) }} total</span></span></div>
+<div class="card ix-card"><div class="card-head"><h2>Revenue trend — last 6 months</h2><span style="display:flex;gap:8px;align-items:center"><span class="delta {{ $delta > 0.05 ? 'up' : ($delta < -0.05 ? 'down' : 'flat') }}">{{ $delta > 0.05 ? '▲' : ($delta < -0.05 ? '▼' : '●') }} {{ abs($delta) }}%</span><span class="hint">{{ money(collect($trend)->sum('value')) }} total</span></span></div>
 @php
   $W = 640; $H = 210; $PL = 52; $PR = 16; $PT = 18; $PB = 30;
   $plotW = $W - $PL - $PR; $plotH = $H - $PT - $PB; $tMax = max(1, $trendMax);
@@ -59,7 +63,7 @@
 @endphp
 <svg class="trend" viewBox="0 0 {{ $W }} {{ $H }}" role="img" aria-label="Revenue trend">
   <defs><linearGradient id="revfill" x1="0" y1="0" x2="0" y2="1">
-    <stop offset="0" stop-color="#0a84ff" stop-opacity="0.32"/><stop offset="1" stop-color="#0a84ff" stop-opacity="0.02"/>
+    <stop offset="0" stop-color="var(--dc-blue)" stop-opacity="0.32"/><stop offset="1" stop-color="var(--dc-blue)" stop-opacity="0.02"/>
   </linearGradient></defs>
   @for($g = 0; $g <= 3; $g++)
     @php $gy = $PT + $g * ($plotH / 3); $gv = $tMax * (1 - $g / 3); @endphp
@@ -67,13 +71,13 @@
     <text class="ax" x="{{ $PL - 8 }}" y="{{ round($gy + 4, 1) }}" text-anchor="end">{{ $short($gv) }}</text>
   @endfor
   <path class="area" d="{{ $area }}" fill="url(#revfill)"/>
-  <path class="ln" d="{{ $line }}" fill="none" stroke="#0a84ff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path class="ln" d="{{ $line }}" fill="none" stroke="var(--dc-blue)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
   @foreach($pts as $i => $p)
     @if($i === count($pts) - 1)
-      <circle class="halo" cx="{{ $p['x'] }}" cy="{{ $p['y'] }}" r="9" fill="#0a84ff" opacity="0.18"/>
-      <circle cx="{{ $p['x'] }}" cy="{{ $p['y'] }}" r="5.5" fill="#0a84ff" stroke="var(--surface)" stroke-width="2.5"><title>{{ $p['label'] }}: {{ money($p['value']) }}</title></circle>
+      <circle class="halo" cx="{{ $p['x'] }}" cy="{{ $p['y'] }}" r="9" fill="var(--dc-blue)" opacity="0.18"/>
+      <circle cx="{{ $p['x'] }}" cy="{{ $p['y'] }}" r="5.5" fill="var(--dc-blue)" stroke="var(--dc-panel)" stroke-width="2.5"><title>{{ $p['label'] }}: {{ money($p['value']) }}</title></circle>
     @else
-      <circle cx="{{ $p['x'] }}" cy="{{ $p['y'] }}" r="4" fill="var(--surface)" stroke="#0a84ff" stroke-width="2.5"><title>{{ $p['label'] }}: {{ money($p['value']) }}</title></circle>
+      <circle cx="{{ $p['x'] }}" cy="{{ $p['y'] }}" r="4" fill="var(--dc-panel)" stroke="var(--dc-blue)" stroke-width="2.5"><title>{{ $p['label'] }}: {{ money($p['value']) }}</title></circle>
     @endif
   @endforeach
 </svg>
@@ -81,7 +85,7 @@
 </div>
 
 <div class="cols-2">
-<div class="card"><div class="card-head"><h3>Invoices by status</h3><a class="hint" href="{{ route('reports.breakdown',['from'=>$from,'to'=>$to]) }}">Details →</a></div>
+<div class="card ix-card"><div class="card-head"><h2>Invoices by status</h2><a class="hint" href="{{ route('reports.breakdown',['from'=>$from,'to'=>$to]) }}">Details →</a></div>
   @php
     $R = 60; $C = round(2 * M_PI * $R, 1); $off = 0;
     $segs = [];
@@ -108,7 +112,7 @@
     </div>
   </div>
 </div>
-<div class="card"><div class="card-head"><h3>Expenses by category</h3><span class="hint">{{ money($byCategory->sum('t')) }}</span></div>
+<div class="card ix-card"><div class="card-head"><h2>Expenses by category</h2><span class="hint">{{ money($byCategory->sum('t')) }}</span></div>
   @forelse($byCategory as $i => $r)
   @php $pct = round($r->t / $catTotal * 100); $cc = $catPalette[$i % count($catPalette)]; @endphp
   <div class="cat-row"><div class="top"><span>{{ $pct }}% · {{ $r->category ?? 'general' }} ({{ $r->c }})</span><b>{{ money($r->t) }}</b></div>

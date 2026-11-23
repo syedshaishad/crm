@@ -1,8 +1,10 @@
 @extends('layouts.app')
 @section('title','Bonuses')
 @section('content')
-<div class="card">
-<div class="card-head"><h3>Bonuses</h3><span class="hint">approved ones join the next payroll</span></div>
+
+<x-page-header title="Bonuses" :crumb="'approved ones join the next payroll'" icon='<circle cx="12" cy="9" r="6"/><path d="m8.5 14-2 8 5.5-3 5.5 3-2-8"/>'/>
+<div class="card ix-card">
+<div class="card-head"><h2>Bonuses</h2><span class="hint">approved ones join the next payroll</span></div>
 @if($canAll)
 <form method="POST" action="{{ route('bonuses.store') }}" class="noprint" style="display:flex;gap:8px;flex-wrap:wrap;align-items:end;margin-bottom:12px">@csrf
 <div><label class="f">Who</label><select class="in" name="user_id" style="margin:0">@foreach($users as $u)<option value="{{ $u->id }}">{{ $u->name }}</option>@endforeach</select></div>

@@ -1,9 +1,11 @@
 @extends('layouts.app')
 @section('title','Staff voice')
 @section('content')
+
+<x-page-header title="Staff voice" :crumb="'anonymous suggestions and pulse checks'" icon='<path d="M21 11.5a8.5 8.5 0 0 1-12.4 7.5L3 21l2-5.4A8.5 8.5 0 1 1 21 11.5z"/>'/>
 <div class="cols-2">
-<div class="card">
-<div class="card-head"><h3>Suggestion box</h3><span class="hint">100% anonymous</span></div>
+<div class="card ix-card">
+<div class="card-head"><h2>Suggestion box</h2><span class="hint">100% anonymous</span></div>
 <p class="fhint">No names are stored — not even for managers. Say the quiet part out loud.</p>
 <form method="POST" action="{{ route('voice.suggest') }}">@csrf
 <div class="pills" style="margin-bottom:10px">
@@ -37,8 +39,8 @@
 @endif
 @if($canAll)
 <hr><h3>Open this month's poll</h3>
-<form method="POST" action="{{ route('voice.poll') }}" class="noprint" style="display:flex;gap:8px;align-items:end">@csrf
-<div style="flex:1"><label class="f">Question</label><input class="in" name="question" required maxlength="255" style="margin:0" value="How likely are you to recommend working here?" placeholder="How likely are you to recommend working here?"></div>
+<form method="POST" action="{{ route('voice.poll') }}" class="noprint" style="display:flex;gap:8px;align-items:end;flex-wrap:wrap">@csrf
+<div style="flex:1 1 220px;min-width:0"><label class="f">Question</label><input class="in" name="question" required maxlength="255" style="margin:0" value="How likely are you to recommend working here?" placeholder="How likely are you to recommend working here?"></div>
 <div><label class="f">Month</label><input class="in" type="month" name="month" value="{{ date('Y-m') }}" style="margin:0" required></div>
 <div><button class="btn sm">Open poll</button></div></form>
 @if($polls->isNotEmpty())

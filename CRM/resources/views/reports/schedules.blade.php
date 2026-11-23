@@ -1,8 +1,10 @@
 @extends('layouts.app')
 @section('title','Scheduled reports')
 @section('content')
-<div class="card">
-<div class="card-head"><h3>Auto reports</h3><span class="hint">weekly fires Monday · monthly on the 1st</span></div>
+<x-page-header title="Scheduled reports" :crumb="$rows->count().' schedules · weekly on Monday, monthly on the 1st'" icon='<rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 10h18"/>'/>
+
+<div class="card ix-card">
+<div class="card-head"><h2>Auto reports</h2><span class="hint">weekly fires Monday · monthly on the 1st</span></div>
 <p class="fhint">Sales, receivables or P&L summaries emailed (or WhatsApped via your approved template) on schedule. Pair with the morning digest for full coverage.</p>
 <form method="POST" action="{{ route('reports.schedules.store') }}" class="noprint" style="display:flex;gap:8px;flex-wrap:wrap;align-items:end;margin-bottom:12px">@csrf
 <div><label class="f">Name</label><input class="in" name="name" required maxlength="120" style="margin:0" placeholder="e.g. Monday sales pulse"></div>
@@ -18,8 +20,8 @@
 <td>{{ \Modules\Reports\ReportSchedule::frequencies()[$r->frequency] ?? $r->frequency }}</td>
 <td>{{ ucfirst($r->channel) }}</td>
 <td><span class="hint">{{ \Str::limit($r->recipients,60) }}</span></td>
-<td class="nowrap">{{ $r->last_run_on ? d($r->last_run_on) : '—' }}</td>
-<td><span class="badge {{ $r->is_active ? 'b-green' : 'b-grey' }}">{{ $r->is_active ? 'active' : 'paused' }}</span></td>
+<td class="nowrap">{{ $r->last_run_on ? d($r->last_run_on, 'j M Y') : '—' }}</td>
+<td>{!! status_tag($r->is_active ? 'Active' : 'Paused', $r->is_active ? 'green' : 'grey') !!}</td>
 <td><div class="row-actions">
 <form method="POST" action="{{ route('reports.schedules.toggle',$r) }}" style="display:inline">@csrf<button class="icon-btn">{{ $r->is_active ? 'Pause' : 'Resume' }}</button></form>
 <form method="POST" action="{{ route('reports.schedules.destroy',$r) }}" style="display:inline" data-confirm="Remove this schedule?">@csrf @method('DELETE')<button class="icon-btn danger">Delete</button></form></div></td></tr>

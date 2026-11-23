@@ -1,8 +1,10 @@
 @extends('layouts.app')
 @section('title','Payroll')
 @section('content')
-<div class="card">
-<div class="card-head"><h3>Payroll runs</h3></div>
+
+<x-page-header title="Payroll" :crumb="'runs, slips and TDS postings'" icon='<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 4v5"/>'/>
+<div class="card ix-card">
+<div class="card-head"><h2>Payroll runs</h2></div>
 <p class="fhint">Draft from live attendance, leave, overtime, bonuses, advances and loans — review, then finalize to post salaries + TDS to the books.</p>
 <form method="POST" action="{{ route('payroll.run') }}" class="noprint" style="display:flex;gap:8px;align-items:end;margin-bottom:12px;flex-wrap:wrap">@csrf
 <div style="flex:1 1 170px;min-width:0"><label class="f">Month</label><input class="in" type="month" name="month" value="{{ date('Y-m') }}" style="margin:0" required aria-label="Payroll month"></div>

@@ -1,8 +1,10 @@
 @extends('layouts.app')
 @section('title','Overtime')
 @section('content')
-<div class="card">
-<div class="card-head"><h3>Overtime</h3>@if($canAll)<span class="hint">approve to pay it in payroll</span>@endif</div>
+
+<x-page-header title="Overtime" :crumb="'approved hours join payroll'" icon='<circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6"/>'/>
+<div class="card ix-card">
+<div class="card-head"><h2>Overtime</h2>@if($canAll)<span class="hint">approve to pay it in payroll</span>@endif</div>
 <form method="POST" action="{{ route('overtime.store') }}" class="noprint" style="display:flex;gap:8px;flex-wrap:wrap;align-items:end;margin-bottom:12px">@csrf
 @if($canAll)<div><label class="f">Who</label><select class="in" name="user_id" style="margin:0">@foreach($users as $u)<option value="{{ $u->id }}">{{ $u->name }}</option>@endforeach</select></div>@endif
 <div><label class="f">Day</label><input class="in" type="date" name="day" value="{{ date('Y-m-d') }}" max="{{ date('Y-m-d') }}" style="margin:0" required></div>
@@ -13,7 +15,7 @@
 <div data-ajax-region="ot-list"><div class="tbl-scroll roomy"><table class="tbl"><tr><th>Who</th><th>Day</th><th style="text-align:right">Extra</th><th>Status</th><th></th></tr>
 @forelse($rows as $o)<tr>
 <td><b>{{ $o->user->name ?? '—' }}</b>@if($o->note)<div class="hint">{{ \Str::limit($o->note,60) }}</div>@endif</td>
-<td class="nowrap">{{ d($o->day) }}</td>
+<td class="nowrap">{{ d($o->day, 'j M Y') }}</td>
 <td class="nowrap" style="text-align:right">{{ \Modules\Tasks\TaskTime::fmt($o->minutes) }}</td>
 <td><span class="badge {{ $o->status==='approved' ? 'b-green' : ($o->status==='rejected' ? 'b-red' : 'b-amber') }}">{{ ucfirst($o->status) }}</span></td>
 <td><div class="row-actions">

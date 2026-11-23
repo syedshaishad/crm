@@ -6,7 +6,30 @@
 
 ## Unreleased
 
-7 migrations, `?v=161` CSS / `?v=12` dashboard CSS / `?v=84` JS.
+- The whole sidebar was audited (60 destinations) and brought onto one design
+  language using shadcn's principles — semantic tokens, one header component,
+  one metric shape, one register card and one status pill — without adding a
+  React/Tailwind stack to this Blade app:
+  - a shared `<x-page-header>` component gives every screen the same icon tile,
+    `h1`, crumb and action area; the Reports, HR, Compliance, Documents, Import,
+    Projects and Proposals screens had no visible page heading at all;
+  - `.grid.stats` now uses the compact metric strip from the newer registers
+    and the old iOS accent bars are gone; `.card.ix-card` and its tables share
+    the same padding, uppercase column labels, row hover and spacing as the
+    registers, and legacy badges inside those cards render as the same pill;
+  - every date in those screens is displayed as `j M Y`, raw `2026-09-24` dates
+    are gone, and `--bad` / iOS hex values in charts and loss figures were
+    replaced with the semantic `--dc-*` tokens;
+  - the reports pages now have titles, summaries and card sections instead of
+    a bare filter card; the Workload, Skills, Attendance, Leave, Shift,
+    Holiday, Overtime, Reimbursement, Appraisal, Exit, Advance, Payroll,
+    Structure, Loan and Bonus registers all follow the same shell;
+  - "Reminder log", "Statutory compliance" and the other sidebar labels now
+    match the headings of the pages they open. All 60 destinations render at
+    desktop and phone widths in both themes with one `h1`, no duplicate ids,
+    no page-level overflow and no console errors.
+
+7 migrations, `?v=162` CSS / `?v=12` dashboard CSS / `?v=84` JS.
 
 - The **Money** overview was rebuilt on the same design tokens:
   - a real page header with the collected / outstanding / overdue summary and
