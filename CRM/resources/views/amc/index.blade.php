@@ -89,7 +89,7 @@
           <td class="ix-c-type"><span class="ix-tag">{{ strtoupper($c->type ?: 'amc') }}</span></td>
           <td class="ix-c-ends">
             <div class="ix-main-txt">
-              <span class="ix-vehicle">{{ $c->end_date ? d($c->end_date) : 'Not scheduled' }}</span>
+              <span class="ix-vehicle">{{ $c->end_date ? d($c->end_date, 'j M Y') : 'Not scheduled' }}</span>
               <span class="ix-sub {{ $st === 'expired' ? 'is-danger' : ($st === 'expiring' ? 'is-warn' : '') }}">{{ $endsHint }}</span>
             </div>
           </td>

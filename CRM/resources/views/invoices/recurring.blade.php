@@ -1,8 +1,9 @@
 @extends('layouts.app')
 @section('title','Recurring invoices')
 @section('content')
-<h1 class="sr-only">Recurring invoices</h1>
-<div class="card">
+
+<x-page-header title="Recurring invoices" crumb="Subscriptions that bill themselves" icon='<path d="M20 11a8 8 0 1 0-2.3 6.3"/><path d="M20 4v5h-5"/>' :back="route('invoices.index')"/>
+<div class="card ix-card">
 <div class="card-head"><h2>Recurring schedules</h2><a class="btn sm sec" href="{{ route('invoices.index') }}">All invoices</a></div>
 <p class="fhint">Subscriptions bill themselves on schedule days (daily run ~7:30 AM). Trials go out free, first bills can prorate, and monthly plans can snap to a billing day. Pause or cancel anytime.</p>
 <div class="tbl-scroll roomy"><table class="tbl"><tr><th>Client</th><th>Every</th><th>Next run</th><th>Last run</th><th>Status</th><th></th></tr>

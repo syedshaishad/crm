@@ -1,8 +1,12 @@
 @extends('layouts.app')
 @section('title', $doc->exists ? 'Edit '.$doc->number : 'New document')
 @section('content')
-<div class="card form-card" style="max-width:680px">
-<h3>{{ $doc->exists ? 'Edit '.$doc->number : 'Track a document' }}</h3>
+
+<x-page-header :title="$doc->exists ? 'Edit '.$doc->number : 'Track a document'" crumb="Statutory compliance" icon='<path d="M12 5v14M5 12h14"/>'>
+  <a class="btn sm sec" href="{{ route('expiry.index') }}">← Back</a>
+</x-page-header>
+<div class="card ix-card form-card" style="max-width:680px">
+<h2>Details</h2>
 <form method="POST" action="{{ $doc->exists ? route('expiry.update',$doc) : route('expiry.store') }}">@csrf @if($doc->exists)@method('PUT')@endif
 <label class="f">Title <span class="req">*</span></label>
 <input class="in" name="title" value="{{ old('title',$doc->title) }}" required placeholder="e.g. GSTR-3B June, Shop licence, Fire insurance">

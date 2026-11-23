@@ -9,11 +9,11 @@
   $signUrl = $proposal->sign_token ? route('proposals.sign', $proposal->sign_token) : '';
 @endphp
 <div class="inv-hero noprint">
-  <div><div class="inv-num">{{ $proposal->number }}</div>
+  <div><h1 class="inv-num">{{ $proposal->number }}</h1>
     <div class="inv-chips">
       <span class="badge {{ $stColor }}">{{ \Modules\Proposals\Proposal::statuses()[$st] ?? $st }}</span>
       @if($proposal->project)<span class="chip">Project: <a href="{{ route('projects.show',$proposal->project) }}">{{ $proposal->project->name }}</a></span>@endif
-      @if($proposal->valid_until)<span class="chip {{ $st==='expired' ? 'overdue' : '' }}">Valid till {{ d($proposal->valid_until) }}</span>@endif
+      @if($proposal->valid_until)<span class="chip {{ $st==='expired' ? 'overdue' : '' }}">Valid till {{ d($proposal->valid_until, 'j M Y') }}</span>@endif
       @if(($proposal->view_count ?? 0) > 0)<span class="chip">Opened {{ $proposal->view_count }}×@if($proposal->last_viewed_at) · {{ $proposal->last_viewed_at->diffForHumans() }}@endif</span>@endif
       @if($proposal->converted_invoice_id)<span class="chip">→ <a href="{{ route('invoices.show',$proposal->converted_invoice_id) }}">invoice</a></span>@endif
       @if($proposal->status==='declined')<span class="chip">Lost: {{ \Modules\Proposals\Proposal::lostReasons()[$proposal->lost_reason] ?? 'not recorded' }}@if($proposal->competitor) → {{ $proposal->competitor }}@endif</span>@endif

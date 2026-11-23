@@ -74,7 +74,7 @@
               <span class="ix-avatar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 17V5H3v12h11Z"/><path d="M14 8h4l3 4v5h-7"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg></span>
               <div class="ix-main-txt">
                 <a class="ix-name" href="{{ route('challans.show', $c) }}">{{ $c->number }}</a>
-                <span class="ix-sub">{{ $c->challan_date ? d($c->challan_date) : 'No date' }}@if($c->invoice) · {{ $c->invoice->number }}@endif</span>
+                <span class="ix-sub">{{ $c->challan_date ? d($c->challan_date, 'j M Y') : 'No date' }}@if($c->invoice) · {{ $c->invoice->number }}@endif</span>
               </div>
             </div>
           </td>

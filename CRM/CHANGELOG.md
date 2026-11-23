@@ -6,6 +6,26 @@
 
 ## Unreleased
 
+- A second, deeper pass covered the rest of the app rather than only the
+  sidebar: 131 unique routes (forms, detail pages, ledger/stock/compare,
+  activity, notifications, search, trash, HR overview, all settings and
+  reports) were rendered at desktop and phone widths in both themes.
+  - Every create/edit form now has the shared header with a real `h1`, a
+    "Back" action and a single "Details" section heading; the hidden duplicate
+    `h1`s and repeated page titles inside cards are gone.
+  - Detail pages (contracts, challans, cheques, ledger, compliance, stock,
+    proposal comparison, purchase orders, routes) use the same header and
+    status pills.
+  - Activity, notifications, search, trash, HR overview and recurring lists
+    use the shared shell; duplicate card titles no longer repeat the `h1`.
+  - The Work dashboard lost its hard-coded dark panel and uppercase task
+    badges, and Tasks got a proper page header with a single set of actions.
+  - One-argument `d()` calls across all templates now use the short `j M Y`
+    format, so raw `2026-09-24` dates no longer appear in any page body.
+  - Result: 262 renders, one `h1` per page (except two JSON/route artefacts
+    in the audit list), no duplicate IDs, no page overflow and no console
+    errors.
+
 - The whole sidebar was audited (60 destinations) and brought onto one design
   language using shadcn's principles — semantic tokens, one header component,
   one metric shape, one register card and one status pill — without adding a

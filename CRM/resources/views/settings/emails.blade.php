@@ -132,7 +132,7 @@
       <tbody>
         @forelse($outboxRows as $m)
           <tr>
-            <td class="ix-c-when nowrap">{{ d($m->created_at) }}</td>
+            <td class="ix-c-when nowrap">{{ d($m->created_at, 'j M Y') }}</td>
             <td class="ix-c-to">{{ \Str::limit($m->to ?? '—', 48) }}</td>
             <td class="ix-c-subject">{{ $m->subject ?? '—' }}</td>
           </tr>

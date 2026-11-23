@@ -1,4 +1,4 @@
-@props(['title', 'crumb' => null, 'icon' => null])
+@props(['title', 'crumb' => null, 'icon' => null, 'back' => null])
 
 <div {{ $attributes->merge(['class' => 'page-head ix-head']) }}>
   <div class="ix-head-main">
@@ -12,5 +12,8 @@
       @if($crumb)<div class="crumb">{{ $crumb }}</div>@endif
     </div>
   </div>
-  <div class="ix-head-actions noprint">{{ $slot }}</div>
+  <div class="ix-head-actions noprint">
+    @if($back)<a class="btn sm sec" href="{{ $back }}">← Back</a>@endif
+    {{ $slot }}
+  </div>
 </div>

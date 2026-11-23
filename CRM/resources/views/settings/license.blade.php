@@ -39,7 +39,7 @@
   </div>
   <div class="ix-metric">
     <span class="ix-metric-lbl">Expires</span>
-    <b class="ix-metric-val is-money">{{ $expires ? d($expires) : '—' }}</b>
+    <b class="ix-metric-val is-money">{{ $expires ? d($expires, 'j M Y') : '—' }}</b>
     <span class="ix-metric-sub">{{ $expires ? ($daysLeft >= 0 ? $daysLeft.' days left' : abs($daysLeft).' days ago') : 'managed by the server' }}</span>
   </div>
   <div class="ix-metric">

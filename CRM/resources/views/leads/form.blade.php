@@ -1,8 +1,12 @@
 @extends('layouts.app')
 @section('title',($lead->exists ? 'Edit ' : 'New ').'lead')
 @section('content')
-<div class="card form-card" style="max-width:680px">
-<h3>{{ $lead->exists ? 'Edit lead' : 'New lead' }}</h3>
+
+<x-page-header :title="$lead->exists ? 'Edit lead' : 'New lead'" crumb="Lead pipeline" icon='<path d="M12 5v14M5 12h14"/>'>
+  <a class="btn sm sec" href="{{ route('leads.index') }}">← Back</a>
+</x-page-header>
+<div class="card ix-card form-card" style="max-width:680px">
+<h2>Details</h2>
 <form method="POST" action="{{ $lead->exists ? route('leads.update',$lead) : route('leads.store') }}">@csrf @if($lead->exists)@method('PUT')@endif
 <div class="form-grid">
 <div><label class="f">Name <span class="req">*</span></label><input class="in" name="name" value="{{ old('name',$lead->name) }}" required autofocus placeholder="Contact person"></div>

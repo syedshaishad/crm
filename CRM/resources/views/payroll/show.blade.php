@@ -1,8 +1,10 @@
 @extends('layouts.app')
 @section('title','Payroll '.$payroll->label())
 @section('content')
-<div class="card">
-<div class="card-head"><h3>{{ $payroll->label() }}</h3><span class="badge {{ $payroll->status==='finalized' ? 'b-green' : 'b-amber' }}">{{ ucfirst($payroll->status) }}</span></div>
+
+<x-page-header title="{{ $payroll->label() }}" crumb="Payroll run · slips and postings" icon='<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 4v5"/>' :back="route('payroll.index')"/>
+<div class="card ix-card">
+<div class="card-head"><h2>{{ $payroll->label() }}</h2><span class="badge {{ $payroll->status==='finalized' ? 'b-green' : 'b-amber' }}">{{ ucfirst($payroll->status) }}</span></div>
 <div class="grid stats cols-4" style="margin-bottom:14px">
   <div class="stat"><div class="lbl">Staff paid</div><b>{{ $payroll->slips->count() }}</b></div>
   <div class="stat"><div class="lbl">Net payout</div><b>{{ money($payroll->slips->sum('net')) }}</b></div>

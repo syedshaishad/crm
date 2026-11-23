@@ -1,12 +1,14 @@
 @extends('layouts.app')
 @section('title',$client->name)
 @section('content')
+
+<x-page-header title="{{ $client->company ?: $client->name }}" crumb="Client record · invoices, receipts and projects" icon='<circle cx="12" cy="8" r="3.5"/><path d="M5 20c.9-3.8 3.7-5.5 7-5.5s6.1 1.7 7 5.5"/>' :back="route('clients.index')"/>
 @php
   $billed = $client->invoices->sum('total');
   $paid = $client->invoices->sum('paid_amount');
   $pct = $billed > 0 ? min(100, round($paid / $billed * 100)) : 0;
 @endphp
-<div class="card">
+<div class="card ix-card">
   <div class="profile-cover"></div>
   <div class="profile-av"><span class="av lg">{{ strtoupper(substr($client->name,0,1)) }}</span></div>
   <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:flex-start">
@@ -44,7 +46,7 @@
   </div>
 </div>
 <div class="cols-2">
-<div class="card"><div class="card-head"><h3>Projects</h3><a class="btn sm sec" href="{{ route('projects.create') }}">+ New</a></div>
+<div class="card"><div class="card-head"><h2>Projects</h2><a class="btn sm sec" href="{{ route('projects.create') }}">+ New</a></div>
 <div class="tbl-scroll"><table class="tbl"><tr><th>Name</th><th>Status</th></tr>
 @forelse($client->projects as $p)<tr><td><a href="{{ route('projects.show',$p) }}">{{ $p->name }}</a></td><td><span class="badge b-grey">{{ $p->status }}</span></td></tr>@empty<tr><td colspan="2"><div class="empty">No projects.</div></td></tr>@endforelse</table></div></div>
 <div class="card"><div class="card-head"><h3>Invoices</h3><a class="btn sm sec" href="{{ route('invoices.create',['client_id'=>$client->id]) }}">+ New</a></div>

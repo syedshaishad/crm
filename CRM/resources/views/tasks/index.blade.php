@@ -1,13 +1,15 @@
 @extends('layouts.app')
 @section('title','Tasks')
 @section('content')
-<h1 class="sr-only">Tasks</h1>
-<div class="card">
-<div class="card-head"><h2>Tasks</h2>
-<div class="btnrow">
-  <div class="seg" role="tablist" aria-label="Views"><a class="{{ ($view ?? 'list')==='list' ? 'on' : '' }}" href="{{ route('tasks.index', array_merge(request()->except(['view', 'page']), ['view' => 'list'])) }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>Table</a><a class="{{ ($view ?? 'list')==='calendar' ? 'on' : '' }}" href="{{ route('tasks.index', array_merge(request()->except(['view', 'page']), ['view' => 'calendar'])) }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 10h18"/></svg>Calendar</a></div>
+<x-page-header title="Tasks" :crumb="$tasks->total().' tasks · board and list views'" icon='<rect x="4" y="4" width="16" height="16" rx="2"/><path d="m8.5 12.5 2.5 2.5 5-5.5"/>'>
   <a class="btn sm" href="{{ route('tasks.create') }}">+ Create</a>
   <a class="btn sm sec" href="{{ route('tasks.templates') }}">Templates</a>
+</x-page-header>
+
+<div class="card ix-card">
+<div class="card-head"><h2>All tasks</h2>
+<div class="btnrow">
+  <div class="seg" role="tablist" aria-label="Views"><a class="{{ ($view ?? 'list')==='list' ? 'on' : '' }}" href="{{ route('tasks.index', array_merge(request()->except(['view', 'page']), ['view' => 'list'])) }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>Table</a><a class="{{ ($view ?? 'list')==='calendar' ? 'on' : '' }}" href="{{ route('tasks.index', array_merge(request()->except(['view', 'page']), ['view' => 'calendar'])) }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 10h18"/></svg>Calendar</a></div>
 </div></div>
 @php
   $sSum = (int) $funnel->sum();
@@ -81,7 +83,7 @@
 <td>@if($t->assignee)<span class="who"><span class="av sm">{{ strtoupper(substr($t->assignee->name,0,1)) }}</span>{{ $t->assignee->name }}</span>@else <span class="hint">—</span>@endif</td>
 <td><span class="task-tag"><i style="background:{{ $sColors[$t->status] ?? 'var(--dc-faint)' }}"></i>{{ $sLabels[$t->status] ?? ucfirst(str_replace('_',' ',$t->status)) }}</span></td>
 <td><span class="task-tag {{ $pri === 'urgent' ? 'is-urgent' : '' }}"><i style="background:{{ $pColors[$pri] ?? 'var(--dc-faint)' }}"></i>{{ $pLabels[$pri] ?? ucfirst($pri) }}</span></td>
-<td class="nowrap"><div>{{ d($t->due_date) }}</div>@if($tOver)<div class="task-overdue"><i></i>Overdue</div>@endif</td>
+<td class="nowrap"><div>{{ d($t->due_date, 'j M Y') }}</div>@if($tOver)<div class="task-overdue"><i></i>Overdue</div>@endif</td>
 <td><div class="row-actions"><a class="icon-btn" href="{{ route('tasks.edit',$t) }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>Edit</a>
 <form method="POST" action="{{ route('tasks.destroy',$t) }}" style="display:inline" data-confirm="Delete task?">@csrf @method('DELETE')<button class="icon-btn danger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg>Delete</button></form></div></td></tr>
 @empty<tr><td colspan="9"><div class="empty">No tasks found.@if(!empty($day)) <a href="{{ route('tasks.index') }}">Clear date filter</a>@endif</div></td></tr>@endforelse</table></div>

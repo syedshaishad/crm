@@ -18,11 +18,11 @@
   $workedH = \Modules\Tasks\TaskTime::fmt((int)($workedMin ?? 0));
 @endphp
 <div class="inv-hero noprint">
-  <div><div class="inv-num">{{ $project->name }}</div>
+  <div><h1 class="inv-num">{{ $project->name }}</h1>
     <div class="inv-chips">
       <span class="badge {{ $stColor }}">{{ $project->status }}</span>
       <span class="chip">Client: <a href="{{ route('clients.show',$project->client) }}">{{ $project->client->company ?? $project->client->name ?? '—' }}</a></span>
-      @if($project->start_date || $project->due_date)<span class="chip">{{ d($project->start_date) }} → {{ d($project->due_date) }}</span>@endif
+      @if($project->start_date || $project->due_date)<span class="chip">{{ d($project->start_date, 'j M Y') }} → {{ d($project->due_date, 'j M Y') }}</span>@endif
       <span class="chip">{{ $doneCount }}/{{ $taskCount }} tasks done</span>
       @if(!is_null($project->csat()))<span class="chip">★ {{ $project->csat() }}/5 client rating</span>@endif
     </div></div>
@@ -55,7 +55,7 @@
 <td><form method="POST" action="{{ route('tasks.toggle',$t) }}" data-ajax-toggle>@csrf<button type="submit" class="rowcheck {{ $t->status === 'done' ? 'done' : '' }}" title="Done / reopen">{{ $t->status === 'done' ? '✓' : '' }}</button></form></td>
 <td><a href="{{ route('tasks.edit',$t) }}">{{ $t->title }}</a></td>
 <td><span class="badge {{ $t->status==='done' ? 'b-green' : ($t->status==='in_progress' ? 'b-blue' : ($t->status==='review' ? 'b-amber' : 'b-grey')) }}">{{ $t->status }}</span></td>
-<td><span class="badge {{ ($t->priority ?? 'medium')==='urgent' ? 'b-red' : (($t->priority ?? 'medium')==='high' ? 'b-amber' : 'b-grey') }}">{{ $t->priority ?? 'medium' }}</span></td>@php $tOver = $t->due_date && substr((string) $t->due_date, 0, 10) < date('Y-m-d') && !in_array($t->status, ['done','completed']); @endphp<td class="nowrap">@if($tOver)<span class="badge b-red" title="Past due date">overdue</span> @endif{{ d($t->due_date) }}</td>
+<td><span class="badge {{ ($t->priority ?? 'medium')==='urgent' ? 'b-red' : (($t->priority ?? 'medium')==='high' ? 'b-amber' : 'b-grey') }}">{{ $t->priority ?? 'medium' }}</span></td>@php $tOver = $t->due_date && substr((string) $t->due_date, 0, 10) < date('Y-m-d') && !in_array($t->status, ['done','completed']); @endphp<td class="nowrap">@if($tOver)<span class="badge b-red" title="Past due date">overdue</span> @endif{{ d($t->due_date, 'j M Y') }}</td>
 <td class="noprint"><div class="row-actions"><a class="icon-btn" href="{{ route('tasks.edit',$t) }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>Edit</a></div></td></tr>
 @empty<tr><td colspan="6"><div class="empty">No tasks yet.</div></td></tr>@endforelse</table></div></div>
 
@@ -66,20 +66,20 @@ $gMax = $gTasks->map(fn($t) => $t->due_date->toDateString())->max();
 $crit = $project->criticalPath();
 @endphp
 @if($gTasks->isNotEmpty())
-<div class="card"><div class="card-head"><h3>Schedule</h3><span class="hint">{{ d($gMin) }} → {{ d($gMax) }}@if($crit) · critical: {{ count($crit) }} linked</span>@endif</div>
+<div class="card"><div class="card-head"><h3>Schedule</h3><span class="hint">{{ d($gMin, 'j M Y') }} → {{ d($gMax, 'j M Y') }}@if($crit) · critical: {{ count($crit) }} linked</span>@endif</div>
 @foreach($gTasks as $t)@php $bar = $t->bar($gMin, $gMax); @endphp
-<div style="display:flex;gap:10px;align-items:center;margin-bottom:6px"><div style="flex:0 0 220px;min-width:0"><b style="font-size:13px">{{ \Str::limit($t->title,32) }}</b>@if($t->isBlocked()) <span class="badge b-red">blocked</span>@endif @if(in_array($t->id, $crit))<span class="chip">critical</span>@endif @if($t->baseline_due && $t->due_date && $t->due_date->gt($t->baseline_due))<span class="hint">+{{ $t->due_date->diffInDays($t->baseline_due) }}d late</span>@endif</div><div style="flex:1;background:var(--surface-2);border-radius:6px;height:18px;position:relative"><div title="{{ d($t->start_date ?? $t->due_date) }} → {{ d($t->due_date) }}" style="position:absolute;left:{{ $bar['off'] }}%;width:{{ $bar['len'] }}%;top:0;bottom:0;border-radius:6px;background:{{ $t->status==='done' ? '#30d158' : ($t->isBlocked() ? '#ff453a' : '#0a84ff') }}"></div></div><div style="flex:0 0 90px;text-align:right"><span class="hint">{{ d($t->due_date) }}</span></div></div>
+<div style="display:flex;gap:10px;align-items:center;margin-bottom:6px"><div style="flex:0 0 220px;min-width:0"><b style="font-size:13px">{{ \Str::limit($t->title,32) }}</b>@if($t->isBlocked()) <span class="badge b-red">blocked</span>@endif @if(in_array($t->id, $crit))<span class="chip">critical</span>@endif @if($t->baseline_due && $t->due_date && $t->due_date->gt($t->baseline_due))<span class="hint">+{{ $t->due_date->diffInDays($t->baseline_due) }}d late</span>@endif</div><div style="flex:1;background:var(--surface-2);border-radius:6px;height:18px;position:relative"><div title="{{ d($t->start_date ?? $t->due_date) }} → {{ d($t->due_date, 'j M Y') }}" style="position:absolute;left:{{ $bar['off'] }}%;width:{{ $bar['len'] }}%;top:0;bottom:0;border-radius:6px;background:{{ $t->status==='done' ? '#30d158' : ($t->isBlocked() ? '#ff453a' : '#0a84ff') }}"></div></div><div style="flex:0 0 90px;text-align:right"><span class="hint">{{ d($t->due_date, 'j M Y') }}</span></div></div>
 @endforeach
 <div class="hint">Blue = scheduled · red = blocked by another task · green = done. Bars start at the start date (or back off the estimate).</div></div>
 @endif
 
 <div class="card"><div class="card-head"><h3>Unbilled time ({{ ($unbilled ?? collect())->count() }})</h3>@if(($unbilled ?? collect())->isNotEmpty())<form method="POST" action="{{ route('projects.billTime',$project) }}" data-confirm="Create a draft invoice from all unbilled time? Each task becomes one line.">@csrf<button class="btn sm">Bill time as invoice</button></form>@endif</div>
 <div class="tbl-scroll"><table class="tbl"><tr><th>Date</th><th>Task</th><th>Who</th><th style="text-align:right">Time</th><th style="text-align:right">Value</th></tr>
-@forelse($unbilled ?? [] as $u)<tr><td class="nowrap">{{ d($u->worked_on) }}</td><td>{{ $u->task->title ?? '—' }}</td><td>{{ $u->user->name ?? '—' }}</td><td class="nowrap" style="text-align:right">{{ \Modules\Tasks\TaskTime::fmt($u->minutes) }}</td><td class="nowrap" style="text-align:right">{{ money(round($u->minutes/60*($u->task->rate() ?? 0),2)) }}</td></tr>@empty<tr><td colspan="5"><div class="empty">Everything logged is billed. Nice.</div></td></tr>@endforelse</table></div></div>
+@forelse($unbilled ?? [] as $u)<tr><td class="nowrap">{{ d($u->worked_on, 'j M Y') }}</td><td>{{ $u->task->title ?? '—' }}</td><td>{{ $u->user->name ?? '—' }}</td><td class="nowrap" style="text-align:right">{{ \Modules\Tasks\TaskTime::fmt($u->minutes) }}</td><td class="nowrap" style="text-align:right">{{ money(round($u->minutes/60*($u->task->rate() ?? 0),2)) }}</td></tr>@empty<tr><td colspan="5"><div class="empty">Everything logged is billed. Nice.</div></td></tr>@endforelse</table></div></div>
 
 <div class="card"><div class="card-head"><h3>Project costs</h3><a class="btn sm sec noprint" href="{{ route('expenses.create',['project_id'=>$project->id]) }}">+ Add cost</a></div>
 <div class="tbl-scroll"><table class="tbl"><tr><th>Number</th><th>Date</th><th>Title</th><th style="text-align:right">Amount</th><th class="noprint"></th></tr>
-@forelse($project->expenses as $e)<tr><td class="nowrap"><a href="{{ route('expenses.show',$e) }}">{{ $e->number ?? '—' }}</a></td><td class="nowrap">{{ d($e->spent_on) }}</td><td><a href="{{ route('expenses.show',$e) }}">{{ $e->title }}</a></td><td class="nowrap" style="text-align:right">{{ money($e->amount) }}</td>
+@forelse($project->expenses as $e)<tr><td class="nowrap"><a href="{{ route('expenses.show',$e) }}">{{ $e->number ?? '—' }}</a></td><td class="nowrap">{{ d($e->spent_on, 'j M Y') }}</td><td><a href="{{ route('expenses.show',$e) }}">{{ $e->title }}</a></td><td class="nowrap" style="text-align:right">{{ money($e->amount) }}</td>
 <td class="noprint"><div class="row-actions"><a class="icon-btn" href="{{ route('expenses.edit',$e) }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>Edit</a></div></td></tr>
 @empty<tr><td colspan="5"><div class="empty">No costs booked to this project.</div></td></tr>@endforelse</table></div></div>
 

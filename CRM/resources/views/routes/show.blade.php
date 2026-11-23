@@ -1,7 +1,9 @@
 @extends('layouts.app')
 @section('title',$route->number)
 @section('content')
-<div class="page-head"><h1>{{ $route->number }}</h1><div class="crumb">{{ d($route->route_date, 'j F Y') }}@if($route->vehicle_no) · {{ $route->vehicle_no }}@endif @if($route->driver)· {{ $route->driver }}@endif · <span class="badge {{ $route->status==='done' ? 'b-green' : ($route->status==='on_route' ? 'b-blue' : 'b-grey') }}">{{ \Modules\Challans\DeliveryRoute::statuses()[$route->status] ?? $route->status }}</span></div></div>
+<x-page-header :title="$route->number" :crumb="d($route->route_date, 'j M Y').($route->vehicle_no ? ' · '.$route->vehicle_no : '')" icon='<path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/>' back="route('routes.index')">
+  
+</x-page-header>
 <div class="noprint" style="margin-bottom:14px">
   <form method="POST" action="{{ route('routes.destroy',$route) }}" style="display:inline" data-confirm="Delete {{ $route->number }}? Challans stay untouched.">@csrf @method('DELETE')<button class="btn sm danger">Delete route</button></form>
 </div>

@@ -75,7 +75,7 @@
               <span class="ix-avatar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 20 4 17V5l5 3 6-3 5 3v12l-5 3-6-3Z"/><path d="M9 8v12M15 5v12"/></svg></span>
               <div class="ix-main-txt">
                 <a class="ix-name" href="{{ route('routes.show', $r) }}">{{ $r->number }}</a>
-                <span class="ix-sub">{{ $r->route_date ? d($r->route_date) : 'No date' }}</span>
+                <span class="ix-sub">{{ $r->route_date ? d($r->route_date, 'j M Y') : 'No date' }}</span>
               </div>
             </div>
           </td>

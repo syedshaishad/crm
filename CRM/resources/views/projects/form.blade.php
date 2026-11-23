@@ -1,8 +1,12 @@
 @extends('layouts.app')
 @section('title',($project->exists ? 'Edit ' : 'New ').'project')
 @section('content')
-<div class="card form-card" style="max-width:680px">
-<h3>{{ $project->exists ? 'Edit project' : 'New project' }}</h3>
+
+<x-page-header :title="$project->exists ? 'Edit project' : 'New project'" crumb="Project register" icon='<path d="M12 5v14M5 12h14"/>'>
+  <a class="btn sm sec" href="{{ route('projects.index') }}">← Back</a>
+</x-page-header>
+<div class="card ix-card form-card" style="max-width:680px">
+<h2>Details</h2>
 <form method="POST" action="{{ $project->exists ? route('projects.update',$project) : route('projects.store') }}">@csrf @if($project->exists)@method('PUT')@endif
 <label class="f">Project name <span class="req">*</span></label>
 <input class="in" name="name" value="{{ old('name',$project->name) }}" required autofocus placeholder="e.g. Website redesign">

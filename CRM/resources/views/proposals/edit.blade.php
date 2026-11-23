@@ -1,8 +1,12 @@
 @extends('layouts.app')
 @section('title','Edit '.$proposal->number)
 @section('content')
-<div class="card form-card" style="max-width:760px">
-<h3>Edit {{ $proposal->number }}</h3>
+
+<x-page-header :title="'Edit '.$proposal->number" crumb="Proposal register" icon='<path d="M12 5v14M5 12h14"/>'>
+  <a class="btn sm sec" href="{{ route('proposals.index') }}">← Back</a>
+</x-page-header>
+<div class="card ix-card form-card" style="max-width:760px">
+<h2>Details</h2>
 <p class="fhint">Draft only — once sent, the proposal is locked for the client.</p>
 @php $dlim = (float) setting('proposal.discount_limit', 20); $dpct = (float) $proposal->subtotal > 0 ? round((float) $proposal->discount / (float) $proposal->subtotal * 100, 1) : 0; @endphp
 @if($dlim > 0 && $dpct > $dlim)<div class="alert warn">Discount is {{ $dpct }}% — over the {{ $dlim }}% staff limit. A manager must send this proposal.</div>@endif

@@ -1,15 +1,16 @@
 @extends('layouts.app')
 @section('title','Work')
 @section('content')
-<h1 class="sr-only">Work</h1>
+<x-page-header title="Work" crumb="Today's focus and the week ahead" icon='<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 4v5"/>'/>
+
 @if(module_visible('Tasks'))
 <div class="cols-2">
-<div class="panel-dark">
+<div class="card ix-card">
   <div class="card-head"><div><h2>Today's focus</h2><span class="hint">Most urgent open tasks</span></div><div class="btnrow" style="gap:8px"><a class="hint" href="{{ route('tasks.index') }}">All tasks →</a><div class="has-drop"><button type="button" class="icon-btn" data-drop-toggle><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="5" cy="12" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="19" cy="12" r="1.4"/></svg>Menu</button><div class="drop"><a href="{{ route('tasks.index') }}">All tasks</a><a href="{{ route('tasks.create') }}">New task</a></div></div></div></div>
   @forelse($focusTasks as $t)
   <div class="mi-row">
     <form method="POST" action="{{ route('tasks.toggle',$t->id) }}">@csrf<button type="submit" class="check-btn" title="Mark done / reopen" aria-label="Mark done or reopen {{ $t->title }}"></button></form>
-    <div style="flex:1;min-width:0"><b>{{ $t->title }}</b><span>{{ $t->project ?? 'No project' }} · {{ d($t->due_date) ?: 'no due date' }} · {{ $t->priority }}</span></div>
+    <div style="flex:1;min-width:0"><b>{{ $t->title }}</b><span>{{ $t->project ?? 'No project' }} · {{ d($t->due_date, 'j M Y') ?: 'no due date' }} · {{ $t->priority }}</span></div>
     <a class="hint" href="{{ route('tasks.edit',$t->id) }}">Edit</a>
   </div>
   @empty<div class="empty" style="color:#a8a191">All clear — nothing open.</div>@endforelse
@@ -34,13 +35,13 @@
 @if(module_visible('Tasks'))
 <div class="card"><div class="card-head"><div><h2>Recent tasks</h2><span class="hint">Latest activity</span></div><div class="btnrow" style="gap:8px"><a class="btn sm sec" href="{{ route('tasks.create') }}">+ New</a><div class="has-drop"><button type="button" class="icon-btn" data-drop-toggle><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="5" cy="12" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="19" cy="12" r="1.4"/></svg>Menu</button><div class="drop"><a href="{{ route('tasks.index') }}">View all tasks</a><a href="{{ route('tasks.create') }}">New task</a></div></div></div></div>
 <div class="tbl-scroll"><table class="tbl"><tr><th>Title</th><th>Status</th><th>Due</th></tr>
-@forelse($recentTasks as $t)<tr><td>{{ $t->title }}</td><td><span class="badge {{ $t->status==='done' ? 'b-green' : ($t->status==='in_progress' ? 'b-blue' : 'b-grey') }}">{{ $t->status }}</span></td><td>{{ d($t->due_date) }}</td></tr>@empty<tr><td colspan="3"><div class="empty">No tasks yet.<br><br><a class="btn sm" href="{{ route('tasks.create') }}">Add your first task</a></div></td></tr>@endforelse
+@forelse($recentTasks as $t)<tr><td>{{ $t->title }}</td><td>{!! status_tag(['done'=>'Done','in_progress'=>'In progress','review'=>'Review','todo'=>'To do'][$t->status] ?? ucfirst(str_replace('_',' ',$t->status)), ['done'=>'green','in_progress'=>'blue','review'=>'amber','todo'=>'grey'][$t->status] ?? 'grey') !!}</td><td>{{ d($t->due_date, 'j M Y') }}</td></tr>@empty<tr><td colspan="3"><div class="empty">No tasks yet.<br><br><a class="btn sm" href="{{ route('tasks.create') }}">Add your first task</a></div></td></tr>@endforelse
 </table></div></div>
 @endif
 @if(module_visible('Tasks'))
 <div class="card"><div class="card-head"><div><h2>Due within 7 days</h2><span class="hint">Upcoming deadlines</span></div><div class="btnrow" style="gap:8px"><a class="hint" href="{{ route('tasks.index') }}">View all →</a><div class="has-drop"><button type="button" class="icon-btn" data-drop-toggle><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="5" cy="12" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="19" cy="12" r="1.4"/></svg>Menu</button><div class="drop"><a href="{{ route('tasks.index') }}">View all tasks</a><a href="{{ route('tasks.create') }}">New task</a></div></div></div></div>
 <div class="tbl-scroll"><table class="tbl"><tr><th>Task</th><th>Due</th><th>Status</th></tr>
-@forelse($dueSoon as $t)<tr><td>{{ $t->title }}</td><td>{{ d($t->due_date) }}</td><td><span class="badge b-amber">{{ $t->status }}</span></td></tr>@empty<tr><td colspan="3"><div class="empty">Nothing due soon.</div></td></tr>@endforelse
+@forelse($dueSoon as $t)<tr><td>{{ $t->title }}</td><td>{{ d($t->due_date, 'j M Y') }}</td><td>{!! status_tag(['done'=>'Done','in_progress'=>'In progress','review'=>'Review','todo'=>'To do'][$t->status] ?? ucfirst(str_replace('_',' ',$t->status)), ['done'=>'green','in_progress'=>'blue','review'=>'amber','todo'=>'grey'][$t->status] ?? 'amber') !!}</td></tr>@empty<tr><td colspan="3"><div class="empty">Nothing due soon.</div></td></tr>@endforelse
 </table></div></div>
 @endif
 </div>

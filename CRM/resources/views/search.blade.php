@@ -1,7 +1,9 @@
 @extends('layouts.app')
 @section('title','Search')
 @section('content')
-<div class="card">
+
+<x-page-header title="Search" crumb="Clients, projects, tasks, invoices and more" icon='<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>'/>
+<div class="card ix-card">
   <form method="GET" action="{{ route('search') }}" style="display:flex;gap:8px;flex-wrap:wrap">
     <input class="in" style="margin:0;flex:1;min-width:200px" name="q" value="{{ $q }}" placeholder="Search clients, projects, tasks, invoices, receipts, expenses, files…" autocomplete="off" autofocus aria-label="Search everything">
     <button class="btn">Search</button>
@@ -16,7 +18,7 @@
 </div>
 @foreach($groups as $g)
 <div class="card">
-  <div class="card-head"><h3>{{ $g['label'] }} ({{ count($g['items']) }})</h3></div>
+  <div class="card-head"><h2>{{ $g['label'] }} ({{ count($g['items']) }})</h2></div>
   @foreach($g['items'] as $it)
   <div class="cat-row"><div class="top"><b><a href="{{ $it['url'] }}">{{ $it['title'] }}</a></b>@if(!empty($it['sub']))<span class="hint">{{ $it['sub'] }}</span>@endif</div></div>
   @endforeach

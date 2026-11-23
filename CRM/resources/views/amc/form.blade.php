@@ -1,8 +1,12 @@
 @extends('layouts.app')
 @section('title', $contract->exists ? 'Edit '.$contract->number : 'New contract')
 @section('content')
-<div class="card form-card" style="max-width:680px">
-<h3>{{ $contract->exists ? 'Edit '.$contract->number : 'New contract' }}</h3>
+
+<x-page-header :title="$contract->exists ? 'Edit '.$contract->number : 'New contract'" crumb="Contracts" icon='<path d="M12 5v14M5 12h14"/>'>
+  <a class="btn sm sec" href="{{ route('amc.index') }}">← Back</a>
+</x-page-header>
+<div class="card ix-card form-card" style="max-width:680px">
+<h2>Details</h2>
 <form method="POST" action="{{ $contract->exists ? route('amc.update',$contract) : route('amc.store') }}">@csrf @if($contract->exists)@method('PUT')@endif
 <label class="f">Title <span class="req">*</span></label>
 <input class="in" name="title" value="{{ old('title',$contract->title) }}" required placeholder="e.g. Annual maintenance — POS rollout">

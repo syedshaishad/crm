@@ -1,9 +1,12 @@
 @extends('layouts.app')
 @section('title','Split payment')
 @section('content')
-<h1 class="sr-only">Split payment</h1>
-<div class="card form-card" style="max-width:760px">
-<h2>Split one receipt across invoices</h2>
+
+<x-page-header :title="'Split payment'" crumb="Receipt register" icon='<path d="M12 5v14M5 12h14"/>'>
+  <a class="btn sm sec" href="{{ route('payments.index') }}">← Back</a>
+</x-page-header>
+<div class="card ix-card form-card" style="max-width:760px">
+<h2>Details</h2>
 <p class="fhint">One cheque / transfer paying several bills? Allocate it here — oldest due first. Each line becomes its own receipt with the same reference.</p>
 <form method="GET" action="{{ route('payments.split') }}" style="display:flex;gap:8px;align-items:end;margin-bottom:12px">
 <div style="flex:1"><label class="f">Client</label><select class="in" name="client_id" onchange="this.form.submit()" style="margin:0">@foreach($clients as $c)<option value="{{ $c->id }}" {{ ($client->id ?? null)===$c->id?'selected':'' }}>{{ $c->company ?: $c->name }}</option>@endforeach</select></div>

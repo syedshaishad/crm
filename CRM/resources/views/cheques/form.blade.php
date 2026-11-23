@@ -1,9 +1,12 @@
 @extends('layouts.app')
 @section('title', $cheque->exists ? 'Edit '.$cheque->number : 'New cheque')
 @section('content')
-<h1 class="sr-only">{{ $cheque->exists ? 'Edit '.$cheque->number : 'New cheque' }}</h1>
-<div class="card form-card" style="max-width:680px">
-<h2>{{ $cheque->exists ? 'Edit '.$cheque->number : 'Record a post-dated cheque' }}</h2>
+
+<x-page-header :title="$cheque->exists ? 'Edit '.$cheque->number : 'New cheque'" crumb="Post-dated cheques" icon='<path d="M12 5v14M5 12h14"/>'>
+  <a class="btn sm sec" href="{{ route('cheques.index') }}">← Back</a>
+</x-page-header>
+<div class="card ix-card form-card" style="max-width:680px">
+<h2>Details</h2>
 <form method="POST" action="{{ $cheque->exists ? route('cheques.update',$cheque) : route('cheques.store') }}">@csrf @if($cheque->exists)@method('PUT')@endif
 <label class="f">Received from <span class="req">*</span></label>
 <select class="in" name="client_id" required>@foreach($clients as $c)<option value="{{ $c->id }}" {{ (string)old('client_id',$cheque->client_id)===(string)$c->id?'selected':'' }}>{{ $c->company ? $c->company.' ('.$c->name.')' : $c->name }}</option>@endforeach</select>

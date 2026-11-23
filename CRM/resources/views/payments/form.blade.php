@@ -1,9 +1,12 @@
 @extends('layouts.app')
 @section('title','Record payment')
 @section('content')
-<h1 class="sr-only">Record payment</h1>
-<div class="card form-card" style="max-width:680px">
-<h2>Record payment</h2>
+
+<x-page-header :title="'Record payment'" crumb="Receipt register" icon='<path d="M12 5v14M5 12h14"/>'>
+  <a class="btn sm sec" href="{{ route('payments.index') }}">← Back</a>
+</x-page-header>
+<div class="card ix-card form-card" style="max-width:680px">
+<h2>Details</h2>
 <p class="fhint">Pick an invoice and the client + outstanding amount fill in automatically.</p>
 <form method="POST" action="{{ route('payments.store') }}">@csrf
 <label class="f">Invoice</label>

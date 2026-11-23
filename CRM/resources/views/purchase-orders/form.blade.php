@@ -1,9 +1,12 @@
 @extends('layouts.app')
 @section('title', $order->exists ? 'Edit '.$order->number : 'New purchase order')
 @section('content')
-<h1 class="sr-only">{{ $order->exists ? 'Edit '.$order->number : 'New purchase order' }}</h1>
-<div class="card form-card" style="max-width:780px">
-<h2>{{ $order->exists ? 'Edit '.$order->number : 'New purchase order' }}</h2>
+
+<x-page-header :title="$order->exists ? 'Edit '.$order->number : 'New purchase order'" crumb="Purchase order register" icon='<path d="M12 5v14M5 12h14"/>'>
+  <a class="btn sm sec" href="{{ route('purchase-orders.index') }}">← Back</a>
+</x-page-header>
+<div class="card ix-card form-card" style="max-width:780px">
+<h2>Details</h2>
 <form method="POST" action="{{ $order->exists ? route('purchase-orders.update',$order) : route('purchase-orders.store') }}">@csrf @if($order->exists)@method('PUT')@endif
 <label class="f">Vendor <span class="req">*</span></label>
 <input class="in" name="vendor" value="{{ old('vendor',$order->vendor) }}" required placeholder="Supplier name">

@@ -1,8 +1,12 @@
 @extends('layouts.app')
 @section('title', $challan->exists ? 'Edit '.$challan->number : 'New delivery challan')
 @section('content')
-<div class="card form-card" style="max-width:780px">
-<h3>{{ $challan->exists ? 'Edit '.$challan->number : 'New delivery challan' }}</h3>
+
+<x-page-header :title="$challan->exists ? 'Edit '.$challan->number : 'New delivery challan'" crumb="Delivery challans" icon='<path d="M12 5v14M5 12h14"/>'>
+  <a class="btn sm sec" href="{{ route('challans.index') }}">← Back</a>
+</x-page-header>
+<div class="card ix-card form-card" style="max-width:780px">
+<h2>Details</h2>
 <p class="fhint">Goods movement without a sale — job work, approvals, samples. No money moves; link an invoice when it bills.</p>
 <form method="POST" action="{{ $challan->exists ? route('challans.update',$challan) : route('challans.store') }}">@csrf @if($challan->exists)@method('PUT')@endif
 @if(request('invoice_id') && !$challan->exists)<input type="hidden" name="invoice_id" value="{{ request('invoice_id') }}">@endif

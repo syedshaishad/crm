@@ -1,7 +1,9 @@
 @extends('layouts.app')
 @section('title',$challan->number)
 @section('content')
-<div class="page-head"><h1>{{ $challan->number }}</h1><div class="crumb">{{ $challan->client->company ?? $challan->client->name ?? '' }} · {{ ucfirst($challan->status) }}</div></div>
+<x-page-header :title="$challan->number" :crumb="($challan->client->company ?? $challan->client->name ?? '').' · '.ucfirst($challan->status)" icon='<path d="M1 8h13v8H1z"/><path d="M14 11h4l3 3v2h-7z"/><circle cx="6" cy="18" r="1.8"/><circle cx="17" cy="18" r="1.8"/>' back="route('challans.index')">
+  
+</x-page-header>
 <div class="noprint" style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
   @if($challan->status==='draft')<a class="btn sm sec" href="{{ route('challans.edit',$challan) }}">Edit</a>
   <form method="POST" action="{{ route('challans.issue',$challan) }}" data-ajax-post data-refresh="page" style="display:inline">@csrf<button class="btn sm">Mark issued</button></form>@endif
@@ -12,7 +14,7 @@
 
 <div class="card">
 <div class="doc-head" style="display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:12px">
-<div><div class="cap">Delivery challan</div><h2 style="margin:0">{{ $challan->number }}</h2><div class="sub">{{ d($challan->challan_date) }}@if($challan->place_of_supply) · {{ $challan->place_of_supply }}@endif</div></div>
+<div><div class="cap">Delivery challan</div><h2 style="margin:0">{{ $challan->number }}</h2><div class="sub">{{ d($challan->challan_date, 'j M Y') }}@if($challan->place_of_supply) · {{ $challan->place_of_supply }}@endif</div></div>
 <div style="text-align:right"><div class="cap">Deliver to</div><b>{{ $challan->client->company ?? $challan->client->name }}</b>@if($challan->client->address)<div class="sub">{{ $challan->client->address }}</div>@endif</div>
 </div>
 @if($challan->vehicle_no || $challan->transporter || $challan->eway_bill)

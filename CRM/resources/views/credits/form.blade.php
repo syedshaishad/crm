@@ -1,9 +1,12 @@
 @extends('layouts.app')
 @section('title','New credit note')
 @section('content')
-<h1 class="sr-only">New credit note</h1>
-<div class="card form-card" style="max-width:680px">
-<h2>New credit note</h2>
+
+<x-page-header :title="'New credit note'" crumb="Credit notes" icon='<path d="M12 5v14M5 12h14"/>'>
+  <a class="btn sm sec" href="{{ route('credits.index') }}">← Back</a>
+</x-page-header>
+<div class="card ix-card form-card" style="max-width:680px">
+<h2>Details</h2>
 <form method="POST" action="{{ route('credits.store') }}">@csrf
 <label class="f">Client <span class="req">*</span></label>
 <select class="in" name="client_id" required>@foreach($clients as $c)<option value="{{ $c->id }}" {{ (string)($note->client_id ?? '')===(string)$c->id?'selected':'' }}>{{ $c->company ? $c->company.' ('.$c->name.')' : $c->name }}</option>@endforeach</select>

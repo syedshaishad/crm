@@ -1,6 +1,8 @@
 @extends('layouts.app')
 @section('title','HR overview')
 @section('content')
+
+<x-page-header title="HR overview" crumb="People, attendance and payroll at a glance" icon='<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.5 3.4-5 6.5-5s5.7 1.5 6.5 5"/>'/>
 <div class="grid stats cols-4" style="margin-bottom:14px">
   <div class="stat"><div class="lbl">Headcount</div><b>{{ $headcount }}</b><div class="sub">active staff</div></div>
   <div class="stat"><div class="lbl">Present today</div><b>{{ $present }}</b><div class="sub">{{ $onLeave }} on leave · {{ $openVisits }} on site</div></div>
@@ -8,7 +10,7 @@
   <div class="stat"><div class="lbl">Payroll · {{ date('F Y') }}</div><b>{{ $payroll ? ucfirst($payroll->status) : 'Not run' }}</b><div class="sub">@if($payroll){{ money($payroll->slips->sum('net')) }} net @else<a href="{{ route('payroll.index') }}">run it →</a>@endif</div></div>
 </div>
 <div class="cols-2">
-<div class="card" style="margin-top:0"><div class="card-head"><h3>People</h3></div>
+<div class="card" style="margin-top:0"><div class="card-head"><h2>People &amp; HR modules</h2></div>
 <div>
 <a class="mi-row" href="{{ route('attendance.index') }}"><span class="mi-ic">◷</span><span style="flex:1"><b>Attendance</b><span class="hint"> · daily marks</span></span>→</a>
 <a class="mi-row" href="{{ route('leaves.index') }}"><span class="mi-ic">❋</span><span style="flex:1"><b>Leave</b>@if($pendingLeave)<span class="badge b-amber">{{ $pendingLeave }} pending</span>@endif</span>→</a>
@@ -37,7 +39,7 @@
 @endif
 @if($certs->isNotEmpty())
 <hr><h3>Certs lapsing soon</h3>
-@foreach($certs as $c)<div class="hint" style="margin-bottom:6px"><b>{{ $c->user->name ?? '' }}</b> — {{ $c->skill->name ?? '' }} · {{ d($c->cert_expires_on) }}</div>@endforeach
+@foreach($certs as $c)<div class="hint" style="margin-bottom:6px"><b>{{ $c->user->name ?? '' }}</b> — {{ $c->skill->name ?? '' }} · {{ d($c->cert_expires_on, 'j M Y') }}</div>@endforeach
 @endif
 </div>
 </div>

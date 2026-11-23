@@ -1,8 +1,12 @@
 @extends('layouts.app')
 @section('title','New proposal')
 @section('content')
-<div class="card form-card" style="max-width:780px">
-<h3>New proposal</h3>
+
+<x-page-header :title="'New proposal'" crumb="Proposal register" icon='<path d="M12 5v14M5 12h14"/>'>
+  <a class="btn sm sec" href="{{ route('proposals.index') }}">← Back</a>
+</x-page-header>
+<div class="card ix-card form-card" style="max-width:780px">
+<h2>Details</h2>
 <form method="POST" action="{{ route('proposals.store') }}" enctype="multipart/form-data">@csrf
 <label class="f">Propose to <span class="req">*</span></label>
 <select class="in" name="client_id" required autofocus>@foreach($clients as $c)<option value="{{ $c->id }}" {{ (string)($default_client ?? '')===(string)$c->id?'selected':'' }}>{{ $c->company ? $c->company.' ('.$c->name.')' : $c->name }}{{ $c->gstin ? ' · '.$c->gstin : '' }}</option>@endforeach</select>

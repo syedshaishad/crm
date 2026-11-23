@@ -1,9 +1,12 @@
 @extends('layouts.app')
 @section('title','Edit '.$invoice->number)
 @section('content')
-<h1 class="sr-only">Edit {{ $invoice->number }}</h1>
-<div class="card form-card" style="max-width:760px">
-<h2>Edit {{ $invoice->number }}</h2>
+
+<x-page-header :title="'Edit '.$invoice->number" crumb="Invoice register" icon='<path d="M12 5v14M5 12h14"/>'>
+  <a class="btn sm sec" href="{{ route('invoices.index') }}">← Back</a>
+</x-page-header>
+<div class="card ix-card form-card" style="max-width:760px">
+<h2>Details</h2>
 @if(in_array($invoice->status,['paid','cancelled']))<div class="err">This invoice is <b>{{ $invoice->status }}</b> — changing amounts will update its status to match what is paid.</div>@endif
 <p class="fhint">Change the header, or append new lines below. Saved lines are kept as-is.</p>
 <form method="POST" action="{{ route('invoices.update',$invoice) }}">@csrf @method('PUT')

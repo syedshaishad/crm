@@ -163,7 +163,7 @@
                     @if($l->company)<div class="ld-kan-sub">{{ $l->name }}</div>@endif
                     @if($l->value > 0)<div class="ld-kan-value-row"><b>{{ money($l->value) }}</b></div>@endif
                     <div class="ld-kan-meta">
-                      @if($l->follow_up_on)<span class="ld-kan-due {{ $overdue ? 'is-over' : '' }}"><i></i>{{ d($l->follow_up_on) }}</span>@endif
+                      @if($l->follow_up_on)<span class="ld-kan-due {{ $overdue ? 'is-over' : '' }}"><i></i>{{ d($l->follow_up_on, 'j M Y') }}</span>@endif
                       @if(! $closed)<span class="ld-kan-score" title="Nurture score: stage, deal size and silence">★ {{ $l->score() }}</span>@endif
                       @if(! $closed && $l->isStale())<span class="ld-kan-stale">Stale</span>@endif
                       @if($l->converted_client_id)<span class="ld-kan-client">Client</span>@endif
@@ -246,7 +246,7 @@
                 <td class="ld-c-source"><span class="ld-source">{{ $l->source ? $srcLabel($l->source) : '—' }}</span></td>
                 <td class="ld-c-due">
                   @if($l->follow_up_on)
-                    <span class="ld-due {{ $overdue ? 'is-over' : '' }}"><i></i>{{ d($l->follow_up_on) }}</span>
+                    <span class="ld-due {{ $overdue ? 'is-over' : '' }}"><i></i>{{ d($l->follow_up_on, 'j M Y') }}</span>
                     @if($overdue)<span class="ld-due-note">Overdue</span>@endif
                   @else
                     <span class="ld-dash">—</span>

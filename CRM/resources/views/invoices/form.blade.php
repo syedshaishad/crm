@@ -1,9 +1,12 @@
 @extends('layouts.app')
 @section('title','New invoice')
 @section('content')
-<h1 class="sr-only">New invoice</h1>
-<div class="card form-card" style="max-width:780px">
-<h2>New invoice</h2>
+
+<x-page-header :title="'New invoice'" crumb="Invoice register" icon='<path d="M12 5v14M5 12h14"/>'>
+  <a class="btn sm sec" href="{{ route('invoices.index') }}">← Back</a>
+</x-page-header>
+<div class="card ix-card form-card" style="max-width:780px">
+<h2>Details</h2>
 <form method="POST" action="{{ route('invoices.store') }}">@csrf
 <div class="fsec" style="margin-top:0">1 · Client & project</div>
 <label class="f">Bill to <span class="req">*</span></label>

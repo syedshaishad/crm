@@ -1,9 +1,12 @@
 @extends('layouts.app')
 @section('title',($client->exists ? 'Edit ' : 'New ').'client')
 @section('content')
-<h1 class="sr-only">{{ $client->exists ? 'Edit client' : 'New client' }}</h1>
-<div class="card form-card" style="max-width:680px">
-<h2>{{ $client->exists ? 'Edit client' : 'New client' }}</h2>
+
+<x-page-header :title="$client->exists ? 'Edit client' : 'New client'" crumb="Client directory" icon='<path d="M12 5v14M5 12h14"/>'>
+  <a class="btn sm sec" href="{{ route('clients.index') }}">← Back</a>
+</x-page-header>
+<div class="card ix-card form-card" style="max-width:680px">
+<h2>Details</h2>
 <p class="fhint">Just the name is required — everything else can wait.</p>
 <form method="POST" action="{{ $client->exists ? route('clients.update',$client) : route('clients.store') }}">@csrf @if($client->exists)@method('PUT')@endif
 <label class="f">Name <span class="req">*</span></label>

@@ -93,10 +93,10 @@
     <div class="dc-gx">
       <div class="dc-th"><span style="flex:1.3">Client</span><span style="flex:1.1">Amount</span><span style="flex:1.1">Deals</span><span style="flex:.7">Share</span><span style="flex:1;text-align:right">Close date</span></div>
       @forelse($pipeClients as $pi)
-      <div class="dc-rw" data-xp="{{ $loop->first ? '1' : '0' }}" data-client="{{ $pi->client ?? 'Unassigned' }}" data-amount="{{ money($pi->t) }}" data-share="{{ $pi->share }}" data-gap="{{ $pi->gap ?? 'Open' }}" data-gaptone="{{ $pi->gapTone }}" data-valid="{{ $pi->valid_until ? d($pi->valid_until) : 'no expiry' }}" data-number="{{ $pi->number ?? '' }}" data-count="{{ $pi->c }}" data-href="{{ route('proposals.show', $pi->id) }}"><div class="dc-cn"><span class="dc-av">{{ $pi->initial }}</span>{{ \Str::limit($pi->client ?? 'Unassigned', 16) }}</div><div style="flex:1.1">{{ money($pi->t) }}</div><div style="flex:1.1"><span class="dc-pk">{{ $pi->c }}</span><span class="dc-pk l">{{ \Str::limit($pi->number ?? '', 12) }}</span></div><div style="flex:.7">{{ $pi->share }}%</div><div style="flex:1;text-align:right"><span class="dc-pk">{{ $pi->valid_until ? d($pi->valid_until, 'j M') : '—' }}</span><span class="dc-xr">{{ $loop->first ? '⌃' : '⌄' }}</span></div></div>
+      <div class="dc-rw" data-xp="{{ $loop->first ? '1' : '0' }}" data-client="{{ $pi->client ?? 'Unassigned' }}" data-amount="{{ money($pi->t) }}" data-share="{{ $pi->share }}" data-gap="{{ $pi->gap ?? 'Open' }}" data-gaptone="{{ $pi->gapTone }}" data-valid="{{ $pi->valid_until ? d($pi->valid_until, 'j M Y') : 'no expiry' }}" data-number="{{ $pi->number ?? '' }}" data-count="{{ $pi->c }}" data-href="{{ route('proposals.show', $pi->id) }}"><div class="dc-cn"><span class="dc-av">{{ $pi->initial }}</span>{{ \Str::limit($pi->client ?? 'Unassigned', 16) }}</div><div style="flex:1.1">{{ money($pi->t) }}</div><div style="flex:1.1"><span class="dc-pk">{{ $pi->c }}</span><span class="dc-pk l">{{ \Str::limit($pi->number ?? '', 12) }}</span></div><div style="flex:.7">{{ $pi->share }}%</div><div style="flex:1;text-align:right"><span class="dc-pk">{{ $pi->valid_until ? d($pi->valid_until, 'j M') : '—' }}</span><span class="dc-xr">{{ $loop->first ? '⌃' : '⌄' }}</span></div></div>
       @if($loop->first)
       <div class="dc-xp" id="dcXp">
-        <div class="dc-tgs"><span class="dc-tg w">Open deal</span><span class="dc-tg r" id="dcXpGap">{{ $pi->gap ?? 'Open' }}</span><span class="dc-tg w" id="dcXpValid">Valid till {{ $pi->valid_until ? d($pi->valid_until) : '—' }}</span></div>
+        <div class="dc-tgs"><span class="dc-tg w">Open deal</span><span class="dc-tg r" id="dcXpGap">{{ $pi->gap ?? 'Open' }}</span><span class="dc-tg w" id="dcXpValid">Valid till {{ $pi->valid_until ? d($pi->valid_until, 'j M Y') : '—' }}</span></div>
         <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px"><span class="dc-lb" style="font-size:13px">Pipeline by client</span><span class="dc-rd">{{ $pipeClients->count() }} &nbsp;{{ money($pipeClients->sum('t')) }}</span></div>
         <div class="dc-wp">
           <div class="dc-ht" style="flex:1.3 1 180px;display:flex;flex-direction:column;justify-content:space-between;min-height:120px"><span class="dc-tg w" style="align-self:flex-start" id="dcXpClient">{{ \Str::limit($pi->client ?? 'Unassigned', 18) }}</span><span class="dc-big"><span id="dcXpShare">{{ $pi->share }}%</span> <i id="dcXpAmount">{{ money($pi->t) }}</i></span></div>
@@ -120,7 +120,7 @@
     <section class="dc-gc" style="flex:1 1 440px;padding:16px"><div class="dc-sh2"><h2>Today's focus</h2><a href="{{ route('tasks.index') }}">All tasks →</a></div>
       @php $fiShown = 0; @endphp
       @foreach($overdue->take(2) as $o)<div class="dc-fi"><span class="dc-fd"></span><div><b>Chase {{ $o->number }}</b><small>{{ money($o->total) }} · {{ abs(now()->startOfDay()->diffInDays(\Carbon\Carbon::parse($o->due_date)->startOfDay(), false)) }} days overdue</small></div><span class="dc-go">Overdue</span></div>@php $fiShown++; @endphp @endforeach
-      @foreach($dueSoon->take(4 - $fiShown) as $t)<div class="dc-fi"><span class="dc-fd"></span><div><b>{{ \Str::limit($t->title, 42) }}</b><small>{{ ucfirst($t->priority ?? '') }} · due {{ d($t->due_date) }}</small></div><span class="dc-go">{{ ucfirst($t->priority ?? '') }}</span></div>@endforeach
+      @foreach($dueSoon->take(4 - $fiShown) as $t)<div class="dc-fi"><span class="dc-fd"></span><div><b>{{ \Str::limit($t->title, 42) }}</b><small>{{ ucfirst($t->priority ?? '') }} · due {{ d($t->due_date, 'j M Y') }}</small></div><span class="dc-go">{{ ucfirst($t->priority ?? '') }}</span></div>@endforeach
       @if($fiShown === 0 && $dueSoon->isEmpty())<div class="dc-em">Nothing due soon.<small style="margin-top:4px">Overdue work is pinned in Today's focus.</small></div>@endif
     </section>
     <section class="dc-gc" style="flex:1 1 440px;padding:16px"><div class="dc-sh2"><h2>{{ $ref->format('F Y') }}</h2><a href="{{ route('tasks.index') }}">Tasks →</a></div>
@@ -150,18 +150,18 @@
     </section>
     <section class="dc-gc" style="flex:1 1 440px;padding:16px"><div class="dc-sh2"><h2>Recent tasks</h2><a class="dc-btn" href="{{ route('tasks.create') }}" style="text-decoration:none">+ New</a></div>
       <div class="dc-th"><span style="flex:2">Title</span><span style="flex:.8">Status</span><span style="flex:1.4;text-align:right">Due</span></div>
-      @forelse($recentTasks as $rt)<div class="dc-rw"><div style="flex:2;font-weight:600">{{ \Str::limit($rt->title, 26) }}<small>{{ \Str::limit($rt->project ?? 'No project', 24) }}</small></div><div style="flex:.8"><span class="dc-tg l">{{ ucfirst(str_replace('_', ' ', $rt->status)) }}</span></div><div style="flex:1.4;text-align:right">{{ d($rt->due_date) ?: '—' }} <span class="dc-tg {{ in_array(strtolower($rt->priority ?? ''), ['urgent', 'high']) ? 'r' : 'l' }}">{{ ucfirst($rt->priority ?? 'normal') }}</span></div></div>@empty<div class="dc-em">No tasks yet.</div>@endforelse
+      @forelse($recentTasks as $rt)<div class="dc-rw"><div style="flex:2;font-weight:600">{{ \Str::limit($rt->title, 26) }}<small>{{ \Str::limit($rt->project ?? 'No project', 24) }}</small></div><div style="flex:.8"><span class="dc-tg l">{{ ucfirst(str_replace('_', ' ', $rt->status)) }}</span></div><div style="flex:1.4;text-align:right">{{ d($rt->due_date, 'j M Y') ?: '—' }} <span class="dc-tg {{ in_array(strtolower($rt->priority ?? ''), ['urgent', 'high']) ? 'r' : 'l' }}">{{ ucfirst($rt->priority ?? 'normal') }}</span></div></div>@empty<div class="dc-em">No tasks yet.</div>@endforelse
     </section>
   </div>
 
   <div class="dc-g2" style="margin-top:16px">
     <section class="dc-gc" style="flex:1 1 440px;padding:16px"><div class="dc-sh2"><h2>Overdue invoices</h2><a href="{{ route('invoices.index', ['status' => 'overdue']) }}">View all →</a></div>
       <div class="dc-th"><span style="flex:1.4">Number</span><span style="flex:1.2">Due</span><span style="flex:1;text-align:right">Total</span></div>
-      @forelse($overdue as $o)<div class="dc-rw dark"><b style="flex:1.4">{{ $o->number }}</b><span style="flex:1.2">{{ d($o->due_date) ?: '—' }}</span><b style="flex:1;text-align:right">{{ money($o->total) }}</b></div>@empty<div class="dc-em">Nothing overdue. 🎉</div>@endforelse
+      @forelse($overdue as $o)<div class="dc-rw dark"><b style="flex:1.4">{{ $o->number }}</b><span style="flex:1.2">{{ d($o->due_date, 'j M Y') ?: '—' }}</span><b style="flex:1;text-align:right">{{ money($o->total) }}</b></div>@empty<div class="dc-em">Nothing overdue. 🎉</div>@endforelse
     </section>
     <section class="dc-gc" style="flex:1 1 440px;padding:16px"><div class="dc-sh2"><h2>Due within 7 days</h2><a href="{{ route('tasks.index') }}">View all →</a></div>
       <div class="dc-th"><span style="flex:2">Task</span><span style="flex:1">Due</span><span style="flex:1;text-align:right">Status</span></div>
-      @forelse($dueSoon as $t)<div class="dc-rw"><div style="flex:2;font-weight:600">{{ \Str::limit($t->title, 30) }}</div><div style="flex:1">{{ d($t->due_date) ?: '—' }}</div><div style="flex:1;text-align:right"><span class="dc-tg l">{{ ucfirst(str_replace('_', ' ', $t->status)) }}</span></div></div>@empty<div class="dc-em">Nothing due soon.</div>@endforelse
+      @forelse($dueSoon as $t)<div class="dc-rw"><div style="flex:2;font-weight:600">{{ \Str::limit($t->title, 30) }}</div><div style="flex:1">{{ d($t->due_date, 'j M Y') ?: '—' }}</div><div style="flex:1;text-align:right"><span class="dc-tg l">{{ ucfirst(str_replace('_', ' ', $t->status)) }}</span></div></div>@empty<div class="dc-em">Nothing due soon.</div>@endforelse
     </section>
   </div>
 

@@ -1,7 +1,9 @@
 @extends('layouts.app')
 @section('title','Compare '.$proposal->number)
 @section('content')
-<div class="page-head"><h1>Compare</h1><div class="crumb">{{ $proposal->number }} vs {{ $other ? $other->number : '…' }}</div></div>
+<x-page-header title="Compare" :crumb="$proposal->number.' vs '.($other ? $other->number : '…')" icon='<path d="M12 3v18M5 8l-3 4 3 4M19 8l3 4-3 4"/>' back="route('proposals.index')">
+  
+</x-page-header>
 <div class="card noprint"><form method="GET" action="{{ route('proposals.compare',$proposal) }}" style="display:flex;gap:8px;flex-wrap:wrap;align-items:end">
 <div><label class="f">Against</label><select class="in" name="with" style="margin:0;min-width:260px" onchange="this.form.submit()"><option value="">Choose a proposal…</option>@foreach($options as $o)<option value="{{ $o->id }}" {{ $other && (int)$other->id===(int)$o->id?'selected':'' }}>{{ $o->number }} · {{ $o->client->company ?? $o->client->name ?? '' }} · {{ ucfirst($o->status) }} · {{ money($o->total) }}</option>@endforeach</select></div>
 <noscript><div><button class="btn sec sm">Compare</button></div></noscript></form></div>
@@ -25,7 +27,7 @@
   $row('Discount', fn ($p) => $p->discount, fn ($p) => $p->discount, fn ($v) => money($v));
   $row('GST', fn ($p) => $p->gst_amount, fn ($p) => $p->gst_amount, fn ($v) => money($v));
   $row('Services', fn ($p) => $p->items->count(), fn ($p) => $p->items->count());
-  $row('Valid till', fn ($p) => $p->valid_until ? d($p->valid_until) : '—', fn ($p) => $p->valid_until ? d($p->valid_until) : '—', fn ($v) => e($v));
+  $row('Valid till', fn ($p) => $p->valid_until ? d($p->valid_until, 'j M Y') : '—', fn ($p) => $p->valid_until ? d($p->valid_until, 'j M Y') : '—', fn ($v) => e($v));
   $row('Scope', fn ($p) => $p->scope ?: '—', fn ($p) => $p->scope ?: '—', fn ($v) => nl2br(e(mb_substr($v, 0, 300))));
   $row('Results', fn ($p) => $p->results ?: '—', fn ($p) => $p->results ?: '—', fn ($v) => nl2br(e(mb_substr($v, 0, 300))));
   $row('Terms', fn ($p) => $p->terms ?: '—', fn ($p) => $p->terms ?: '—', fn ($v) => nl2br(e(mb_substr($v, 0, 300))));

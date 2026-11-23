@@ -1,8 +1,10 @@
 @extends('layouts.app')
 @section('title','Activity')
 @section('content')
-<div class="card">
-<div class="card-head"><h3>Activity</h3><span class="hint">who did what, newest first</span></div>
+
+<x-page-header title="Activity" crumb="Who did what, newest first" icon='<path d="M12 8v4l3 2"/><circle cx="12" cy="12" r="9"/>'/>
+<div class="card ix-card">
+<div class="card-head"><h2>Latest events</h2><span class="hint">who did what, newest first</span></div>
 <form method="GET" class="noprint" style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap"><input class="in" style="margin:0;flex:2;min-width:160px" name="q" value="{{ $q ?? '' }}" placeholder="Search actions…" aria-label="Search activity"><select class="in" style="margin:0;flex:1;min-width:130px" name="action" aria-label="Filter by action"><option value="">All actions</option>@foreach($actions as $a)<option value="{{ $a }}" {{ ($action ?? '')===$a?'selected':'' }}>{{ ucfirst($a) }}</option>@endforeach</select><select class="in" style="margin:0;flex:1;min-width:140px" name="user_id" aria-label="Filter by user"><option value="">Everyone</option>@foreach($users as $u)<option value="{{ $u->id }}" {{ (string)($user_id ?? '')===(string)$u->id?'selected':'' }}>{{ $u->name }}</option>@endforeach</select><button class="btn sec sm">Filter</button></form>
 <div class="tbl-scroll"><table class="tbl"><tr><th>When</th><th>Who</th><th>What</th></tr>
 @forelse($items as $a)<tr><td class="nowrap">{{ d($a->created_at, 'j M Y, h:i A') }}</td>

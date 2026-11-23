@@ -1,8 +1,9 @@
 @extends('layouts.app')
 @section('title','Recurring expenses')
 @section('content')
-<h1 class="sr-only">Recurring expenses</h1>
-<div class="card">
+
+<x-page-header title="Recurring expenses" crumb="Repeating spend schedules" icon='<path d="M20 11a8 8 0 1 0-2.3 6.3"/><path d="M20 4v5h-5"/>' :back="route('expenses.index')"/>
+<div class="card ix-card">
 <div class="card-head"><h2>Recurring schedules</h2><a class="btn sm sec" href="{{ route('expenses.index') }}">All expenses</a></div>
 <p class="fhint">Repeat spend auto-books on schedule days (daily run). Pause anytime.</p>
 <div class="tbl-scroll roomy"><table class="tbl"><tr><th>Title</th><th>Every</th><th style="text-align:right">Amount</th><th>Next run</th><th>Last run</th><th>Status</th><th></th></tr>

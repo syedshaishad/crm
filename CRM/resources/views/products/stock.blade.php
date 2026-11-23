@@ -1,7 +1,9 @@
 @extends('layouts.app')
 @section('title','Stock — '.$product->name)
 @section('content')
-<div class="page-head"><h1>Stock</h1><div class="crumb">{{ $product->name }}@if($product->sku) · {{ $product->sku }}@endif</div></div>
+<x-page-header title="Stock" :crumb="$product->name.($product->sku ? ' · '.$product->sku : '')" icon='<path d="M21 8 12 3 3 8v8l9 5 9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/>' back="route('products.index')">
+  
+</x-page-header>
 
 <div class="grid stats">
   <div class="stat acc" style="--acc:#0a84ff"><div class="lbl">On hand</div><b>{{ $onHand }} {{ $product->unit }}</b><div class="sub">opening {{ $product->opening_stock ?? 0 }}</div></div>
@@ -11,7 +13,7 @@
 <div class="cols-2">
 <div class="card"><div class="card-head"><h3>Movements</h3><a class="btn sm sec" href="{{ route('products.edit',$product) }}">Edit product</a></div>
 <div class="tbl-scroll"><table class="tbl"><tr><th>Date</th><th>Type</th><th style="text-align:right">Qty</th><th style="text-align:right">Balance</th><th>Reference</th><th class="noprint"></th></tr>
-@forelse($rows as $r)<tr><td class="nowrap">{{ d($r['e']->moved_on) }}</td><td><span class="badge {{ $r['e']->type==='in' ? 'b-green' : ($r['e']->type==='out' ? 'b-amber' : 'b-grey') }}">{{ $r['e']->type }}</span></td><td class="nowrap" style="text-align:right">{{ $r['delta'] > 0 ? '+' : '' }}{{ $r['delta'] }}</td><td class="nowrap" style="text-align:right"><b>{{ $r['balance'] }}</b></td><td>{{ $r['e']->reference ?: '—' }}@if($r['e']->notes)<div class="hint">{{ $r['e']->notes }}</div>@endif</td>
+@forelse($rows as $r)<tr><td class="nowrap">{{ d($r['e']->moved_on, 'j M Y') }}</td><td><span class="badge {{ $r['e']->type==='in' ? 'b-green' : ($r['e']->type==='out' ? 'b-amber' : 'b-grey') }}">{{ $r['e']->type }}</span></td><td class="nowrap" style="text-align:right">{{ $r['delta'] > 0 ? '+' : '' }}{{ $r['delta'] }}</td><td class="nowrap" style="text-align:right"><b>{{ $r['balance'] }}</b></td><td>{{ $r['e']->reference ?: '—' }}@if($r['e']->notes)<div class="hint">{{ $r['e']->notes }}</div>@endif</td>
 <td class="noprint"><form method="POST" action="{{ route('products.stock.destroy',[$product,$r['e']]) }}" style="display:inline" data-confirm="Remove this stock entry? Balances recalculate.">@csrf @method('DELETE')<button class="icon-btn danger">Delete</button></form></td></tr>@empty<tr><td colspan="6"><div class="empty">No movements yet — opening stock is the whole balance.</div></td></tr>@endforelse</table></div></div>
 <div class="card"><div class="card-head"><h3>Record movement</h3></div>
 <form method="POST" action="{{ route('products.stock.store',$product) }}">@csrf
