@@ -6,7 +6,7 @@
   $statusVal = $status ?? '';
   $hasFilters = ($q ?? '') !== '' || $statusVal !== '';
   $statusUrl = fn ($s) => route('cheques.index', array_merge(request()->except(['page', 'status']), $s ? ['status' => $s] : []));
-  $stateClasses = ['held' => 'is-amber', 'deposited' => 'is-blue', 'cleared' => 'is-green', 'bounced' => 'is-red', 'cancelled' => 'is-grey'];
+  $stateTones = ['held' => 'amber', 'deposited' => 'blue', 'cleared' => 'green', 'bounced' => 'red', 'cancelled' => 'neutral'];
 @endphp
 <div class="page-head ix-head">
   <div class="ix-head-main">
@@ -102,7 +102,7 @@
               @if($c->isDue())<span class="ix-sub is-warn">deposit now</span>@endif
             </div>
           </td>
-          <td class="ix-c-status"><span class="ix-state {{ $stateClasses[$st] ?? 'is-grey' }}"><i></i>{{ $statuses[$st] ?? ucfirst($st) }}</span></td>
+          <td class="ix-c-status">{!! status_tag($statuses[$st] ?? ucfirst($st), $stateTones[$st] ?? 'grey') !!}</td>
           <td class="ix-c-value"><span class="ix-money">{{ money($c->amount) }}</span></td>
           <td class="ix-c-actions">
             <div class="ix-actions">

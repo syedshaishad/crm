@@ -96,7 +96,7 @@
               @endif
             </div>
           </td>
-          <td class="ix-c-status"><span class="ix-state {{ $st === 'applied' ? 'is-green' : 'is-amber' }}"><i></i>{{ ucfirst($st) }}</span></td>
+          <td class="ix-c-status">{!! status_tag(ucfirst($st), $st === 'applied' ? 'green' : 'amber') !!}</td>
           <td class="ix-c-value">
             <div class="ix-stack-end">
               <span class="ix-money">{{ money($n->amount) }}</span>

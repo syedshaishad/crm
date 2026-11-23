@@ -8,10 +8,10 @@
 <div class="tbl-scroll roomy"><table class="tbl"><tr><th>Client</th><th>Every</th><th>Next run</th><th>Last run</th><th>Status</th><th></th></tr>
 @forelse($profiles as $p)<tr>
 <td>{{ $p->client->company ?: ($p->client->name ?? '') }}@if($p->project)<div class="hint">{{ $p->project->name }}</div>@endif<div class="hint">{{ count($p->items ?? []) }} line(s) · {{ money(collect($p->items)->sum(fn ($it) => ($it['qty'] ?? 0) * ($it['rate'] ?? 0))) }}</div>@if($p->trial_ends_on && $p->trial_ends_on->gte(now()->toDateString()))<div class="hint">trial till {{ d($p->trial_ends_on, 'j M Y') }}</div>@endif @if($p->prorate_first && !$p->last_run_on)<span class="chip">prorated first bill</span>@endif @if($p->billing_day)<span class="chip">bills on {{ $p->billing_day }}</span>@endif</td>
-<td><span class="badge b-blue">{{ \Modules\Invoices\RecurringProfile::frequencies()[$p->frequency] ?? $p->frequency }}</span></td>
+<td><span class="ix-tag">{{ \Modules\Invoices\RecurringProfile::frequencies()[$p->frequency] ?? $p->frequency }}</span></td>
 <td class="nowrap">{{ d($p->next_run_on, 'j M Y') }}</td>
 <td class="nowrap">{{ $p->last_run_on ? d($p->last_run_on, 'j M Y') : '—' }}</td>
-<td><span class="badge {{ $p->status === 'active' ? 'b-green' : ($p->status === 'paused' ? 'b-amber' : 'b-grey') }}">{{ \Modules\Invoices\RecurringProfile::statuses()[$p->status] ?? $p->status }}</span>@if($p->auto_send)<div class="hint">auto-sends</div>@endif</td>
+<td>{!! status_tag(\Modules\Invoices\RecurringProfile::statuses()[$p->status] ?? ucfirst($p->status), ['active' => 'green', 'paused' => 'amber', 'cancelled' => 'neutral'][$p->status] ?? 'grey') !!}@if($p->auto_send)<div class="hint">auto-sends</div>@endif</td>
 <td><div class="row-actions">
 @if($p->status !== 'cancelled')
 <form method="POST" action="{{ route('recurring.toggle',$p) }}" style="display:inline">@csrf<button class="icon-btn">{{ $p->status === 'active' ? 'Pause' : 'Resume' }}</button></form>

@@ -32,9 +32,9 @@
   <div class="card-head ix-card-head">
     <div><h2>Close · {{ d($today, 'j F Y') }}</h2><span class="hint">Count the drawer and tick off the day.</span></div>
     @if($done)
-      <span class="ix-state is-green"><i></i>Closed</span>
+      {!! status_tag('Closed', 'green') !!}
     @else
-      <span class="ix-state is-amber"><i></i>Open</span>
+      {!! status_tag('Open', 'amber') !!}
     @endif
   </div>
 

@@ -8,7 +8,7 @@
 <div class="inv-hero noprint">
   <div><h1 class="inv-num">{{ $payment->number ?? '—' }}</h1>
     <div class="inv-chips">
-      <span class="badge b-green">{{ ucfirst($payment->method) }}</span>
+      <span class="chip">{{ ucfirst($payment->method) }}</span>
       <span class="chip">Received {{ d($payment->paid_on, 'j M Y') }}</span>
       @if($payment->reference)<span class="chip">Ref: {{ $payment->reference }}</span>@endif
     </div></div>

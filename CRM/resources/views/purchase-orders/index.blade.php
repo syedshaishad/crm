@@ -6,7 +6,7 @@
   $hasFilters = ($q ?? '') !== '' || $statusVal !== '';
   $statusUrl = fn ($s) => route('purchase-orders.index', array_merge(request()->except(['page', 'status']), $s ? ['status' => $s] : []));
   $labels = \Modules\Purchases\PurchaseOrder::statuses();
-  $stateClasses = ['draft' => 'is-grey', 'sent' => 'is-blue', 'received' => 'is-green', 'cancelled' => 'is-red'];
+  $stateTones = ['draft' => 'grey', 'sent' => 'blue', 'received' => 'green', 'cancelled' => 'red'];
 @endphp
 <div class="page-head ix-head">
   <div class="ix-head-main">
@@ -87,7 +87,7 @@
               <span class="ix-sub {{ $late ? 'is-danger' : '' }}">{{ $o->expected_on ? ($late ? 'overdue' : 'expected') : 'no date set' }}</span>
             </div>
           </td>
-          <td class="ix-c-status"><span class="ix-state {{ $stateClasses[$st] ?? 'is-grey' }}"><i></i>{{ $labels[$st] ?? ucfirst($st) }}</span></td>
+          <td class="ix-c-status">{!! status_tag($labels[$st] ?? ucfirst($st), $stateTones[$st] ?? 'grey') !!}</td>
           <td class="ix-c-value"><span class="ix-money">{{ money($o->total) }}</span></td>
           <td class="ix-c-actions">
             <div class="ix-actions">

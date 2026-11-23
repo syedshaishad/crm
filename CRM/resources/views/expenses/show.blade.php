@@ -5,8 +5,9 @@
 <div class="inv-hero noprint">
   <div><h1 class="inv-num">{{ $expense->number ?? $expense->title }}</h1>
     <div class="inv-chips">
-      <span class="badge b-grey">{{ $expense->category ?? 'general' }}</span>
-      <span class="badge {{ ($expense->status ?? 'approved')==='approved' ? 'b-green' : (($expense->status ?? '')==='pending' ? 'b-amber' : 'b-grey') }}">{{ ucfirst($expense->status ?? 'approved') }}</span>
+      <span class="chip">{{ ucfirst($expense->category ?? 'general') }}</span>
+      @php $expenseTone = ['pending' => 'amber', 'approved' => 'green', 'rejected' => 'red'][$expense->status ?? 'approved'] ?? 'grey'; @endphp
+      {!! status_tag(ucfirst($expense->status ?? 'approved'), $expenseTone) !!}
       <span class="chip">Spent {{ d($expense->spent_on, 'j M Y') }}</span>
       @if($expense->method)<span class="chip">via {{ ucfirst($expense->method) }}</span>@endif
     </div></div>

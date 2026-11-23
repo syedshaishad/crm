@@ -65,7 +65,7 @@
             </div>
           </td>
           <td class="ix-c-status">
-            <span class="ix-state {{ $g->status === 'sent' ? 'is-green' : 'is-red' }}"><i></i>{{ $g->status === 'sent' ? 'Sent' : 'Failed' }}</span>
+            {!! status_tag($g->status === 'sent' ? 'Sent' : 'Failed', $g->status === 'sent' ? 'green' : 'red') !!}
             @if($g->error)<span class="ix-sub is-danger" title="{{ $g->error }}">{{ \Illuminate\Support\Str::limit($g->error, 46) }}</span>@endif
           </td>
         </tr>
@@ -116,7 +116,7 @@
             </div>
           </td>
           <td class="ix-c-status">
-            <span class="ix-state {{ $g->status === 'sent' ? 'is-green' : 'is-red' }}"><i></i>{{ $g->status === 'sent' ? 'Sent' : 'Failed' }}</span>
+            {!! status_tag($g->status === 'sent' ? 'Sent' : 'Failed', $g->status === 'sent' ? 'green' : 'red') !!}
             @if($g->error)<span class="ix-sub is-danger" title="{{ $g->error }}">{{ \Illuminate\Support\Str::limit($g->error, 46) }}</span>@endif
           </td>
         </tr>
@@ -167,7 +167,7 @@
             </div>
           </td>
           <td class="ix-c-status">
-            <span class="ix-state {{ $g->status === 'sent' ? 'is-green' : 'is-red' }}"><i></i>{{ $g->status === 'sent' ? 'Sent' : 'Failed' }}</span>
+            {!! status_tag($g->status === 'sent' ? 'Sent' : 'Failed', $g->status === 'sent' ? 'green' : 'red') !!}
             @if($g->error)<span class="ix-sub is-danger" title="{{ $g->error }}">{{ \Illuminate\Support\Str::limit($g->error, 46) }}</span>@endif
           </td>
         </tr>

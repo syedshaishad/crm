@@ -3400,6 +3400,13 @@ html:root[data-theme="dark"] .auth-side,html:root:not([data-theme="light"]) .aut
 .st-paid{--st-color:var(--st-paid);--st-ink:var(--st-paid-ink)}
 .st-overdue{--st-color:var(--st-overdue);--st-ink:var(--st-overdue-ink)}
 .st-cancelled{--st-color:var(--st-cancelled);--st-ink:var(--st-cancelled-ink)}
+/* Tone aliases for non-invoice statuses (cheques, credits, expenses, orders). */
+.st-grey{--st-color:var(--st-draft);--st-ink:var(--st-draft-ink)}
+.st-blue{--st-color:var(--st-sent);--st-ink:var(--st-sent-ink)}
+.st-amber{--st-color:var(--st-partial);--st-ink:var(--st-partial-ink)}
+.st-green{--st-color:var(--st-paid);--st-ink:var(--st-paid-ink)}
+.st-red{--st-color:var(--st-overdue);--st-ink:var(--st-overdue-ink)}
+.st-neutral{--st-color:var(--st-cancelled);--st-ink:var(--st-cancelled-ink)}
 .inv-status{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border:1px solid transparent;border-radius:999px;background:color-mix(in srgb,var(--st-color) 14%,transparent);color:var(--st-ink);font-size:11.5px;font-weight:700;line-height:1.3;letter-spacing:.01em;text-transform:none;white-space:nowrap;font-variant-numeric:tabular-nums}
 .inv-status i{width:6px;height:6px;border-radius:50%;background:var(--st-color);flex:0 0 6px}
 /* ---------------------------------------------------------------------------

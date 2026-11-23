@@ -16,7 +16,7 @@
 
 <div class="card" style="margin-top:22px"><div class="card-head"><h3>Collections by method</h3><span class="hint">{{ money($byMethod->sum('t')) }} received</span></div>
 <div class="tbl-scroll"><table class="tbl"><tr><th>Method</th><th style="text-align:right">Receipts</th><th style="text-align:right">Amount</th></tr>
-@forelse($byMethod as $r)<tr><td><span class="badge b-grey">{{ ucfirst($r->method ?? '—') }}</span></td><td class="nowrap" style="text-align:right">{{ $r->c }}</td><td class="nowrap" style="text-align:right"><b>{{ money($r->t) }}</b></td></tr>@empty<tr><td colspan="3"><div class="empty">No collections in range.</div></td></tr>@endforelse</table></div></div>
+@forelse($byMethod as $r)<tr><td><span class="ix-tag">{{ ucfirst($r->method ?? '—') }}</span></td><td class="nowrap" style="text-align:right">{{ $r->c }}</td><td class="nowrap" style="text-align:right"><b>{{ money($r->t) }}</b></td></tr>@empty<tr><td colspan="3"><div class="empty">No collections in range.</div></td></tr>@endforelse</table></div></div>
 
 <div class="cols-2">
 <div class="card"><div class="card-head"><h3>Top clients</h3></div>

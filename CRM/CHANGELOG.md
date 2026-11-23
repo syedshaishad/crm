@@ -6,7 +6,7 @@
 
 ## Unreleased
 
-7 migrations, `?v=160` CSS / `?v=12` dashboard CSS / `?v=84` JS.
+7 migrations, `?v=161` CSS / `?v=12` dashboard CSS / `?v=84` JS.
 
 - The **Money** overview was rebuilt on the same design tokens:
   - a real page header with the collected / outstanding / overdue summary and
@@ -34,6 +34,17 @@
   depending on the screen; draft and cancelled had their own mismatched
   greys. All tags are now the same pill with the same dot and wording, with
   a darker ink token for label text so light-theme contrast holds.
+- Every other accounting status now uses that same pill. `status_tag()` plus
+  tone aliases (`st-grey`, `st-blue`, `st-amber`, `st-green`, `st-red`,
+  `st-neutral`) replaced the older uppercase badges on cheque, credit-note,
+  expense and purchase-order details, and the dot-only text in their
+  registers, recurring schedules, reminders, petty-cash close and the invoice
+  reminder log. List and detail screens now agree: cheque held/deposited/
+  cleared/bounced/cancelled, credit open/applied, expense pending/approved/
+  rejected, order draft/sent/received/cancelled, schedule active/paused and
+  reminder sent/failed. Category and method labels (expense category, payment
+  method, billing frequency, GST "estimated") moved to the compact `ix-tag`
+  instead of borrowing a status colour.
 - Accounting screens passed the same UI audit: all 29 pages in the group were
   checked at desktop, tablet and phone widths in both themes. Added the missing
   page `h1` on detail and form screens (receipts, credit notes, expenses,

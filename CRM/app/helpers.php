@@ -202,11 +202,38 @@ if (! function_exists('invoice_status_color')) {
     }
 }
 
+if (! function_exists('invoice_status_tone')) {
+    // Maps the semantic invoice keys onto the shared tone palette.
+    function invoice_status_tone($status): string
+    {
+        return [
+            'draft' => 'grey',
+            'sent' => 'blue',
+            'partial' => 'amber',
+            'paid' => 'green',
+            'overdue' => 'red',
+            'cancelled' => 'neutral',
+        ][invoice_status_key($status)];
+    }
+}
+
+if (! function_exists('status_tag')) {
+    // One pill for every module's status column. Tones: grey, blue, amber,
+    // green, red, neutral.
+    function status_tag($label, string $tone = 'grey'): string
+    {
+        $tone = in_array($tone, ['grey', 'blue', 'amber', 'green', 'red', 'neutral'], true)
+            ? $tone
+            : 'grey';
+
+        return '<span class="inv-status st-'.$tone.'"><i></i>'.e($label).'</span>';
+    }
+}
+
 if (! function_exists('invoice_status_tag')) {
     function invoice_status_tag($status): string
     {
-        return '<span class="inv-status st-'.invoice_status_key($status).'"><i></i>'
-            .e(invoice_status_label($status)).'</span>';
+        return status_tag(invoice_status_label($status), invoice_status_tone($status));
     }
 }
 

@@ -1,7 +1,11 @@
 @extends('layouts.app')
 @section('title',$order->number)
 @section('content')
-<div class="page-head"><h1>{{ $order->number }}</h1><div class="crumb">{{ $order->vendor }} · {{ ucfirst($order->status) }}</div></div>
+@php
+  $statusTone = ['draft' => 'grey', 'sent' => 'blue', 'received' => 'green', 'cancelled' => 'red'][$order->status] ?? 'grey';
+  $statusLabel = \Modules\Purchases\PurchaseOrder::statuses()[$order->status] ?? ucfirst($order->status);
+@endphp
+<div class="page-head"><h1>{{ $order->number }}</h1><div class="crumb">{{ $order->vendor }} · {!! status_tag($statusLabel, $statusTone) !!}</div></div>
 <div class="noprint" style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
   @if($order->status==='draft')<a class="btn sm sec" href="{{ route('purchase-orders.edit',$order) }}">Edit</a>
   <form method="POST" action="{{ route('purchase-orders.send',$order) }}" data-ajax-post data-refresh="page" style="display:inline">@csrf<button class="btn sm">Mark sent</button></form>@endif

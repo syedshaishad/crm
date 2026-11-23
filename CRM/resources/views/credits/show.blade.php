@@ -4,7 +4,7 @@
 <div class="inv-hero noprint">
   <div><h1 class="inv-num">{{ $note->number }}</h1>
     <div class="inv-chips">
-      <span class="badge {{ $note->status==='applied' ? 'b-green' : 'b-amber' }}">{{ $note->status }}</span>
+      {!! status_tag(ucfirst($note->status), $note->status === 'applied' ? 'green' : 'amber') !!}
       <span class="chip">Client: <a href="{{ route('clients.show',$note->client) }}">{{ $note->client->company ?? $note->client->name }}</a></span>
       @if($note->invoice)<span class="chip">Linked: <a href="{{ route('invoices.show',$note->invoice) }}">{{ $note->invoice->number }}</a></span>@endif
     </div></div>

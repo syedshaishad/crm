@@ -6,7 +6,7 @@
   $hasFilters = ($q ?? '') !== '' || ($category ?? '') !== '' || (string) ($project_id ?? '') !== '' || $statusVal !== '';
   $statusUrl = fn ($s) => route('expenses.index', array_merge(request()->except(['page', 'status']), $s ? ['status' => $s] : []));
   $labels = ['pending' => 'Pending', 'approved' => 'Approved', 'rejected' => 'Rejected'];
-  $stateClasses = ['pending' => 'is-amber', 'approved' => 'is-green', 'rejected' => 'is-red'];
+  $stateTones = ['pending' => 'amber', 'approved' => 'green', 'rejected' => 'red'];
   $canApprove = auth()->user()->isAdmin() || auth()->user()->isManager();
 @endphp
 <div class="page-head ix-head">
@@ -102,7 +102,7 @@
             </div>
           </td>
           <td class="ix-c-category"><span class="ix-tag">{{ $e->category ?: 'general' }}</span></td>
-          <td class="ix-c-status"><span class="ix-state {{ $stateClasses[$st] ?? 'is-grey' }}"><i></i>{{ $labels[$st] ?? ucfirst($st) }}</span></td>
+          <td class="ix-c-status">{!! status_tag($labels[$st] ?? ucfirst($st), $stateTones[$st] ?? 'grey') !!}</td>
           <td class="ix-c-value"><span class="ix-money">{{ money($e->amount) }}</span></td>
           <td class="ix-c-actions">
             <div class="ix-actions">

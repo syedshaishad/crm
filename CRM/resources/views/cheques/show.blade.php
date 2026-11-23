@@ -1,7 +1,11 @@
 @extends('layouts.app')
 @section('title',$cheque->number)
 @section('content')
-<div class="page-head"><h1>{{ $cheque->number }}</h1><div class="crumb">{{ $cheque->cheque_no }} · {{ money($cheque->amount) }} · <span class="badge {{ $cheque->status==='cleared' ? 'b-green' : ($cheque->status==='bounced' ? 'b-red' : ($cheque->status==='cancelled' ? 'b-grey' : 'b-amber')) }}">{{ \Modules\Cheques\PdcCheque::statuses()[$cheque->status] ?? $cheque->status }}</span>@if($cheque->isDue()) · <b>ready to deposit</b>@endif</div></div>
+@php
+  $statusTone = ['held' => 'amber', 'deposited' => 'blue', 'cleared' => 'green', 'bounced' => 'red', 'cancelled' => 'neutral'][$cheque->status] ?? 'grey';
+  $statusLabel = \Modules\Cheques\PdcCheque::statuses()[$cheque->status] ?? ucfirst($cheque->status);
+@endphp
+<div class="page-head"><h1>{{ $cheque->number }}</h1><div class="crumb">{{ $cheque->cheque_no }} · {{ money($cheque->amount) }} · {!! status_tag($statusLabel, $statusTone) !!}@if($cheque->isDue()) · <b>ready to deposit</b>@endif</div></div>
 @if(!in_array($cheque->status,['cleared','cancelled'],true))
 <div class="noprint" style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center">
   <a class="btn sm sec" href="{{ route('cheques.edit',$cheque) }}">Edit</a>
