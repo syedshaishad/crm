@@ -6,6 +6,14 @@
 
 ## Unreleased
 
+- A rendered-style audit of every tag in the app found older classes that the
+  previous normalisation missed: `.ix-state`, `.cl-status`, `.task-tag`,
+  `.ld-stage`, `.kb-kind`, `.ql-sev`, `.ql-state`, `.api-method` and `.delta`
+  still had their own padding, font and tint. They now all use the same pill,
+  dot, title case and tone mix as `.inv-status` and `.badge`. Task status/
+  priority and lead stage cells were moved to `status_tag()` so they cannot
+  drift again. Filter chips remain interactive but share the tag typography.
+
 - The primitives themselves are now unified, not just the page shells. A
   final token layer gives every button family (`.btn`, `.icon-btn`, `.ix-act`,
   `.cl-act`, pagination, tabs, pills and the upload label) the same box,
@@ -60,7 +68,7 @@
     desktop and phone widths in both themes with one `h1`, no duplicate ids,
     no page-level overflow and no console errors.
 
-7 migrations, `?v=163` CSS / `?v=12` dashboard CSS / `?v=84` JS.
+7 migrations, `?v=164` CSS / `?v=12` dashboard CSS / `?v=84` JS.
 
 - The **Money** overview was rebuilt on the same design tokens:
   - a real page header with the collected / outstanding / overdue summary and

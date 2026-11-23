@@ -18,6 +18,8 @@
   $sLabels = ['todo'=>'To do','in_progress'=>'Doing','review'=>'Review','done'=>'Done'];
   $pColors = ['low'=>'var(--dc-faint)','medium'=>'var(--dc-blue)','high'=>'var(--dc-amber)','urgent'=>'var(--dc-red)'];
   $pLabels = ['low'=>'Low','medium'=>'Medium','high'=>'High','urgent'=>'Urgent'];
+  $sTones = ['todo'=>'grey','in_progress'=>'blue','review'=>'amber','done'=>'green'];
+  $pTones = ['low'=>'grey','medium'=>'blue','high'=>'amber','urgent'=>'red'];
 @endphp
 <div class="status-summary" aria-label="Tasks by status">
 @foreach($sLabels as $fs=>$fl)
@@ -81,8 +83,8 @@
 <td><a href="{{ route('tasks.edit',$t) }}">{{ $t->title }}</a></td>
 <td>@if($t->project)<a href="{{ route('projects.show',$t->project) }}">{{ $t->project->name }}</a>@if($t->project->client)<div class="hint">{{ $t->project->client->company ?: $t->project->client->name }}</div>@endif @else <span class="hint">—</span>@endif</td>
 <td>@if($t->assignee)<span class="who"><span class="av sm">{{ strtoupper(substr($t->assignee->name,0,1)) }}</span>{{ $t->assignee->name }}</span>@else <span class="hint">—</span>@endif</td>
-<td><span class="task-tag"><i style="background:{{ $sColors[$t->status] ?? 'var(--dc-faint)' }}"></i>{{ $sLabels[$t->status] ?? ucfirst(str_replace('_',' ',$t->status)) }}</span></td>
-<td><span class="task-tag {{ $pri === 'urgent' ? 'is-urgent' : '' }}"><i style="background:{{ $pColors[$pri] ?? 'var(--dc-faint)' }}"></i>{{ $pLabels[$pri] ?? ucfirst($pri) }}</span></td>
+<td>{!! status_tag($sLabels[$t->status] ?? ucfirst(str_replace('_', ' ', $t->status)), $sTones[$t->status] ?? 'grey') !!}</td>
+<td>{!! status_tag($pLabels[$pri] ?? ucfirst($pri), $pTones[$pri] ?? 'grey') !!}</td>
 <td class="nowrap"><div>{{ d($t->due_date, 'j M Y') }}</div>@if($tOver)<div class="task-overdue"><i></i>Overdue</div>@endif</td>
 <td><div class="row-actions"><a class="icon-btn" href="{{ route('tasks.edit',$t) }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>Edit</a>
 <form method="POST" action="{{ route('tasks.destroy',$t) }}" style="display:inline" data-confirm="Delete task?">@csrf @method('DELETE')<button class="icon-btn danger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg>Delete</button></form></div></td></tr>

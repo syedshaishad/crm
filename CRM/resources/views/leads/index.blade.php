@@ -5,6 +5,7 @@
   $stageLabels = \Modules\Leads\Lead::stages();
   $stageOrder = array_keys($stageLabels);
   $stageColors = ['new'=>'var(--dc-muted)','contacted'=>'var(--dc-blue)','qualified'=>'var(--dc-amber)','proposal'=>'#8b5cf6','won'=>'var(--dc-green)','lost'=>'var(--dc-red)'];
+$stageTones = ['new'=>'grey','contacted'=>'blue','qualified'=>'amber','proposal'=>'blue','won'=>'green','lost'=>'red'];
   $fTotal = max(1, $funnel->sum());
   $sourceLabels = ['website'=>'Website','indiamart'=>'IndiaMART','justdial'=>'JustDial','google'=>'Google','referral'=>'Referral','walkin'=>'Walk-in','instagram'=>'Instagram','facebook'=>'Facebook','whatsapp'=>'WhatsApp','coldcall'=>'Cold call','other'=>'Other'];
   $srcLabel = function ($s) use ($sourceLabels) { return $sourceLabels[strtolower((string) $s)] ?? ucwords(str_replace(['_','-'], ' ', (string) $s)); };
@@ -253,7 +254,7 @@
                   @endif
                 </td>
                 <td class="ld-c-stage">
-                  <span class="ld-stage"><i style="background:{{ $stageColors[$l->stage] ?? 'var(--dc-muted)' }}"></i>{{ $stageLabels[$l->stage] ?? $l->stage }}</span>
+                  {!! status_tag($stageLabels[$l->stage] ?? ucfirst($l->stage), $stageTones[$l->stage] ?? 'grey') !!}
                   @if(! $closed)
                     <span class="ld-stage-note">
                       <span title="Nurture score: stage, deal size and silence">★ {{ $l->score() }}</span>
