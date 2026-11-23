@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('title','Compare '.$proposal->number)
 @section('content')
-<x-page-header title="Compare" :crumb="$proposal->number.' vs '.($other ? $other->number : '…')" icon='<path d="M12 3v18M5 8l-3 4 3 4M19 8l3 4-3 4"/>' back="route('proposals.index')">
+<x-page-header title="Compare" :crumb="$proposal->number.' vs '.($other ? $other->number : '…')" icon='<path d="M12 3v18M5 8l-3 4 3 4M19 8l3 4-3 4"/>' :back="route('proposals.index')">
   
 </x-page-header>
 <div class="card noprint"><form method="GET" action="{{ route('proposals.compare',$proposal) }}" style="display:flex;gap:8px;flex-wrap:wrap;align-items:end">

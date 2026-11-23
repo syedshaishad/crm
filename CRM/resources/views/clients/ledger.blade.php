@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('title','Ledger — '.$client->name)
 @section('content')
-<x-page-header title="Ledger" :crumb="$client->company ?: $client->name" icon='<path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h7M9 17h7"/>' back="route('clients.show',$client)">
+<x-page-header title="Ledger" :crumb="$client->company ?: $client->name" icon='<path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h7M9 17h7"/>' :back="route('clients.show',$client)">
   
 </x-page-header>
 <div class="noprint" style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">

@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('title',$challan->number)
 @section('content')
-<x-page-header :title="$challan->number" :crumb="($challan->client->company ?? $challan->client->name ?? '').' · '.ucfirst($challan->status)" icon='<path d="M1 8h13v8H1z"/><path d="M14 11h4l3 3v2h-7z"/><circle cx="6" cy="18" r="1.8"/><circle cx="17" cy="18" r="1.8"/>' back="route('challans.index')">
+<x-page-header :title="$challan->number" :crumb="($challan->client->company ?? $challan->client->name ?? '').' · '.ucfirst($challan->status)" icon='<path d="M1 8h13v8H1z"/><path d="M14 11h4l3 3v2h-7z"/><circle cx="6" cy="18" r="1.8"/><circle cx="17" cy="18" r="1.8"/>' :back="route('challans.index')">
   
 </x-page-header>
 <div class="noprint" style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">

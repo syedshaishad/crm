@@ -5,7 +5,7 @@
   $statusTone = ['held' => 'amber', 'deposited' => 'blue', 'cleared' => 'green', 'bounced' => 'red', 'cancelled' => 'neutral'][$cheque->status] ?? 'grey';
   $statusLabel = \Modules\Cheques\PdcCheque::statuses()[$cheque->status] ?? ucfirst($cheque->status);
 @endphp
-<x-page-header :title="$cheque->number" :crumb="$cheque->cheque_no.' · '.money($cheque->amount)" icon='<rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h4"/>' back="route('cheques.index')">
+<x-page-header :title="$cheque->number" :crumb="$cheque->cheque_no.' · '.money($cheque->amount)" icon='<rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h4"/>' :back="route('cheques.index')">
   {!! status_tag($statusLabel, $statusTone) !!}
 </x-page-header>
 @if(!in_array($cheque->status,['cleared','cancelled'],true))

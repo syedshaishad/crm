@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('title',$contract->number)
 @section('content')
-<x-page-header :title="$contract->number" :crumb="$contract->title.' · '.strtoupper($contract->type)" icon='<path d="M12 22s8-3.5 8-10V5l-8-3-8 3v7c0 6.5 8 10 8 10z"/><path d="m9 11.5 2 2 4-4.5"/>' back="route('amc.index')">
+<x-page-header :title="$contract->number" :crumb="$contract->title.' · '.strtoupper($contract->type)" icon='<path d="M12 22s8-3.5 8-10V5l-8-3-8 3v7c0 6.5 8 10 8 10z"/><path d="m9 11.5 2 2 4-4.5"/>' :back="route('amc.index')">
   
 </x-page-header>
 <div class="noprint" style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">

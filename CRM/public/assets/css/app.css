@@ -3692,6 +3692,7 @@ html:root[data-theme="dark"] .auth-side,html:root:not([data-theme="light"]) .aut
 .inv-status.st-grey,.badge.b-grey,.ix-state.is-grey,.cl-status.is-inactive,.delta.flat{background:color-mix(in srgb,var(--dc-ink) 8%,transparent)!important;color:var(--dc-muted)!important}
 .inv-status.st-neutral{background:color-mix(in srgb,var(--dc-pale) 22%,transparent)!important;color:var(--dc-ink2)!important}
 .api-method.is-write{background:var(--dc-accent-soft)!important;color:var(--dc-accent)!important}
+.chip.overdue{background:color-mix(in srgb,var(--dc-red) 14%,transparent)!important;color:var(--dc-red)!important}
 
 /* Filter chips stay interactive but share the tag typography. */
 .ix-chip,.cl-status-chip,.ld-stage-chip{

@@ -6,6 +6,11 @@
 
 ## Unreleased
 
+- Testing/code-review fixes: the "Back" links on nine detail pages were being
+  rendered as literal `route(...)` text because the component prop was passed
+  as a plain attribute; they are now bound with `:back`. The overdue chip's
+  red tint was restored after the neutral tag base started overriding it.
+
 - A rendered-style audit of every tag in the app found older classes that the
   previous normalisation missed: `.ix-state`, `.cl-status`, `.task-tag`,
   `.ld-stage`, `.kb-kind`, `.ql-sev`, `.ql-state`, `.api-method` and `.delta`
@@ -68,7 +73,7 @@
     desktop and phone widths in both themes with one `h1`, no duplicate ids,
     no page-level overflow and no console errors.
 
-7 migrations, `?v=164` CSS / `?v=12` dashboard CSS / `?v=84` JS.
+7 migrations, `?v=165` CSS / `?v=12` dashboard CSS / `?v=84` JS.
 
 - The **Money** overview was rebuilt on the same design tokens:
   - a real page header with the collected / outstanding / overdue summary and

@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('title',$doc->number)
 @section('content')
-<x-page-header :title="$doc->number" :crumb="$doc->title.' · '.(\Modules\Expiry\ExpiryDocument::categories()[$doc->category] ?? $doc->category)" icon='<rect x="4" y="4" width="16" height="16" rx="2"/><path d="m8.5 12.5 2.5 2.5 5-5.5"/>' back="route('expiry.index')">
+<x-page-header :title="$doc->number" :crumb="$doc->title.' · '.(\Modules\Expiry\ExpiryDocument::categories()[$doc->category] ?? $doc->category)" icon='<rect x="4" y="4" width="16" height="16" rx="2"/><path d="m8.5 12.5 2.5 2.5 5-5.5"/>' :back="route('expiry.index')">
   
 </x-page-header>
 <div class="noprint" style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">

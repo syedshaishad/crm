@@ -5,7 +5,7 @@
   $statusTone = ['draft' => 'grey', 'sent' => 'blue', 'received' => 'green', 'cancelled' => 'red'][$order->status] ?? 'grey';
   $statusLabel = \Modules\Purchases\PurchaseOrder::statuses()[$order->status] ?? ucfirst($order->status);
 @endphp
-<x-page-header :title="$order->number" :crumb="$order->vendor" icon='<path d="M3 4h2l2.4 11h10.4l2-8H7"/><circle cx="9" cy="20" r="1.6"/><circle cx="17" cy="20" r="1.6"/>' back="route('purchase-orders.index')">
+<x-page-header :title="$order->number" :crumb="$order->vendor" icon='<path d="M3 4h2l2.4 11h10.4l2-8H7"/><circle cx="9" cy="20" r="1.6"/><circle cx="17" cy="20" r="1.6"/>' :back="route('purchase-orders.index')">
   {!! status_tag($statusLabel, $statusTone) !!}
 </x-page-header>
 <div class="noprint" style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">

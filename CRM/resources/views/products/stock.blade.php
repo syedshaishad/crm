@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('title','Stock — '.$product->name)
 @section('content')
-<x-page-header title="Stock" :crumb="$product->name.($product->sku ? ' · '.$product->sku : '')" icon='<path d="M21 8 12 3 3 8v8l9 5 9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/>' back="route('products.index')">
+<x-page-header title="Stock" :crumb="$product->name.($product->sku ? ' · '.$product->sku : '')" icon='<path d="M21 8 12 3 3 8v8l9 5 9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/>' :back="route('products.index')">
   
 </x-page-header>
 
