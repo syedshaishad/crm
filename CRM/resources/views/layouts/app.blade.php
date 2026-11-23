@@ -6,7 +6,7 @@
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <title>@yield('title', 'Dashboard') — {{ $brand['company_name'] ?? $brand['app_name'] ?? config('app.name') }}</title>
 @if(!empty($brand['favicon_path']))<link rel="icon" href="{{ asset('storage/'.$brand['favicon_path']) }}">@else<link rel="icon" href="{{ asset('favicon.ico') }}">@endif
-<link rel="stylesheet" href="{{ asset('assets/css/app.css').'?v=165' }}">
+<link rel="stylesheet" href="{{ asset('assets/css/app.css').'?v=168' }}">
 @include('brand.theme')
 @yield('head')
 </head>
@@ -324,6 +324,6 @@ window.CRM_VIEWS = {
   token: @json(csrf_token())
 };
 </script>
-<script src="{{ asset('assets/js/app.js').'?v=84' }}"></script>
+<script src="{{ asset('assets/js/app.js').'?v=86' }}"></script>
 </body>
 </html>

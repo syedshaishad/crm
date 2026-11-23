@@ -6,6 +6,21 @@
 
 ## Unreleased
 
+- Follow-up on the UI debt:
+  - removed the three stacked override layers (old button system, primitive
+    unification, tag normalisation) and the legacy badge/chip/tag skins beneath
+    them. A single canonical controls/tags block at the end of `app.css` now
+    owns the design without `!important` (209 → 118 `!important` declarations
+    overall, mostly print and older theme rules);
+  - tag dots are now real `::before` pseudo-elements driven by tone variables,
+    so no `:has()` support is needed;
+  - wide data tables are labelled automatically from their headers and render
+    as stacked cards at ≤640px. Module tables with their own mobile layouts
+    (registers, leads, money, documents) are skipped;
+  - added a PHPUnit suite (`phpunit.xml`, `tests/Unit`, `tests/Feature`) with
+    8 tests / 48 assertions covering status helpers and rendered pages, plus
+    `mockery/mockery` as a dev dependency for Laravel's database test traits.
+
 - Testing/code-review fixes: the "Back" links on nine detail pages were being
   rendered as literal `route(...)` text because the component prop was passed
   as a plain attribute; they are now bound with `:back`. The overdue chip's
@@ -73,7 +88,7 @@
     desktop and phone widths in both themes with one `h1`, no duplicate ids,
     no page-level overflow and no console errors.
 
-7 migrations, `?v=165` CSS / `?v=12` dashboard CSS / `?v=84` JS.
+7 migrations, `?v=168` CSS / `?v=12` dashboard CSS / `?v=86` JS.
 
 - The **Money** overview was rebuilt on the same design tokens:
   - a real page header with the collected / outstanding / overdue summary and

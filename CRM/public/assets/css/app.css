@@ -197,12 +197,6 @@ input.in::placeholder,textarea.in::placeholder{color:#b3ac97}
 .hint{font-size:12px;color:var(--muted)}
 .fhint{font-size:12px;color:var(--muted);margin:-8px 0 12px}
 .fsec{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:18px 0 10px;font-weight:700}
-.badge{display:inline-flex;align-items:center;padding:4px 13px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap}
-.b-green{background:var(--ok-bg);color:var(--ok)}
-.b-amber{background:var(--warn-bg);color:var(--warn)}
-.b-red{background:var(--bad-bg);color:var(--bad)}
-.b-blue{background:var(--info-bg);color:var(--info)}
-.b-grey{background:var(--surface-2);color:var(--muted)}
 .alert{background:var(--ok-bg);border:1px solid #a9e4c5;color:#0b5c40;padding:12px 18px;border-radius:14px;margin-bottom:14px}
 .err{background:var(--bad-bg);border:1px solid #f5b8b1;color:#7a2018;padding:12px 18px;border-radius:14px;margin-bottom:14px}
 .err ul{margin:6px 0 0;padding-left:18px}
@@ -294,8 +288,6 @@ details.adv summary:hover{color:var(--ink)}
 .inv-hero{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px}
 .inv-num{font-size:clamp(26px,3.4vw,36px);font-weight:800;letter-spacing:-.02em;margin:6px 0 8px;font-family:"Plus Jakarta Sans","Inter",system-ui,sans-serif}
 .inv-chips{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.chip{display:inline-flex;align-items:center;gap:6px;padding:6px 15px;border-radius:999px;font-size:12.5px;font-weight:600;background:var(--surface-2);color:#6b6555}
-.chip.overdue{background:var(--bad-bg);color:var(--bad)}
 .doc-head{display:flex;justify-content:space-between;gap:18px;align-items:flex-start}
 .doc-brand{display:flex;flex-direction:column;gap:10px;align-items:flex-start;text-align:left}
 .doc-brand h2{margin:0;font-size:24px;letter-spacing:-.01em;font-family:"Plus Jakarta Sans","Inter",system-ui,sans-serif}
@@ -1073,12 +1065,6 @@ html[data-theme="dark"]{
 .tbl th{border-bottom:3px double var(--line)}
 .tbl tbody tr:hover{background:color-mix(in srgb,var(--primary) 6%,var(--surface-2))}
 /* stamp badges */
-.badge{text-transform:uppercase;letter-spacing:.06em;font-size:11px;border:1px solid currentColor}
-.b-green{background:color-mix(in srgb,var(--ok) 10%,transparent);color:var(--ok)}
-.b-amber{background:color-mix(in srgb,var(--warn) 12%,transparent);color:var(--warn)}
-.b-red{background:color-mix(in srgb,var(--bad) 10%,transparent);color:var(--bad)}
-.b-blue{background:color-mix(in srgb,var(--info) 10%,transparent);color:var(--info)}
-.b-grey{background:transparent;color:var(--muted)}
 /* brand spine on the hero */
 .hero{border-left:4px solid var(--primary)}
 .card-head .has-drop .drop{left:auto;right:0}
@@ -1223,8 +1209,6 @@ html:root[data-theme="dark"] .tbl td,html:root:not([data-theme="light"]) .tbl td
 .tbl tbody tr:hover{background:rgba(255,255,255,.34)}
 html:root[data-theme="dark"] .tbl tbody tr:hover,html:root:not([data-theme="light"]) .tbl tbody tr:hover{background:rgba(255,255,255,.07)}
 /* ---------- badges, deltas, chips ---------- */
-.badge,.delta,.b-red,.b-blue,.b-grey{border-radius:999px}
-.badge{font-weight:700;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
 .pills{gap:8px}
 .pills label{
   border-radius:999px;background:rgba(255,255,255,.44);border:1px solid rgba(255,255,255,.5);
@@ -1534,17 +1518,9 @@ a.btn:hover,.pg:hover,.fm-folder:hover,.icon-btn:hover{box-shadow:none}
 .toasts .toast{background:var(--dc-panel);border:1px solid var(--dc-line);box-shadow:var(--dc-shadow-lg);backdrop-filter:none;-webkit-backdrop-filter:none;color:var(--dc-ink)}
 .toasts .alert,.toasts .err{box-shadow:var(--dc-shadow-lg)}
 /* ---------- badges, deltas, pills, tags: flat tints ---------- */
-.badge{text-transform:uppercase;letter-spacing:.06em;font-size:11px}
-.b-green{background:color-mix(in srgb,var(--dc-green) 13%,transparent);color:var(--dc-green)}
-.b-amber{background:color-mix(in srgb,var(--dc-amber) 16%,transparent);color:var(--dc-amber-ink)}
-.b-red{background:color-mix(in srgb,var(--dc-red) 12%,transparent);color:var(--dc-red)}
-.b-blue{background:color-mix(in srgb,var(--dc-blue) 12%,transparent);color:var(--dc-blue)}
-.b-grey{background:color-mix(in srgb,var(--dc-ink) 7%,transparent);color:var(--dc-muted)}
 .delta.up{color:var(--dc-green);background:color-mix(in srgb,var(--dc-green) 13%,transparent)}
 .delta.down{color:var(--dc-red);background:color-mix(in srgb,var(--dc-red) 12%,transparent)}
 .delta.flat{color:var(--dc-muted);background:color-mix(in srgb,var(--dc-ink) 7%,transparent)}
-.chip{background:color-mix(in srgb,var(--dc-ink) 7%,transparent);color:var(--dc-ink2)}
-.chip.overdue{background:color-mix(in srgb,var(--dc-red) 12%,transparent);color:var(--dc-red)}
 .seg{background:var(--dc-panel);border:1px solid var(--dc-line);box-shadow:none}
 .seg a{color:var(--dc-ink2)}
 .seg a:hover{color:var(--dc-ink)}
@@ -1663,68 +1639,6 @@ html:root[data-theme="dark"] .auth-card,html:root:not([data-theme="light"]) .aut
 html:root[data-theme="dark"] .auth-side,html:root:not([data-theme="light"]) .auth-side{background:var(--dc-dark)}
 /* installer / licensing */
 .inst{background:transparent}
-.steps span{background:color-mix(in srgb,var(--dc-ink) 9%,transparent)}
-.steps span.done{background:var(--dc-accent)}
-/* ============================================================================
-   BUTTON SYSTEM — one canonical button for the whole app.
-   Appended last and !important, so no legacy layer (cream pills, glass
-   capsules, dark-theme inversions) can reintroduce drift. Every variant
-   shares the same box: a 1px border is always present, so a primary and a
-   secondary button are exactly the same height.
-   ============================================================================ */
-.btn,.icon-btn,.icon-pill,.pg,.pg-num,.subtabs a{
-  display:inline-flex;align-items:center;justify-content:center;gap:8px;vertical-align:middle;
-  flex:0 0 auto;
-  padding:10px 18px!important;
-  border:1px solid transparent!important;
-  border-radius:12px!important;
-  font-family:'Onest',system-ui,-apple-system,'Segoe UI',sans-serif!important;
-  font-size:14px!important;font-weight:600!important;line-height:1.25!important;letter-spacing:0!important;
-  text-align:center!important;white-space:nowrap!important;
-  cursor:pointer!important;text-decoration:none!important;
-  box-shadow:none!important;transform:none!important;
-  backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
-  transition:background-color .15s ease,border-color .15s ease,color .15s ease,filter .15s ease!important;
-}
-/* primary */
-.btn{background:var(--dc-ink)!important;background-color:var(--dc-ink)!important;color:var(--dc-panel)!important;border-color:transparent!important}
-.btn:hover{background:var(--dc-ink)!important;background-color:var(--dc-ink)!important;color:var(--dc-panel)!important;filter:brightness(1.12)!important}
-/* secondary */
-.btn.sec{background:var(--dc-panel)!important;background-color:var(--dc-panel)!important;color:var(--dc-ink)!important;border-color:var(--dc-line)!important}
-.btn.sec:hover{background:color-mix(in srgb,var(--dc-ink) 6%,var(--dc-panel))!important;background-color:color-mix(in srgb,var(--dc-ink) 6%,var(--dc-panel))!important;color:var(--dc-ink)!important;border-color:var(--dc-line)!important;filter:none!important}
-/* brand */
-.btn.brand{background:var(--dc-accent)!important;background-color:var(--dc-accent)!important;color:#fff!important;border-color:transparent!important}
-.btn.brand:hover{background:var(--dc-accent)!important;background-color:var(--dc-accent)!important;color:#fff!important;filter:brightness(1.08)!important}
-/* danger */
-.btn.danger{background:var(--dc-red)!important;background-color:var(--dc-red)!important;color:#fff!important;border-color:transparent!important}
-.btn.danger:hover{background:var(--dc-red)!important;background-color:var(--dc-red)!important;color:#fff!important;filter:brightness(1.08)!important}
-.btn.sec.danger{background:var(--dc-panel)!important;background-color:var(--dc-panel)!important;color:var(--dc-red)!important;border-color:color-mix(in srgb,var(--dc-red) 45%,transparent)!important}
-.btn.sec.danger:hover{background:color-mix(in srgb,var(--dc-red) 10%,var(--dc-panel))!important;background-color:color-mix(in srgb,var(--dc-red) 10%,var(--dc-panel))!important;color:var(--dc-red)!important}
-/* secondary-look controls: icon buttons, ghost, quick-create, pagination, tabs */
-.icon-btn,.icon-pill,.pg,.pg-num,.subtabs a{
-  background:var(--dc-panel)!important;background-color:var(--dc-panel)!important;color:var(--dc-ink2)!important;border-color:var(--dc-line)!important;
-}
-.icon-btn:hover,.icon-pill:hover,.pg:hover,.pg-num:hover,.subtabs a:hover{
-  background:color-mix(in srgb,var(--dc-ink) 6%,var(--dc-panel))!important;background-color:color-mix(in srgb,var(--dc-ink) 6%,var(--dc-panel))!important;color:var(--dc-ink)!important;border-color:var(--dc-line)!important;
-}
-/* selected chips */
-.subtabs a.active,.pg-num.cur,.seg a.on,.pills input:checked + span{
-  background:var(--dc-ink)!important;background-color:var(--dc-ink)!important;color:var(--dc-panel)!important;border-color:var(--dc-ink)!important;
-}
-/* danger icon buttons */
-.icon-btn.danger{color:var(--dc-red)!important;border-color:color-mix(in srgb,var(--dc-red) 45%,transparent)!important}
-.icon-btn.danger:hover{background:color-mix(in srgb,var(--dc-red) 10%,var(--dc-panel))!important;background-color:color-mix(in srgb,var(--dc-red) 10%,var(--dc-panel))!important;color:var(--dc-red)!important}
-/* compact size for toolbars, table rows, pagination and tabs */
-.btn.sm,.icon-btn,.icon-pill,.pg,.subtabs a{
-  padding:8px 13px!important;font-size:13px!important;border-radius:10px!important;
-}
-.pg-num{padding:7px 0!important;min-width:34px!important;text-align:center!important}
-/* disabled */
-.btn[disabled],.btn.disabled,.pg.disabled,.icon-btn[disabled],.icon-btn.disabled{opacity:.45!important;pointer-events:none!important}
-/* keep glyphs from stretching */
-.btn>svg,.icon-btn>svg,.icon-pill>svg,.pg>svg,.subtabs a>svg{flex:0 0 auto!important}
-
-@media print{.btn,.icon-btn,.icon-pill,.pg,.pg-num,.subtabs a{box-shadow:none!important}}
 .avatar,.av{overflow:hidden}
 .avatar img,.av img{width:100%;height:100%;object-fit:cover;display:block}
 .acct-id{display:flex;align-items:center;gap:10px;min-width:0}
@@ -2481,19 +2395,6 @@ html:root[data-theme="dark"] .auth-side,html:root:not([data-theme="light"]) .aut
 .ix-qty,.ix-stack-end{display:flex;flex-direction:column;align-items:flex-end;gap:1px;min-width:0}
 .ix-qty .ix-sub,.ix-stack-end .ix-sub{white-space:nowrap}
 .ix-money{font-size:12.5px;color:var(--dc-ink);white-space:nowrap;font-variant-numeric:tabular-nums}
-.ix-state{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;line-height:1.3;white-space:nowrap}
-.ix-state i{width:6px;height:6px;border-radius:50%;flex:0 0 auto}
-.ix-state.is-green{color:var(--dc-green)}
-.ix-state.is-green i{background:var(--dc-green)}
-.ix-state.is-blue{color:var(--dc-blue)}
-.ix-state.is-blue i{background:var(--dc-blue)}
-.ix-state.is-amber{color:var(--dc-amber-ink)}
-.ix-state.is-amber i{background:var(--dc-amber)}
-.ix-state.is-red{color:var(--dc-red)}
-.ix-state.is-red i{background:var(--dc-red)}
-.ix-state.is-grey{color:var(--dc-muted)}
-.ix-state.is-grey i{background:var(--dc-muted)}
-.ix-tag{display:inline-flex;align-items:center;padding:3px 7px;border-radius:6px;background:var(--dc-soft);color:var(--dc-ink2);font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap}
 .ix-vehicle{font-size:12.5px;font-weight:600;line-height:1.35;color:var(--dc-ink2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .ix-progress-head{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:4px;font-size:10.5px;line-height:1.3;color:var(--dc-faint)}
 .ix-progress-head b{font-weight:600;color:var(--dc-ink2);font-variant-numeric:tabular-nums}
@@ -3407,8 +3308,6 @@ html:root[data-theme="dark"] .auth-side,html:root:not([data-theme="light"]) .aut
 .st-green{--st-color:var(--st-paid);--st-ink:var(--st-paid-ink)}
 .st-red{--st-color:var(--st-overdue);--st-ink:var(--st-overdue-ink)}
 .st-neutral{--st-color:var(--st-cancelled);--st-ink:var(--st-cancelled-ink)}
-.inv-status{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border:1px solid transparent;border-radius:999px;background:color-mix(in srgb,var(--st-color) 14%,transparent);color:var(--st-ink);font-size:11.5px;font-weight:700;line-height:1.3;letter-spacing:.01em;text-transform:none;white-space:nowrap;font-variant-numeric:tabular-nums}
-.inv-status i{width:6px;height:6px;border-radius:50%;background:var(--st-color);flex:0 0 6px}
 /* ---------------------------------------------------------------------------
    Money overview
    Semantic tokens only: the charts and legends read correctly in both themes.
@@ -3565,20 +3464,6 @@ html:root[data-theme="dark"] .auth-side,html:root:not([data-theme="light"]) .aut
 .ix-card .tbl tr:last-child td{border-bottom:0}
 .ix-card .tbl .hint{font-size:11.5px;line-height:1.35}
 
-/* Old upper-case badges become the register status pill inside a register card. */
-.ix-card .badge.b-green,.ix-card .badge.b-blue,.ix-card .badge.b-amber,.ix-card .badge.b-red{
-  display:inline-flex;align-items:center;gap:6px;padding:3px 9px;border:0;border-radius:999px;
-  font-size:11.5px;font-weight:700;line-height:1.35;letter-spacing:.01em;text-transform:none;
-  backdrop-filter:none;-webkit-backdrop-filter:none;
-}
-.ix-card .badge.b-green::before,.ix-card .badge.b-blue::before,.ix-card .badge.b-amber::before,.ix-card .badge.b-red::before{
-  content:"";width:6px;height:6px;flex:0 0 6px;border-radius:50%;background:currentColor;
-}
-.ix-card .badge.b-green{background:color-mix(in srgb,var(--dc-green) 14%,transparent);color:var(--dc-green)}
-.ix-card .badge.b-blue{background:color-mix(in srgb,var(--dc-blue) 14%,transparent);color:var(--dc-blue)}
-.ix-card .badge.b-amber{background:color-mix(in srgb,var(--dc-amber) 16%,transparent);color:var(--dc-amber-ink)}
-.ix-card .badge.b-red{background:color-mix(in srgb,var(--dc-red) 13%,transparent);color:var(--dc-red)}
-.ix-card .badge.b-grey{display:inline-flex;align-items:center;padding:3px 7px;border:0;border-radius:6px;background:var(--dc-soft);color:var(--dc-ink2);font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;backdrop-filter:none;-webkit-backdrop-filter:none}
 
 /* Filters inside a register read as one row on desktop and stack on phones. */
 .ix-card .rp-filter{display:flex;align-items:flex-end;gap:8px;flex-wrap:wrap;margin:0 0 12px}
@@ -3590,115 +3475,109 @@ html:root[data-theme="dark"] .auth-side,html:root:not([data-theme="light"]) .aut
   .ix-card .rp-filter .btn{width:100%}
 }
 
+
 /* ============================================================================
-   PRIMITIVE UNIFICATION — buttons, tags, links and highlights.
-   The later rules win over every older module-specific skin, so a control
-   looks the same in a register, a form, a report or a detail page.
+   CONTROLS & TAGS — the single canonical layer.
+   Older module skins were removed; these rules are last in the cascade and
+   therefore win without `!important` (except where an inline style must be
+   overridden). Nothing here depends on :has().
    ============================================================================ */
-/* Every actionable control shares the same compact box. */
+:root{
+  --tag-grey:var(--dc-muted); --tag-blue:var(--dc-blue);
+  --tag-green:var(--dc-green); --tag-amber:var(--dc-amber);
+  --tag-red:var(--dc-red); --tag-accent:var(--dc-accent);
+}
+
+/* Buttons and button-like controls. */
 .btn,.icon-btn,.icon-pill,.ix-act,.cl-act,.pg,.pg-num,.subtabs a,.seg a,.pills span,.fm-upload{
-  display:inline-flex!important;align-items:center!important;justify-content:center!important;
-  gap:7px!important;vertical-align:middle!important;flex:0 0 auto!important;
-  min-height:34px!important;padding:8px 13px!important;
-  border:1px solid var(--dc-line)!important;border-radius:10px!important;
-  background:var(--dc-panel)!important;color:var(--dc-ink2)!important;
-  font-family:'Onest',system-ui,-apple-system,'Segoe UI',sans-serif!important;
-  font-size:13px!important;font-weight:600!important;line-height:1.25!important;
-  text-align:center!important;white-space:nowrap!important;text-decoration:none!important;
-  box-shadow:none!important;transform:none!important;cursor:pointer!important;
+  display:inline-flex;align-items:center;justify-content:center;gap:7px;vertical-align:middle;flex:0 0 auto;
+  min-height:34px;padding:8px 13px;border:1px solid var(--dc-line);border-radius:10px;
+  background:var(--dc-panel);color:var(--dc-ink2);
+  font-family:'Onest',system-ui,-apple-system,'Segoe UI',sans-serif;font-size:13px;font-weight:600;
+  line-height:1.25;text-align:center;white-space:nowrap;text-decoration:none;cursor:pointer;
+  box-shadow:none;transform:none;
 }
-.btn,.btn.sec,.btn.danger,.btn.brand{min-height:38px!important;padding:9px 18px!important;border-radius:12px!important}
-.btn{background:var(--dc-ink)!important;color:var(--dc-panel)!important;border-color:transparent!important}
-.btn.sec{background:var(--dc-panel)!important;color:var(--dc-ink)!important;border-color:var(--dc-line)!important}
-.btn.danger{background:var(--dc-red)!important;color:#fff!important;border-color:transparent!important}
-.btn.brand{background:var(--dc-accent)!important;color:#fff!important;border-color:transparent!important}
+.btn{min-height:38px;padding:9px 18px;border-radius:12px;border-color:transparent;background:var(--dc-ink);color:var(--dc-panel)}
+.btn.sec{background:var(--dc-panel);color:var(--dc-ink);border-color:var(--dc-line)}
+.btn.danger{background:var(--dc-red);color:#fff;border-color:transparent}
+.btn.brand{background:var(--dc-accent);color:#fff;border-color:transparent}
+.btn:hover{background:var(--dc-ink);color:var(--dc-panel);filter:brightness(1.12)}
+.btn.sec:hover{background:color-mix(in srgb,var(--dc-ink) 6%,var(--dc-panel));color:var(--dc-ink)}
+.btn.danger:hover,.btn.brand:hover{filter:brightness(1.08)}
 .icon-btn:hover,.icon-pill:hover,.ix-act:hover,.cl-act:hover,.pg:hover,.pg-num:hover,.subtabs a:hover,.seg a:hover,.pills span:hover,.fm-upload:hover{
-  background:color-mix(in srgb,var(--dc-ink) 6%,var(--dc-panel))!important;color:var(--dc-ink)!important;border-color:var(--dc-line)!important;text-decoration:none!important
+  background:color-mix(in srgb,var(--dc-ink) 6%,var(--dc-panel));color:var(--dc-ink)
 }
-.icon-btn.danger,.ix-act.is-danger,.cl-act.is-danger{color:var(--dc-red)!important;border-color:color-mix(in srgb,var(--dc-red) 40%,var(--dc-line))!important}
-.icon-btn.danger:hover,.ix-act.is-danger:hover,.cl-act.is-danger:hover{background:color-mix(in srgb,var(--dc-red) 10%,var(--dc-panel))!important;color:var(--dc-red)!important}
-.pg-num{padding:7px 0!important;min-width:34px!important}
-.btn>svg,.icon-btn>svg,.ix-act>svg,.cl-act>svg,.subtabs a>svg,.seg a>svg{flex:0 0 auto!important;width:15px!important;height:15px!important}
+.icon-btn.danger,.ix-act.is-danger,.cl-act.is-danger{color:var(--dc-red);border-color:color-mix(in srgb,var(--dc-red) 40%,var(--dc-line))}
+.icon-btn.danger:hover,.ix-act.is-danger:hover,.cl-act.is-danger:hover{background:color-mix(in srgb,var(--dc-red) 10%,var(--dc-panel));color:var(--dc-red)}
+.subtabs a.active,.pg-num.cur,.seg a.on,.pills input:checked+span,.ix-chip.on,.cl-status-chip.on,.ld-stage-chip.on{
+  background:var(--dc-ink);color:var(--dc-panel);border-color:var(--dc-ink)
+}
+.pg-num{min-width:34px;padding:7px 0}
+.btn[disabled],.btn.disabled,.pg.disabled,.icon-btn[disabled],.icon-btn.disabled{opacity:.45;pointer-events:none}
+.btn>svg,.icon-btn>svg,.ix-act>svg,.cl-act>svg,.subtabs a>svg,.seg a>svg{flex:0 0 auto;width:15px;height:15px}
 
-/* One tag shape: compact pill, same type, one dot for both status and metadata. */
-.badge,.chip,.ix-tag,.inv-status,.ix-state,.cl-status{
-  display:inline-flex!important;align-items:center!important;gap:6px!important;
-  padding:4px 10px!important;border:0!important;border-radius:999px!important;
-  font-family:'Onest',system-ui,-apple-system,'Segoe UI',sans-serif!important;
-  font-size:11.5px!important;font-weight:700!important;line-height:1.3!important;
-  letter-spacing:.01em!important;text-transform:none!important;white-space:nowrap!important;
-  backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
-}
-.badge:not(:has(i))::before,.chip:not(:has(i))::before,.ix-tag:not(:has(i))::before,.ix-state:not(:has(i))::before,.cl-status:not(:has(i))::before{
-  content:""!important;width:6px!important;height:6px!important;flex:0 0 6px!important;
-  border-radius:50%!important;background:currentColor!important;opacity:.75!important;
-}
-.inv-status i,.ix-state i,.cl-status i{width:6px!important;height:6px!important;flex:0 0 6px!important;border-radius:50%!important;background:var(--st-color,currentColor)!important}
-.chip,.ix-tag,.badge.b-grey{background:var(--dc-soft)!important;color:var(--dc-ink2)!important}
-
-/* Inline links read the same everywhere in app content. */
-.content a:not(.btn):not(.icon-btn):not(.icon-pill):not(.ix-act):not(.cl-act):not(.pg):not(.pg-num):not(.subtabs a):not(.seg a):not(.pills span):not(.ix-chip):not(.ix-status):not(.inv-status):not(.ix-name):not(.cl-client-name):not(.fm-upload){
-  color:var(--dc-accent)!important;text-decoration:none!important
-}
-.content a:not(.btn):not(.icon-btn):not(.icon-pill):not(.ix-act):not(.cl-act):not(.pg):not(.pg-num):not(.subtabs a):not(.seg a):not(.pills span):not(.ix-chip):not(.ix-status):not(.inv-status):not(.ix-name):not(.cl-client-name):not(.fm-upload):hover{
-  color:var(--dc-accent-deep)!important;text-decoration:underline!important
-}
-
-/* Active/selected states share the primary treatment. */
-.subtabs a.active,.pg-num.cur,.seg a.on,.pills input:checked+span,.ix-chip.on,.cl-status-chip.on,.ix-statuses a.on,.rp-filter .btn.on{
-  background:var(--dc-ink)!important;background-color:var(--dc-ink)!important;color:var(--dc-panel)!important;border-color:var(--dc-ink)!important
-}
-.content .tbl tbody tr:hover,.content .tbl tr:hover,.content .ix-table tbody tr:hover,.content .cl-table tbody tr:hover{
-  background:color-mix(in srgb,var(--dc-ink) 3%,transparent)!important
-}
-.content .tbl tr.hl td,.content .tbl tr.is-today td{background:var(--dc-accent-soft)!important}
-
-/* Menu entries are navigation, not inline links. */
-.content .drop a,.content .menu a{color:var(--dc-ink2)!important;text-decoration:none!important}
-.content .drop a:hover,.content .menu a:hover{color:var(--dc-ink)!important;text-decoration:none!important;background:color-mix(in srgb,var(--dc-ink) 6%,var(--dc-panel))!important}
-
-/* ---------------------------------------------------------------------------
-   ALL TAGS — final normalisation. Every status, category and metadata tag in
-   the app uses this one pill, whatever legacy class a view still carries.
-   --------------------------------------------------------------------------- */
+/* One tag pill for statuses, categories and metadata. Dots are pseudo-elements,
+   so no :has() support is needed; any old child <i> is hidden. */
 .badge,.chip,.inv-status,.ix-state,.ix-tag,.cl-status,.delta,.task-tag,.ld-stage,.kb-kind,.ql-sev,.ql-state,.mtg-count,.api-method{
-  display:inline-flex!important;align-items:center!important;gap:6px!important;
-  min-height:0!important;padding:4px 10px!important;border:0!important;border-radius:999px!important;
-  font-family:'Onest',system-ui,-apple-system,'Segoe UI',sans-serif!important;
-  font-size:11.5px!important;font-weight:700!important;line-height:1.3!important;
-  letter-spacing:.01em!important;text-transform:none!important;white-space:nowrap!important;
-  backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+  display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border:0;border-radius:999px;
+  font-family:'Onest',system-ui,-apple-system,'Segoe UI',sans-serif;font-size:11.5px;font-weight:700;
+  line-height:1.3;letter-spacing:.01em;text-transform:none;white-space:nowrap;
+  background:color-mix(in srgb,var(--dc-ink) 7%,transparent);color:var(--dc-ink2);
 }
-.badge:not(:has(i))::before,.chip:not(:has(i))::before,.ix-tag:not(:has(i))::before,
-.inv-status:not(:has(i))::before,.ix-state:not(:has(i))::before,.cl-status:not(:has(i))::before,
-.delta:not(:has(i))::before,.task-tag:not(:has(i))::before,.ld-stage:not(:has(i))::before,
-.kb-kind:not(:has(i))::before,.ql-sev:not(:has(i))::before,.ql-state:not(:has(i))::before,
-.mtg-count:not(:has(i))::before,.api-method:not(:has(i))::before{
-  content:""!important;width:6px!important;height:6px!important;flex:0 0 6px!important;
-  border-radius:50%!important;background:currentColor!important;opacity:.8!important;
+.badge::before,.chip::before,.inv-status::before,.ix-state::before,.ix-tag::before,.cl-status::before,
+.delta::before,.task-tag::before,.ld-stage::before,.kb-kind::before,.ql-sev::before,.ql-state::before,
+.mtg-count::before,.api-method::before{
+  content:"";width:6px;height:6px;flex:0 0 6px;border-radius:50%;
+  background:var(--tag-color,currentColor);opacity:.85
 }
-.badge i,.inv-status i,.ix-state i,.cl-status i,.ql-sev i,.ql-state i,.task-tag i,.ld-stage i{width:6px!important;height:6px!important;flex:0 0 6px!important;border-radius:50%!important}
+.badge i,.chip i,.inv-status i,.ix-state i,.ix-tag i,.cl-status i,.delta i,.task-tag i,.ld-stage i,.kb-kind i,.ql-sev i,.ql-state i,.api-method i{display:none}
 
-/* Neutral base first so the tone rules below win. */
-.badge,.chip,.ix-tag,.task-tag,.ld-stage,.kb-kind,.ql-sev,.ql-state,.mtg-count,.api-method{background:color-mix(in srgb,var(--dc-ink) 7%,transparent)!important;color:var(--dc-ink2)!important}
-.kb-kind{background:color-mix(in srgb,var(--kb-color,var(--dc-muted)) 14%,transparent)!important}
-.ql-sev,.ql-state{background:color-mix(in srgb,var(--ql-c,var(--dc-muted)) 14%,transparent)!important}
-
-/* Same tint and ink for the same meaning, whatever the class family. */
-.inv-status.st-green,.badge.b-green,.ix-state.is-green,.cl-status.is-active,.delta.up{background:color-mix(in srgb,var(--dc-green) 14%,transparent)!important;color:var(--dc-green)!important}
-.inv-status.st-blue,.badge.b-blue,.ix-state.is-blue{background:color-mix(in srgb,var(--dc-blue) 14%,transparent)!important;color:var(--dc-blue)!important}
-.inv-status.st-amber,.badge.b-amber,.ix-state.is-amber{background:color-mix(in srgb,var(--dc-amber) 16%,transparent)!important;color:var(--dc-amber-ink)!important}
-.inv-status.st-red,.badge.b-red,.ix-state.is-red,.delta.down{background:color-mix(in srgb,var(--dc-red) 14%,transparent)!important;color:var(--dc-red)!important}
-.inv-status.st-grey,.badge.b-grey,.ix-state.is-grey,.cl-status.is-inactive,.delta.flat{background:color-mix(in srgb,var(--dc-ink) 8%,transparent)!important;color:var(--dc-muted)!important}
-.inv-status.st-neutral{background:color-mix(in srgb,var(--dc-pale) 22%,transparent)!important;color:var(--dc-ink2)!important}
-.api-method.is-write{background:var(--dc-accent-soft)!important;color:var(--dc-accent)!important}
-.chip.overdue{background:color-mix(in srgb,var(--dc-red) 14%,transparent)!important;color:var(--dc-red)!important}
+/* Tones. */
+.inv-status.st-green,.badge.b-green,.ix-state.is-green,.cl-status.is-active,.delta.up{--tag-color:var(--tag-green);background:color-mix(in srgb,var(--dc-green) 14%,transparent);color:var(--dc-green)}
+.inv-status.st-blue,.badge.b-blue,.ix-state.is-blue{--tag-color:var(--tag-blue);background:color-mix(in srgb,var(--dc-blue) 14%,transparent);color:var(--dc-blue)}
+.inv-status.st-amber,.badge.b-amber,.ix-state.is-amber{--tag-color:var(--tag-amber);background:color-mix(in srgb,var(--dc-amber) 16%,transparent);color:var(--dc-amber-ink)}
+.inv-status.st-red,.badge.b-red,.ix-state.is-red,.delta.down{--tag-color:var(--tag-red);background:color-mix(in srgb,var(--dc-red) 14%,transparent);color:var(--dc-red)}
+.inv-status.st-grey,.badge.b-grey,.ix-state.is-grey,.cl-status.is-inactive,.delta.flat{--tag-color:var(--tag-grey);background:color-mix(in srgb,var(--dc-ink) 8%,transparent);color:var(--dc-muted)}
+.inv-status.st-neutral{--tag-color:var(--dc-pale);background:color-mix(in srgb,var(--dc-pale) 22%,transparent);color:var(--dc-ink2)}
+.chip.overdue{--tag-color:var(--tag-red);background:color-mix(in srgb,var(--dc-red) 14%,transparent);color:var(--dc-red)}
+.kb-kind{--tag-color:var(--kb-color,var(--dc-muted));background:color-mix(in srgb,var(--kb-color,var(--dc-muted)) 14%,transparent)}
+.ql-sev,.ql-state{--tag-color:var(--ql-c,var(--dc-muted));background:color-mix(in srgb,var(--ql-c,var(--dc-muted)) 14%,transparent)}
+.api-method.is-write{--tag-color:var(--tag-accent);background:var(--dc-accent-soft);color:var(--dc-accent)}
 
 /* Filter chips stay interactive but share the tag typography. */
 .ix-chip,.cl-status-chip,.ld-stage-chip{
-  display:inline-flex!important;align-items:center!important;gap:6px!important;
-  padding:4px 10px!important;border:1px solid var(--dc-line)!important;border-radius:999px!important;
-  font-size:11.5px!important;font-weight:600!important;line-height:1.3!important;text-transform:none!important;
-  background:var(--dc-panel)!important;color:var(--dc-ink2)!important;text-decoration:none!important
+  display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border:1px solid var(--dc-line);border-radius:999px;
+  background:var(--dc-panel);color:var(--dc-ink2);font-size:11.5px;font-weight:600;line-height:1.3;
+  text-decoration:none
 }
-.ix-chip.on,.cl-status-chip.on,.ld-stage-chip.on{background:var(--dc-ink)!important;color:var(--dc-panel)!important;border-color:var(--dc-ink)!important}
+.ix-chip.on,.cl-status-chip.on,.ld-stage-chip.on{background:var(--dc-ink);color:var(--dc-panel);border-color:var(--dc-ink)}
+
+/* Links and highlights inside app content. */
+.content a:not(.btn):not(.icon-btn):not(.icon-pill):not(.ix-act):not(.cl-act):not(.pg):not(.pg-num):not(.subtabs a):not(.seg a):not(.pills span):not(.ix-chip):not(.cl-status-chip):not(.ld-stage-chip):not(.ix-status):not(.inv-status):not(.ix-name):not(.cl-client-name):not(.fm-upload){color:var(--dc-accent);text-decoration:none}
+.content a:not(.btn):not(.icon-btn):not(.icon-pill):not(.ix-act):not(.cl-act):not(.pg):not(.pg-num):not(.subtabs a):not(.seg a):not(.pills span):not(.ix-chip):not(.cl-status-chip):not(.ld-stage-chip):not(.ix-status):not(.inv-status):not(.ix-name):not(.cl-client-name):not(.fm-upload):hover{color:var(--dc-accent-deep);text-decoration:underline}
+.content .drop a,.content .menu a{color:var(--dc-ink2);text-decoration:none}
+.content .drop a:hover,.content .menu a:hover{color:var(--dc-ink);text-decoration:none;background:color-mix(in srgb,var(--dc-ink) 6%,var(--dc-panel))}
+.content .tbl tbody tr:hover,.content .tbl tr:hover,.content .ix-table tbody tr:hover,.content .cl-table tbody tr:hover{background:color-mix(in srgb,var(--dc-ink) 3%,transparent)}
+.content .tbl tr.hl td,.content .tbl tr.is-today td{background:var(--dc-accent-soft)}
+
+@media print{.badge,.chip,.inv-status,.ix-state,.ix-tag,.cl-status{background:transparent;color:#000}.badge::before,.chip::before,.inv-status::before,.ix-state::before,.ix-tag::before,.cl-status::before{display:none}}
+
+/* Stacked tables on phones: labels come from the table header at runtime. */
+@media(max-width:640px){
+  .tbl-scroll > table.tbl.stackable{display:block;width:100%;min-width:0;table-layout:auto}
+  .tbl-scroll > table.tbl.stackable thead{display:none}
+  .tbl-scroll > table.tbl.stackable tbody,.tbl-scroll > table.tbl.stackable{display:block}
+  .tbl-scroll > table.tbl.stackable > tbody > tr,.tbl-scroll > table.tbl.stackable > tr{
+    display:grid;grid-template-columns:minmax(0,1fr);gap:6px;padding:11px 13px;border-bottom:1px solid var(--dc-line)
+  }
+  .tbl-scroll > table.tbl.stackable > tbody > tr:last-child,.tbl-scroll > table.tbl.stackable > tr:last-child{border-bottom:0}
+  .tbl-scroll > table.tbl.stackable td{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:0;border:0;text-align:left!important;white-space:normal!important;font-size:13px}
+  .tbl-scroll > table.tbl.stackable td::before{content:attr(data-label);flex:0 0 auto;color:var(--dc-faint);font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding-top:2px}
+  .tbl-scroll > table.tbl.stackable td:first-child::before{display:none}
+  .tbl-scroll > table.tbl.stackable td:first-child{font-size:14px;font-weight:600;color:var(--dc-ink)}
+  .tbl-scroll > table.tbl.stackable td[colspan]{display:block}
+  .tbl-scroll > table.tbl.stackable td[colspan]::before{display:none}
+  .tbl-scroll > table.tbl.stackable .row-actions,.tbl-scroll > table.tbl.stackable .btnrow{justify-content:flex-end;flex-wrap:wrap}
+  .tbl-scroll > table.tbl.stackable td>div:only-child{text-align:right}
+}
+@media print{.tbl-scroll > table.tbl.stackable{display:table}.tbl-scroll > table.tbl.stackable td{display:table-cell}}

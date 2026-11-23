@@ -1914,3 +1914,43 @@ try {
   });
   refresh();
 })();
+
+/* Stack wide data tables as labelled cards on phones. */
+(function () {
+  function labelTables() {
+    var tables = document.querySelectorAll('.tbl-scroll > table.tbl:not([data-labelled])');
+    Array.prototype.forEach.call(tables, function (table) {
+      var moduleTable = /(?:^|\s)(?:ix|cl|pc|as|ld|kb|mtg|ql|api)-table(?:\s|$)/.test(table.className);
+      if (moduleTable || table.closest('.money-grid')) {
+        table.setAttribute('data-labelled', 'skip');
+        return;
+      }
+      var rows = table.querySelectorAll('tr');
+      var head = null;
+      for (var i = 0; i < rows.length; i++) {
+        if (rows[i].querySelector('th')) { head = rows[i]; break; }
+      }
+      if (!head) { table.setAttribute('data-labelled', 'skip'); return; }
+      var labels = [];
+      Array.prototype.forEach.call(head.children, function (cell) { labels.push((cell.textContent || '').trim().replace(/\s+/g, ' ')); });
+      Array.prototype.forEach.call(table.querySelectorAll('tr'), function (row) {
+        if (row === head) return;
+        Array.prototype.forEach.call(row.children, function (cell, index) {
+          if (labels[index]) cell.setAttribute('data-label', labels[index]);
+        });
+      });
+      table.setAttribute('data-labelled', 'yes');
+      table.classList.add('stackable');
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', labelTables);
+  else labelTables();
+  if (window.MutationObserver) {
+    var pending = false;
+    new MutationObserver(function () {
+      if (pending) return;
+      pending = true;
+      window.setTimeout(function () { pending = false; labelTables(); }, 120);
+    }).observe(document.body, { childList: true, subtree: true });
+  }
+})();

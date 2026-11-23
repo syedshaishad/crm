@@ -16,6 +16,7 @@
         "fakerphp/faker": "^1.23",
         "laravel/pint": "^1.0",
         "laravel/tinker": "^3.0",
+        "mockery/mockery": "^1.6",
         "phpunit/phpunit": "^11.0"
     },
     "autoload": {
