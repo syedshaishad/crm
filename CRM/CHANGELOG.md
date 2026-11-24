@@ -6,10 +6,43 @@
 
 ## Unreleased
 
+- Database + web-server verification (MariaDB 11.4.9 / Apache 2.4.71):
+  - installed a portable MariaDB server and ran the complete migration chain
+    against an empty database; both index migrations apply cleanly and the
+    intended indexes are all present on a fresh install;
+  - checked the MySQL `DATE_FORMAT` branch against PHP-computed ground truth
+    for monthly revenue and spend, daily collections, a timestamp column
+    (proposals), tasks completed per day, MTD and overdue balances — 0
+    mismatches;
+  - seeded realistic volume (6k invoices, 14k payments, 5k expenses, 3k tasks)
+    and measured: dashboard is 41 queries / ~77 ms, with EXPLAIN showing a
+    range, index or ref access for every hot filter and no full scans. The
+    first pass's single-column `status` index actually made `GROUP BY status`
+    slower (5.0 → 9.2 ms); a second guarded migration adds composite/covering
+    indexes and drops the redundant singles, bringing that query to ~2.1 ms
+    and the whole dashboard from 117 ms to 77 ms;
+  - replaced the remaining per-month loops (deal chart, money page) with
+    grouped queries and the non-sargable `whereYear`/`whereMonth` calendar
+    filters with date ranges. All eight affected pages render byte-identically
+    before and after;
+  - installed a portable Apache + PHP-FastCGI and ran the full 131-route suite
+    through it with the same clean result. This exposed two real defects in the
+    compression rules: Apache reports `.js` as `text/javascript`, so the JS
+    bundle was being shipped uncompressed and uncached, and `mod_deflate`
+    rewrites ETags to `…-gzip`, which a browser can never match, so every
+    revalidation returned a full 200. Both are fixed (`text/javascript` added
+    to deflate/expires, `FileETag None` so `Last-Modified` drives real 304s).
+    Decoded bytes now match the files on disk and cold page weight dropped from
+    ~516 KB to ~188 KB per page;
+  - these compression/caching rules are Apache `.htaccess`; nginx hosts need
+    the equivalent `gzip_types` / `expires` directives for the MIME types
+    listed in `public/.htaccess`.
+
 - Performance pass:
   - dashboard aggregates are now grouped queries instead of per-month and
-    per-day queries (51 queries instead of 103, with the same data); the
-    selected-month average and MTD reuse the same monthly series;
+    per-day queries (41 queries instead of 103, with the same data); the
+    selected-month average, MTD, deal chart and money page reuse the same
+    monthly series;
   - added indexes for the columns used by dashboard and register filters
     (status, due date, paid date, client, stage, etc.) via a guarded migration;
   - the app now ships one variable font (`Onest`) instead of five Inter

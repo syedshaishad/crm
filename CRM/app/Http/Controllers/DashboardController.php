@@ -103,10 +103,12 @@ class DashboardController extends Controller
         $calStart = (int) date('N', mktime(0, 0, 0, $calM, 1, $calY));
         $calDays = (int) date('t', mktime(0, 0, 0, $calM, 1, $calY));
         $dueMap = [];
-        foreach (DB::table('tasks')->whereNotIn('status', ['done'])->whereNotNull('due_date')->whereYear('due_date', $calY)->whereMonth('due_date', $calM)->selectRaw('date(due_date) d, COUNT(*) c')->groupBy('d')->get() as $r) {
+        $calFrom = sprintf('%04d-%02d-01', $calY, $calM);
+        $calTo = date('Y-m-t', mktime(0, 0, 0, $calM, 1, $calY));
+        foreach (DB::table('tasks')->whereNotIn('status', ['done'])->whereNotNull('due_date')->whereBetween('due_date', [$calFrom, $calTo])->selectRaw('date(due_date) d, COUNT(*) c')->groupBy('d')->get() as $r) {
             $dueMap[substr($r->d, 0, 10)]['tasks'] = $r->c;
         }
-        foreach (DB::table('invoices')->whereNotIn('status', ['paid', 'cancelled'])->whereNotNull('due_date')->whereYear('due_date', $calY)->whereMonth('due_date', $calM)->selectRaw('date(due_date) d, COUNT(*) c')->groupBy('d')->get() as $r) {
+        foreach (DB::table('invoices')->whereNotIn('status', ['paid', 'cancelled'])->whereNotNull('due_date')->whereBetween('due_date', [$calFrom, $calTo])->selectRaw('date(due_date) d, COUNT(*) c')->groupBy('d')->get() as $r) {
             $dueMap[substr($r->d, 0, 10)]['invoices'] = $r->c;
         }
 
@@ -300,13 +302,21 @@ class DashboardController extends Controller
 
         // Monthly won/lost series for the deals area chart (last 6 months) +
         // precomputed SVG paths (viewBox 0 0 300 120), so the view stays dumb.
+        // Two grouped queries, not one pair per month.
+        $dealFrom = $ref->copy()->subMonths(5)->startOfMonth()->toDateTimeString();
+        $dealTo = $ref->copy()->endOfMonth()->toDateTimeString();
+        $wonByMonth = DB::table('proposals')->where('status', 'accepted')->whereBetween('updated_at', [$dealFrom, $dealTo])
+            ->selectRaw($monthExpr('updated_at').' m, SUM(total) t')->groupBy('m')->pluck('t', 'm');
+        $lostByMonth = DB::table('proposals')->where('status', 'declined')->whereBetween('updated_at', [$dealFrom, $dealTo])
+            ->selectRaw($monthExpr('updated_at').' m, SUM(total) t')->groupBy('m')->pluck('t', 'm');
         $dealMonths = [];
         for ($m = 5; $m >= 0; $m--) {
             $d = $ref->copy()->subMonths($m);
+            $key = $d->format('Y-m');
             $dealMonths[] = [
                 'label' => $d->format('M'),
-                'won' => (float) DB::table('proposals')->where('status', 'accepted')->whereYear('updated_at', $d->year)->whereMonth('updated_at', $d->month)->sum('total'),
-                'lost' => (float) DB::table('proposals')->where('status', 'declined')->whereYear('updated_at', $d->year)->whereMonth('updated_at', $d->month)->sum('total'),
+                'won' => (float) ($wonByMonth[$key] ?? 0),
+                'lost' => (float) ($lostByMonth[$key] ?? 0),
             ];
         }
         $dmx = max(1, collect($dealMonths)->flatMap(fn ($x) => [$x['won'], $x['lost']])->max());
@@ -447,14 +457,25 @@ class DashboardController extends Controller
 
     public function money()
     {
-        // Cashflow: last 6 months money in vs money out (works on MySQL + SQLite).
+        // Cashflow: last 6 months money in vs money out. Grouped queries keep
+        // this to three round trips and stay index-friendly on MySQL + SQLite.
+        $monthExpr = DB::getDriverName() === 'sqlite'
+            ? fn ($col) => "strftime('%Y-%m', {$col})"
+            : fn ($col) => "DATE_FORMAT({$col}, '%Y-%m')";
+        $sixFrom = now()->subMonths(5)->startOfMonth()->toDateString();
+        $sixTo = now()->endOfMonth()->toDateString();
+        $revByMonth = DB::table('payments')->whereBetween('paid_on', [$sixFrom, $sixTo])
+            ->selectRaw($monthExpr('paid_on').' m, SUM(amount) t')->groupBy('m')->pluck('t', 'm');
+        $expByMonth = DB::table('expenses')->where('status', 'approved')->whereBetween('spent_on', [$sixFrom, $sixTo])
+            ->selectRaw($monthExpr('spent_on').' m, SUM(amount) t')->groupBy('m')->pluck('t', 'm');
         $months = [];
         for ($m = 5; $m >= 0; $m--) {
             $d = now()->subMonths($m);
+            $key = $d->format('Y-m');
             $months[] = [
                 'label' => $d->format('M'),
-                'revenue' => (float) DB::table('payments')->whereYear('paid_on', $d->year)->whereMonth('paid_on', $d->month)->sum('amount'),
-                'expenses' => (float) DB::table('expenses')->where('status','approved')->whereYear('spent_on', $d->year)->whereMonth('spent_on', $d->month)->sum('amount'),
+                'revenue' => (float) ($revByMonth[$key] ?? 0),
+                'expenses' => (float) ($expByMonth[$key] ?? 0),
             ];
         }
         $maxBar = max(1, collect($months)->flatMap(fn ($x) => [$x['revenue'], $x['expenses']])->max());
@@ -473,11 +494,14 @@ class DashboardController extends Controller
         // Forward look: company target vs this month, 3-month collection
         // average projected forward, and open pipeline coverage.
         $target = max(0, (float) setting('company.monthly_target', 0));
-        $mtd = (float) DB::table('payments')->whereYear('paid_on', now()->year)->whereMonth('paid_on', now()->month)->sum('amount');
+        // MTD is a true partial month, so it gets its own narrow range query;
+        // the 3-month average reuses the grouped series above.
+        $mtd = (float) DB::table('payments')
+            ->whereBetween('paid_on', [now()->startOfMonth()->toDateString(), now()->toDateString()])
+            ->sum('amount');
         $avg3 = 0;
         for ($m = 1; $m <= 3; $m++) {
-            $d = now()->subMonths($m);
-            $avg3 += (float) DB::table('payments')->whereYear('paid_on', $d->year)->whereMonth('paid_on', $d->month)->sum('amount');
+            $avg3 += (float) ($revByMonth[now()->subMonths($m)->format('Y-m')] ?? 0);
         }
         $avg3 = round($avg3 / 3, 2);
         $forecast = [];
@@ -510,10 +534,12 @@ class DashboardController extends Controller
         $calStart = (int) date('N', mktime(0, 0, 0, $calM, 1, $calY));
         $calDays = (int) date('t', mktime(0, 0, 0, $calM, 1, $calY));
         $dueMap = [];
-        foreach (DB::table('tasks')->whereNotIn('status', ['done'])->whereNotNull('due_date')->whereYear('due_date', $calY)->whereMonth('due_date', $calM)->selectRaw('date(due_date) d, COUNT(*) c')->groupBy('d')->get() as $r) {
+        $calFrom = sprintf('%04d-%02d-01', $calY, $calM);
+        $calTo = date('Y-m-t', mktime(0, 0, 0, $calM, 1, $calY));
+        foreach (DB::table('tasks')->whereNotIn('status', ['done'])->whereNotNull('due_date')->whereBetween('due_date', [$calFrom, $calTo])->selectRaw('date(due_date) d, COUNT(*) c')->groupBy('d')->get() as $r) {
             $dueMap[substr($r->d, 0, 10)]['tasks'] = $r->c;
         }
-        foreach (DB::table('invoices')->whereNotIn('status', ['paid', 'cancelled'])->whereNotNull('due_date')->whereYear('due_date', $calY)->whereMonth('due_date', $calM)->selectRaw('date(due_date) d, COUNT(*) c')->groupBy('d')->get() as $r) {
+        foreach (DB::table('invoices')->whereNotIn('status', ['paid', 'cancelled'])->whereNotNull('due_date')->whereBetween('due_date', [$calFrom, $calTo])->selectRaw('date(due_date) d, COUNT(*) c')->groupBy('d')->get() as $r) {
             $dueMap[substr($r->d, 0, 10)]['invoices'] = $r->c;
         }
 
