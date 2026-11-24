@@ -6,6 +6,19 @@
 
 ## Unreleased
 
+- Performance pass:
+  - dashboard aggregates are now grouped queries instead of per-month and
+    per-day queries (51 queries instead of 103, with the same data); the
+    selected-month average and MTD reuse the same monthly series;
+  - added indexes for the columns used by dashboard and register filters
+    (status, due date, paid date, client, stage, etc.) via a guarded migration;
+  - the app now ships one variable font (`Onest`) instead of five Inter
+    weights plus two Plus Jakarta faces — about 50% fewer bytes per page —
+    with a font preload in every layout;
+  - `public/.htaccess` enables gzip and long-lived caching for CSS, JS and
+    fonts; `composer optimize` caches config, routes, events and views for
+    production installs.
+
 - Follow-up on the UI debt:
   - removed the three stacked override layers (old button system, primitive
     unification, tag normalisation) and the legacy badge/chip/tag skins beneath

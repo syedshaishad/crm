@@ -4,7 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Sign {{ $doc->name }} — {{ config('app.name') }}</title>
-<link rel="stylesheet" href="{{ asset('assets/css/app.css').'?v=168' }}">
+<link rel="stylesheet" href="{{ asset('assets/css/app.css').'?v=169' }}">
+<link rel="preload" href="{{ asset('assets/fonts/onest-var.woff2') }}" as="font" type="font/woff2" crossorigin>
 @include('brand.theme')
 <style>
   .sign-wrap{max-width:620px;margin:36px auto;padding:0 14px}

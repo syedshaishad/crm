@@ -47,14 +47,28 @@ class DashboardController extends Controller
         $overdue = DB::table('invoices')->leftJoin('clients', 'clients.id', '=', 'invoices.client_id')->where('invoices.status', 'overdue')->orderBy('due_date')->limit(5)->get(['invoices.*', 'clients.name as client']);
         $dueSoon = DB::table('tasks')->whereNotIn('status', ['done'])->whereNotNull('due_date')->where('due_date', '<=', now()->addDays(7)->toDateString())->orderBy('due_date')->limit(5)->get();
 
-        // Cashflow: last 6 months money in vs money out (works on MySQL + SQLite).
+        // Cashflow: last 6 months money in vs money out. One grouped query per
+        // table instead of one query per month (cross-platform date expression).
+        $monthExpr = DB::getDriverName() === 'sqlite'
+            ? fn ($col) => "strftime('%Y-%m', {$col})"
+            : fn ($col) => "DATE_FORMAT({$col}, '%Y-%m')";
+        $dayExpr = DB::getDriverName() === 'sqlite'
+            ? fn ($col) => "strftime('%Y-%m-%d', {$col})"
+            : fn ($col) => "DATE_FORMAT({$col}, '%Y-%m-%d')";
+        $sixFrom = $ref->copy()->subMonths(5)->startOfMonth()->toDateString();
+        $sixTo = $ref->copy()->endOfMonth()->toDateString();
+        $revByMonth = DB::table('payments')->whereBetween('paid_on', [$sixFrom, $sixTo])
+            ->selectRaw($monthExpr('paid_on').' m, SUM(amount) t')->groupBy('m')->pluck('t', 'm');
+        $expByMonth = DB::table('expenses')->where('status', 'approved')->whereBetween('spent_on', [$sixFrom, $sixTo])
+            ->selectRaw($monthExpr('spent_on').' m, SUM(amount) t')->groupBy('m')->pluck('t', 'm');
         $months = [];
         for ($m = 5; $m >= 0; $m--) {
             $d = $ref->copy()->subMonths($m);
+            $key = $d->format('Y-m');
             $months[] = [
                 'label' => $d->format('M'),
-                'revenue' => (float) DB::table('payments')->whereYear('paid_on', $d->year)->whereMonth('paid_on', $d->month)->sum('amount'),
-                'expenses' => (float) DB::table('expenses')->where('status','approved')->whereYear('spent_on', $d->year)->whereMonth('spent_on', $d->month)->sum('amount'),
+                'revenue' => (float) ($revByMonth[$key] ?? 0),
+                'expenses' => (float) ($expByMonth[$key] ?? 0),
             ];
         }
         $maxBar = max(1, collect($months)->flatMap(fn ($x) => [$x['revenue'], $x['expenses']])->max());
@@ -96,13 +110,17 @@ class DashboardController extends Controller
             $dueMap[substr($r->d, 0, 10)]['invoices'] = $r->c;
         }
 
-        // Week activity: collections per day, last 7 days.
+        // Week activity: collections per day, last 7 days (one query).
+        $weekFrom = now()->subDays(6)->toDateString();
+        $weekTo = now()->toDateString();
+        $payByDay = DB::table('payments')->whereBetween('paid_on', [$weekFrom, $weekTo])
+            ->selectRaw($dayExpr('paid_on').' d, SUM(amount) t')->groupBy('d')->pluck('t', 'd');
         $week = [];
         for ($wd = 6; $wd >= 0; $wd--) {
             $day = now()->subDays($wd);
             $week[] = [
                 'label' => $day->format('D'),
-                'value' => (float) DB::table('payments')->whereDate('paid_on', $day->toDateString())->sum('amount'),
+                'value' => (float) ($payByDay[$day->toDateString()] ?? 0),
             ];
         }
         $weekMax = max(1, collect($week)->max('value'));
@@ -110,27 +128,32 @@ class DashboardController extends Controller
         // 7-day spark series behind each KPI card: new pipeline value,
         // invoiced value, and daily profit (collections minus approved spend).
         // Precomputed SVG paths (viewBox 0 0 120 36) so the view stays dumb.
-        $series7 = function (string $table, string $dateCol, string $sumCol, string $extraWhere = '') {
+        $series7 = function (string $table, string $dateCol, string $sumCol, ?string $status = null) use ($dayExpr, $weekFrom, $weekTo) {
+            $isDateTime = in_array($dateCol, ['created_at', 'updated_at'], true);
+            $from = $isDateTime ? $weekFrom.' 00:00:00' : $weekFrom;
+            $to = $isDateTime ? $weekTo.' 23:59:59' : $weekTo;
+            $q = DB::table($table)->whereBetween($dateCol, [$from, $to]);
+            if ($status) $q->where('status', $status);
+            $byDay = $q->selectRaw($dayExpr($dateCol).' d, SUM('.$sumCol.') t')->groupBy('d')->pluck('t', 'd');
             $vals = [];
             for ($wd = 6; $wd >= 0; $wd--) {
-                $day = now()->subDays($wd)->toDateString();
-                $q = DB::table($table)->whereDate($dateCol, $day);
-                if ($extraWhere !== '') $q->whereRaw($extraWhere);
-                $vals[] = (float) $q->sum($sumCol);
+                $vals[] = (float) ($byDay[now()->subDays($wd)->toDateString()] ?? 0);
             }
 
             return $vals;
         };
         $pipeWeek = $series7('proposals', 'created_at', 'total');
         $billWeek = $series7('invoices', 'issue_date', 'total');
-        $expWeek = $series7('expenses', 'spent_on', 'amount', "status = 'approved'");
+        $expWeek = $series7('expenses', 'spent_on', 'amount', 'approved');
         $payWeek = array_column($week, 'value');
         $profitWeek = array_map(fn ($p, $e) => round($p - $e, 2), $payWeek, $expWeek);
         // Tasks finished per day (last 7 days) for the weekly panel switch.
+        $doneByDay = DB::table('tasks')->whereIn('status', ['done', 'completed'])
+            ->whereBetween('updated_at', [$weekFrom.' 00:00:00', $weekTo.' 23:59:59'])
+            ->selectRaw($dayExpr('updated_at').' d, COUNT(*) c')->groupBy('d')->pluck('c', 'd');
         $doneWeek = [];
         for ($wd = 6; $wd >= 0; $wd--) {
-            $day = now()->subDays($wd)->toDateString();
-            $doneWeek[] = (int) DB::table('tasks')->whereIn('status', ['done', 'completed'])->whereDate('updated_at', $day)->count();
+            $doneWeek[] = (int) ($doneByDay[now()->subDays($wd)->toDateString()] ?? 0);
         }
         $sparkPath = function (array $vals) {
             $n = count($vals);
@@ -159,13 +182,8 @@ class DashboardController extends Controller
         // Forward look: company target vs this month, 3-month collection
         // average projected forward, and open pipeline coverage.
         $target = max(0, (float) setting('company.monthly_target', 0));
-        $mtd = (float) DB::table('payments')->whereYear('paid_on', $ref->year)->whereMonth('paid_on', $ref->month)->sum('amount');
-        $avg3 = 0;
-        for ($m = 1; $m <= 3; $m++) {
-            $d = now()->subMonths($m);
-            $avg3 += (float) DB::table('payments')->whereYear('paid_on', $d->year)->whereMonth('paid_on', $d->month)->sum('amount');
-        }
-        $avg3 = round($avg3 / 3, 2);
+        $mtd = (float) ($months[5]['revenue'] ?? 0);
+        $avg3 = round(((float) ($months[2]['revenue'] ?? 0) + (float) ($months[3]['revenue'] ?? 0) + (float) ($months[4]['revenue'] ?? 0)) / 3, 2);
         $forecast = [];
         for ($m = 1; $m <= 3; $m++) {
             $forecast[] = ['label' => now()->addMonths($m)->format('M'), 'value' => $avg3];
@@ -191,11 +209,17 @@ class DashboardController extends Controller
         $m1 = $ref->copy()->endOfMonth()->toDateString();
         $pm0 = $ref->copy()->subMonth()->startOfMonth()->toDateString();
         $pm1 = $ref->copy()->subMonth()->endOfMonth()->toDateString();
-        $dealSum = function ($status, $from, $to = null) {
-            $q = DB::table('proposals')->where('status', $status)->whereDate('updated_at', '>=', $from);
-            if ($to) $q->whereDate('updated_at', '<=', $to);
-            $r = $q->selectRaw('COUNT(*) c, COALESCE(SUM(total),0) t')->first();
-            return ['c' => (int) ($r->c ?? 0), 't' => (float) ($r->t ?? 0)];
+        $proposalRows = DB::table('proposals')->select('status', 'total', 'updated_at')
+            ->where('updated_at', '>=', min($pw0, $pm0).' 00:00:00')->get();
+        $dealSum = function ($status, $from, $to = null) use ($proposalRows) {
+            $c = 0; $t = 0.0;
+            foreach ($proposalRows as $row) {
+                if ($row->status !== $status) continue;
+                $day = substr((string) $row->updated_at, 0, 10);
+                if ($day < $from || ($to && $day > $to)) continue;
+                $c++; $t += (float) $row->total;
+            }
+            return ['c' => $c, 't' => $t];
         };
         $chg = function ($cur, $prev) {
             if ($prev > 0) return round(($cur - $prev) / $prev * 100, 1);
@@ -222,9 +246,9 @@ class DashboardController extends Controller
         $deals['inbound'] = (int) DB::table('leads')->whereDate('created_at', '>=', $m0)->whereDate('created_at', '<=', $m1)->whereIn('source', $inSources)->count();
         $deals['outbound'] = (int) DB::table('leads')->whereDate('created_at', '>=', $m0)->whereDate('created_at', '<=', $m1)->where('source', 'coldcall')->count();
         // Weekly performance: collections, new pipeline, tasks finished.
-        $weekPay = (float) DB::table('payments')->whereDate('paid_on', '>=', $w0)->sum('amount');
-        $weekPayC = (int) DB::table('payments')->whereDate('paid_on', '>=', $w0)->count();
-        $weekDone = (int) DB::table('tasks')->whereIn('status', ['done', 'completed'])->whereDate('updated_at', '>=', $w0)->count();
+        $weekPay = (float) $payByDay->sum();
+        $weekPayC = (int) DB::table('payments')->where('paid_on', '>=', $w0)->count();
+        $weekDone = (int) $doneByDay->sum();
         $perf = ['pay' => $weekPay, 'payC' => $weekPayC, 'done' => $weekDone,
             'payShare' => $mtd > 0 ? round($weekPay / $mtd * 100, 1) : ($weekPay > 0 ? 100 : 0)];
         // Spotlight: biggest open proposal + top open deals for the table.
@@ -471,6 +495,10 @@ class DashboardController extends Controller
     }
     public function work()
     {
+        $dayExpr = DB::getDriverName() === 'sqlite'
+            ? fn ($col) => "strftime('%Y-%m-%d', {$col})"
+            : fn ($col) => "DATE_FORMAT({$col}, '%Y-%m-%d')";
+
         // Today's focus: most urgent open tasks.
         $focusTasks = DB::table('tasks')->leftJoin('projects', 'projects.id', '=', 'tasks.project_id')
             ->whereNotIn('tasks.status', ['done'])->orderByRaw('tasks.due_date IS NULL, tasks.due_date')->limit(5)
@@ -489,13 +517,17 @@ class DashboardController extends Controller
             $dueMap[substr($r->d, 0, 10)]['invoices'] = $r->c;
         }
 
-        // Week activity: collections per day, last 7 days.
+        // Week activity: collections per day, last 7 days (one query).
+        $weekFrom = now()->subDays(6)->toDateString();
+        $weekTo = now()->toDateString();
+        $payByDay = DB::table('payments')->whereBetween('paid_on', [$weekFrom, $weekTo])
+            ->selectRaw($dayExpr('paid_on').' d, SUM(amount) t')->groupBy('d')->pluck('t', 'd');
         $week = [];
         for ($wd = 6; $wd >= 0; $wd--) {
             $day = now()->subDays($wd);
             $week[] = [
                 'label' => $day->format('D'),
-                'value' => (float) DB::table('payments')->whereDate('paid_on', $day->toDateString())->sum('amount'),
+                'value' => (float) ($payByDay[$day->toDateString()] ?? 0),
             ];
         }
         $weekMax = max(1, collect($week)->max('value'));

@@ -1,19 +1,12 @@
 /* Neutral design language — light gray canvas, white surfaces, pastel pipeline. No build step.
    Brand colors (--primary / --accent) are injected inline from server settings. */
 /* Self-hosted type: Inter for UI, Plus Jakarta Sans for display headings. */
-@font-face{font-family:"Inter";font-style:normal;font-weight:400;font-display:swap;src:url("../fonts/inter-400.woff2") format("woff2")}
 
-@font-face{font-family:"Inter";font-style:normal;font-weight:500;font-display:swap;src:url("../fonts/inter-500.woff2") format("woff2")}
 
-@font-face{font-family:"Inter";font-style:normal;font-weight:600;font-display:swap;src:url("../fonts/inter-600.woff2") format("woff2")}
 
-@font-face{font-family:"Inter";font-style:normal;font-weight:700;font-display:swap;src:url("../fonts/inter-700.woff2") format("woff2")}
 
-@font-face{font-family:"Inter";font-style:normal;font-weight:800;font-display:swap;src:url("../fonts/inter-800.woff2") format("woff2")}
 
-@font-face{font-family:"Plus Jakarta Sans";font-style:normal;font-weight:700;font-display:swap;src:url("../fonts/plusjakartasans-700.woff2") format("woff2")}
 
-@font-face{font-family:"Plus Jakarta Sans";font-style:normal;font-weight:800;font-display:swap;src:url("../fonts/plusjakartasans-800.woff2") format("woff2")}
 
 @font-face{font-family:"Onest";font-style:normal;font-weight:100 900;font-display:swap;src:url("../fonts/onest-var.woff2") format("woff2")}
 :root{
@@ -37,7 +30,7 @@ html{-webkit-text-size-adjust:100%}
 ::-webkit-scrollbar{width:10px;height:10px}
 ::-webkit-scrollbar-thumb{background:var(--line);border-radius:99px;border:2px solid transparent;background-clip:content-box}
 ::-webkit-scrollbar-track{background:transparent}
-body{margin:0;font-family:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.55}
+body{margin:0;font-family:'Onest',system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.55}
 a{color:var(--link);text-decoration:none}
 a:hover{text-decoration:underline}
 hr{border:0;border-top:1px solid var(--line);margin:18px 0}
@@ -89,7 +82,7 @@ input[type=checkbox],input[type=radio]{accent-color:var(--primary)}
 /* ---------- cream sheet ---------- */
 .sheet{background:var(--sheet);border-radius:28px;margin:12px 18px 18px;padding:30px 32px 26px;box-shadow:var(--shadow);min-height:calc(100vh - 110px)}
 .page-head{margin:2px 2px 20px}
-.page-head h1{margin:0;font-size:30px;font-weight:800;letter-spacing:-.02em;font-family:"Plus Jakarta Sans","Inter",system-ui,sans-serif}
+.page-head h1{margin:0;font-size:30px;font-weight:800;letter-spacing:-.02em;font-family:'Onest',system-ui,sans-serif}
 .page-head .crumb{font-size:13px;color:var(--muted);margin-top:2px}
 .page{max-width:1180px;margin:0 auto}
 .footer-note{color:var(--muted);font-size:12px;margin:20px 2px 4px}
@@ -286,11 +279,11 @@ details.adv summary:hover{color:var(--ink)}
 .check.bad{background:var(--bad-bg);color:#7a2018}
 /* ---------- invoice doc ---------- */
 .inv-hero{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px}
-.inv-num{font-size:clamp(26px,3.4vw,36px);font-weight:800;letter-spacing:-.02em;margin:6px 0 8px;font-family:"Plus Jakarta Sans","Inter",system-ui,sans-serif}
+.inv-num{font-size:clamp(26px,3.4vw,36px);font-weight:800;letter-spacing:-.02em;margin:6px 0 8px;font-family:'Onest',system-ui,sans-serif}
 .inv-chips{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .doc-head{display:flex;justify-content:space-between;gap:18px;align-items:flex-start}
 .doc-brand{display:flex;flex-direction:column;gap:10px;align-items:flex-start;text-align:left}
-.doc-brand h2{margin:0;font-size:24px;letter-spacing:-.01em;font-family:"Plus Jakarta Sans","Inter",system-ui,sans-serif}
+.doc-brand h2{margin:0;font-size:24px;letter-spacing:-.01em;font-family:'Onest',system-ui,sans-serif}
 .doc-logo{height:64px;max-width:230px;object-fit:contain;flex:0 0 auto}
 .doc-brand .doc-sub{font-size:12.5px;color:var(--muted);margin-top:4px}
 .doc-meta{text-align:right;font-size:13px;color:var(--muted)}
@@ -1057,8 +1050,8 @@ html[data-theme="dark"]{
     --bad:#f97066; --bad-bg:#3d1a16; --info:#6ea8fe; --info-bg:#16294d;
     --shadow:0 10px 30px -12px rgba(0,0,0,.6);
   }}
-.page-head h1,.hero h2,.auth-side h1,.auth-box h2,.card h2,.card-head h3,.inv-num,.doc-brand h2,.doc-meta h3{font-family:"Plus Jakarta Sans","Inter",system-ui,sans-serif;font-weight:800;letter-spacing:-.02em}
-.stat b,.donut-center b{font-family:"Plus Jakarta Sans","Inter",system-ui,sans-serif;font-weight:800;font-variant-numeric:tabular-nums}
+.page-head h1,.hero h2,.auth-side h1,.auth-box h2,.card h2,.card-head h3,.inv-num,.doc-brand h2,.doc-meta h3{font-family:'Onest',system-ui,sans-serif;font-weight:800;letter-spacing:-.02em}
+.stat b,.donut-center b{font-family:'Onest',system-ui,sans-serif;font-weight:800;font-variant-numeric:tabular-nums}
 .stat b{font-size:24px;line-height:1.15}
 .card-head h3{font-size:18px}
 /* ledger tables: double rules, warm hover */
