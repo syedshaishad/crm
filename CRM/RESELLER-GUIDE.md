@@ -135,6 +135,21 @@ php deploy/build-package.php --licensee="Acme / ORD-123"
   domain. A shared reseller secret in every zip gives every buyer the whole
   product's API access.
 
+**Optional protected build.** If you distribute encoded bytecode (ionCube /
+SourceGuardian), use the second build channel described in
+`deploy/ENCODED-BUILD.md`:
+
+```bash
+php deploy/build-package.php --variant=encoded --encoded-dir=build/encoded
+```
+
+It writes a separate signed release to `releases/<version>/encoded/`, with the
+11 gate-boundary files from `deploy/encoded-files.php` replaced by encoder
+output. Buyers need the matching loader on their PHP, and an encoded install
+must only receive encoded updates — do not mix the two channels. This raises
+the cost of casual nulling; it is not a substitute for server-side entitlement
+checks.
+
 **Before any update** the app now writes `storage/app/backups/crm-backup-<stamp>.zip`
 (database + uploaded files) and aborts if that backup fails. Hosts that cannot
 afford the disk or time can opt out with `UPDATE_BACKUP_BEFORE_UPDATE=false`,

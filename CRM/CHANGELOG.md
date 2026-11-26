@@ -36,6 +36,13 @@
   - TLS verification for the licence and download channels is mandatory — no
     `LICENSE_VERIFY_SSL` env switch. Per-order API credentials are documented
     as the required reseller process;
+  - added an optional **encoded build** for buyers who need the gate boundary
+    to ship as bytecode: `deploy/encoded-files.php` lists the 11 files that
+    decide or wire up the licence verdict, and `build-package.php --variant=encoded`
+    swaps encoder output into a separate, equally signed release under
+    `releases/<version>/encoded/`. It refuses missing/unchanged encoder output,
+    checks the encoded bytes in both zips, and leaves the readable build
+    untouched; setup and loader requirements are in `deploy/ENCODED-BUILD.md`;
   - added ten more PHPUnit tests (28 total / 111 assertions) covering forged
     keyrings, domain/installation binding, the grace cap, module claims, the
     unnamed-route gate, signed/unsigned/tampered/smuggled packages, unpinned

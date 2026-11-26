@@ -3,9 +3,16 @@
 /**
  * Build the CRM release, replacement and update packages.
  *
- *   php deploy/build-package.php --sign-key-file=deploy/keys/update-signing.key
+ *   php deploy/build-package.php                          # readable dev build
  *   php deploy/build-package.php --version=1.0.1 --licensee="Acme / ORD-123"
  *   php deploy/build-package.php --out="D:/releases"      # copy the zips somewhere else
+ *   php deploy/build-package.php --variant=encoded --encoded-dir=build/encoded
+ *   php deploy/build-package.php --variant=encoded --encode-cmd="ioncube_encoder --into {out} {file}"
+ *
+ * The encoded variant swaps the gate-boundary files listed in
+ * deploy/encoded-files.php for encoder output before zipping, and is written
+ * to releases/<version>/<variant>/. It needs ionCube/SourceGuardian output
+ * and the matching loader on buyer servers. See deploy/ENCODED-BUILD.md.
  *
  * Signing is MANDATORY: an unsigned update package is refused by every
  * install. The private key never ships (deploy/keys/*.key is gitignored);
@@ -37,9 +44,14 @@ $stage = $work.'/crm-'.$version;
 
 // Keep built packages in the project, one folder per version, so they survive
 // temp cleanup. --out=<dir> still overrides this.
+$variant = trim((string) ($options['variant'] ?? ''));
+if ($variant !== '' && ! preg_match('/^[A-Za-z0-9._-]+$/', $variant)) {
+    fwrite(STDERR, "Invalid --variant name.\n");
+    exit(1);
+}
 $out = $options['out'] ?? null;
 if ($out === null || $out === true || trim((string) $out) === '') {
-    $out = $root.'/releases/'.$version;
+    $out = $root.'/releases/'.$version.($variant !== '' ? '/'.$variant : '');
 }
 $out = rtrim((string) $out, '/\\');
 
@@ -150,6 +162,94 @@ function zipHas(ZipArchive $z, string $name): bool
     return false;
 }
 
+/** The canonical gate-boundary file list for an encoded build. */
+function encodedFileList(string $root): array
+{
+    $path = $root.'/deploy/encoded-files.php';
+    $list = is_file($path) ? (require $path) : [];
+    if (! is_array($list) || $list === []) {
+        fwrite(STDERR, "deploy/encoded-files.php is missing or empty.\n");
+        exit(1);
+    }
+
+    return array_values(array_map('strval', $list));
+}
+
+/**
+ * Overlay encoder output onto the staged tree.
+ *
+ * --encoded-dir=<dir> : encoder already ran; mirror the relative paths there.
+ * --encode-cmd=<cmd>  : template with {file} (input), {out} (output), {root}.
+ * Both produce a second, signed build; the plaintext build is unchanged.
+ */
+function applyEncodedFiles(string $stage, string $root, string $work, array $options): int
+{
+    $encodedDir = $options['encoded-dir'] ?? null;
+    $command = $options['encode-cmd'] ?? null;
+    if ($encodedDir === null && $command === null) {
+        return 0;
+    }
+    if ($encodedDir !== null && $command !== null) {
+        fwrite(STDERR, "Use either --encoded-dir or --encode-cmd, not both.\n");
+        exit(1);
+    }
+    $encodedDir = is_string($encodedDir) && $encodedDir !== '' ? $encodedDir : null;
+    $command = is_string($command) && $command !== '' ? $command : null;
+    if ($encodedDir !== null) {
+        $encodedDir = str_starts_with($encodedDir, '/') || preg_match('/^[A-Za-z]:/', $encodedDir)
+            ? rtrim(str_replace('\\', '/', $encodedDir), '/')
+            : rtrim(getcwd().'/'.str_replace('\\', '/', $encodedDir), '/');
+        if (! is_dir($encodedDir)) {
+            fwrite(STDERR, "Encoded directory not found: {$encodedDir}\n");
+            exit(1);
+        }
+    }
+    if ($command !== null && (! str_contains($command, '{file}') || ! str_contains($command, '{out}'))) {
+        fwrite(STDERR, "--encode-cmd must contain {file} and {out} placeholders.\n");
+        exit(1);
+    }
+
+    $destRoot = $work.'/encoded';
+    $count = 0;
+    foreach (encodedFileList($root) as $rel) {
+        $source = $stage.'/'.$rel;
+        if (! is_file($source)) {
+            fwrite(STDERR, "Encoded build: gate file missing from stage: {$rel}\n");
+            exit(1);
+        }
+        if ($encodedDir !== null) {
+            $candidate = $encodedDir.'/'.$rel;
+        } else {
+            $candidate = $destRoot.'/'.$rel;
+            @mkdir(dirname($candidate), 0777, true);
+            $cmd = str_replace(
+                ['{file}', '{out}', '{root}'],
+                [escapeshellarg($source), escapeshellarg($candidate), escapeshellarg($root)],
+                (string) $command
+            );
+            $lines = [];
+            exec($cmd, $lines, $code);
+            if ($code !== 0) {
+                fwrite(STDERR, "Encoder failed for {$rel}: ".implode(' ', $lines)."\n");
+                exit(1);
+            }
+        }
+        if (! is_file($candidate) || filesize($candidate) === 0) {
+            fwrite(STDERR, "Encoded build: no encoder output for {$rel} (looked in {$candidate}).\n");
+            exit(1);
+        }
+        if (hash_file('sha256', $candidate) === hash_file('sha256', $source)) {
+            fwrite(STDERR, "Encoded build: {$rel} is identical to the readable source — the encoder did not run.\n");
+            exit(1);
+        }
+        copy($candidate, $source);
+        $count++;
+    }
+    echo 'encoded gate files: '.$count.' of '.count(encodedFileList($root))."\n";
+
+    return $count;
+}
+
 // ---------------------------------------------------------------------------
 // What may never ship
 // ---------------------------------------------------------------------------
@@ -230,6 +330,10 @@ file_put_contents($stage.'/config/licensee.php', "<?php\n\n// Written by deploy/
     ."    'customer' => ".var_export($licensee, true).",\n"
     ."    'version' => ".var_export($version, true).",\n"
     ."];\n");
+
+// Optional protected variant: swap the gate boundary for encoder output
+// BEFORE either zip is built, so fresh installs and updates stay consistent.
+$encodedCount = applyEncodedFiles($stage, $root, $work, $options);
 
 // ---------------------------------------------------------------------------
 // Release zip (+ byte-identical replacement copy)
@@ -347,6 +451,23 @@ foreach (['release' => $crmZip, 'update' => $updateZip] as $label => $path) {
     $z->close();
 }
 
+if ($encodedCount > 0) {
+    foreach (['release' => [$crmZip, ''], 'update' => [$updateZip, 'files/']] as $label => [$path, $prefix]) {
+        $z = new ZipArchive();
+        if ($z->open($path) !== true) {
+            $problems[] = "{$label}: cannot reopen zip for encoded-file check";
+            continue;
+        }
+        foreach (encodedFileList($root) as $rel) {
+            $shipped = $z->getFromName($prefix.$rel);
+            if ($shipped === false || hash('sha256', (string) $shipped) === hash_file('sha256', $root.'/'.$rel)) {
+                $problems[] = "{$label}: gate file {$rel} is readable source in the encoded build";
+            }
+        }
+        $z->close();
+    }
+}
+
 // The shipped views must all point at the same CSS build, and it must exist.
 $versions = [];
 $views = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($root.'/resources/views', FilesystemIterator::SKIP_DOTS));
@@ -393,7 +514,7 @@ foreach ($names as $name) {
 }
 file_put_contents($out.'/SHA256SUMS.txt', implode("\n", $sums)."\n");
 
-echo "\nArtifacts are in {$out}\n";
+echo "\nArtifacts are in {$out}".($variant !== '' ? " (variant: {$variant})" : '')."\n";
 
 echo "\nDone. Every install verifies the Ed25519 manifest; unsigned packages are refused.\n";
 rrmdir($stage);
