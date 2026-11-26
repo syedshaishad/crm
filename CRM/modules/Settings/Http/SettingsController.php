@@ -339,8 +339,9 @@ class SettingsController extends Controller
         }
         $params = [];
         if (trim((string) ($data['params'] ?? '')) !== '') {
+            // Semicolons only: money values such as "INR 1,000.00" keep their commas.
             $params = array_values(array_filter(
-                array_map('trim', preg_split('/[,;\n]+/', (string) $data['params'])),
+                array_map('trim', preg_split('/[;\n]+/', (string) $data['params'])),
                 fn ($v) => $v !== ''
             ));
         }

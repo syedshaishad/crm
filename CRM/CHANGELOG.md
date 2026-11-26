@@ -26,7 +26,7 @@
   - fixed a pre-existing bug found while testing: `last_whatsapp_at` was not
     mass-assignable, so the one-a-day manual throttle never recorded a send.
     It is now fillable and the throttle works;
-  - added eight PHPUnit tests with `Http::fake()` covering the AiSensy payload,
+  - added nine PHPUnit tests with `Http::fake()` covering the AiSensy payload,
     success/failure journaling, invoice routing and the daily timestamp, the
     Meta fallback path, encrypted key storage and the clear-key flow.
 

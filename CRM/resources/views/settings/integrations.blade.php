@@ -173,11 +173,11 @@
     <form method="POST" action="{{ route('settings.whatsapp.test') }}" class="st-test-row">@csrf
       <div>
         <strong>Send a test template</strong>
-        <span class="hint">Uses {{ $waProviderLabel }}. Meta’s stock reminder template takes four sample values; AiSensy uses your campaign’s template.</span>
+        <span class="hint">Uses {{ $waProviderLabel }}. Meta’s stock reminder template takes four sample values; AiSensy uses your campaign’s template. Separate multiple params with semicolons so commas inside values are kept.</span>
       </div>
       <div class="st-test-actions">
         <input class="in" name="to" placeholder="98765 43210" required aria-label="Test mobile">
-        <input class="in" name="params" placeholder="Params (optional)" aria-label="Template parameters">
+        <input class="in" name="params" placeholder="Params (optional, ; separated)" aria-label="Template parameters">
         <button class="btn sec sm">Send test</button>
       </div>
     </form>

@@ -195,6 +195,23 @@ class AiSensyTest extends TestCase
         $this->assertDatabaseHas('whatsapp_logs', ['provider' => 'meta', 'status' => 'sent']);
     }
 
+    public function test_test_form_splits_params_on_semicolons_and_keeps_commas(): void
+    {
+        $this->configureAiSensy();
+        Http::fake(['*' => Http::response(['messageId' => 'wamid.aisensy.4'], 200)]);
+        $this->actingAs($this->admin());
+
+        $this->post(route('settings.whatsapp.test'), [
+            'to' => '98765 43210',
+            'params' => 'Priya Nair; INV-9001; INR 1,000.00; 4 Dec 2026',
+        ])->assertSessionHasNoErrors();
+
+        Http::assertSent(function ($request) {
+            return $request->data()['campaignName'] === 'crm_test_api'
+                && $request->data()['templateParams'] === ['Priya Nair', 'INV-9001', 'INR 1,000.00', '4 Dec 2026'];
+        });
+    }
+
     public function test_settings_save_encrypts_the_aisensy_key_and_stores_campaigns(): void
     {
         $this->actingAs($this->admin());
