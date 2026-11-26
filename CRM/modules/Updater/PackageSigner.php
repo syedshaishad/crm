@@ -158,7 +158,11 @@ final class PackageSigner
     public static function verifyTree(string $root, array $manifest): array
     {
         $want = $manifest['files'] ?? [];
-        $actual = self::treeHashes($root);
+        try {
+            $actual = self::treeHashes($root);
+        } catch (\Throwable $e) {
+            return self::fail('Package cannot be verified: '.$e->getMessage());
+        }
         $missing = array_diff_key($want, $actual);
         $extra = array_diff_key($actual, $want);
         $changed = [];
