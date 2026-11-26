@@ -5,8 +5,11 @@
  *
  *   php deploy/build-package.php                          # version from config/version.php
  *   php deploy/build-package.php --version=1.0.1          # explicit version
- *   php deploy/build-package.php --out="D:/releases"      # copy the zips somewhere
+ *   php deploy/build-package.php --out="D:/releases"      # copy the zips somewhere else
  *   php deploy/build-package.php --sign-key=SECRET        # sign update-*.zip (HMAC)
+ *
+ * Artifacts are copied to releases/<version>/ by default (plus SHA256SUMS.txt),
+ * so a build never lives only in the OS temp directory.
  *
  * Produces three files:
  *   crm-v<version>.zip             fresh-install package (vendor bundled)
@@ -27,7 +30,14 @@ $options = parseOptions($argv);
 $version = $options['version'] ?? defaultVersion($root);
 $work = rtrim(sys_get_temp_dir(), '/\\').'/crm-build-'.date('Ymd-His').'-'.getmypid();
 $stage = $work.'/crm-'.$version;
+
+// Keep built packages in the project, one folder per version, so they survive
+// temp cleanup. --out=<dir> still overrides this.
 $out = $options['out'] ?? null;
+if ($out === null || $out === true || trim((string) $out) === '') {
+    $out = $root.'/releases/'.$version;
+}
+$out = rtrim((string) $out, '/\\');
 
 echo "Building CRM v{$version}\n";
 
@@ -340,20 +350,19 @@ if (! empty($options['sign-key'])) {
 }
 
 $names = ['crm-v'.$version.'.zip', 'update-replace-v'.$version.'.zip', 'update-v'.$version.'.zip'];
+if (! is_dir($out)) {
+    mkdir($out, 0777, true);
+}
+$sums = [];
 foreach ($names as $name) {
-    if ($out) {
-        if (! is_dir($out)) {
-            mkdir($out, 0777, true);
-        }
-        copy($work.'/out/'.$name, rtrim($out, '/\\').'/'.$name);
-    }
-    $path = $out ? rtrim($out, '/\\').'/'.$name : $work.'/out/'.$name;
-    echo sprintf("%-28s %8.2f MB  sha1 %s\n", $name, filesize($path) / 1048576, sha1_file($path));
+    $path = $out.'/'.$name;
+    copy($work.'/out/'.$name, $path);
+    $sums[] = hash_file('sha256', $path).'  '.$name;
+    echo sprintf("%-28s %8.2f MB  sha256 %s\n", $name, filesize($path) / 1048576, hash_file('sha256', $path));
 }
+file_put_contents($out.'/SHA256SUMS.txt', implode("\n", $sums)."\n");
 
-if (! $out) {
-    echo "\nArtifacts are in {$work}/out (pass --out=<dir> to copy them somewhere).\n";
-}
+echo "\nArtifacts are in {$out}\n";
 
 echo "\nDone. Reminder: an install with UPDATE_RELEASE_KEY set rejects an unsigned update zip.\n";
 rrmdir($stage);
