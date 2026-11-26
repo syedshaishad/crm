@@ -21,6 +21,12 @@ class LicenseManager
 {
     private static ?array $memo = null;
 
+    /** Drop the per-request verdict (tests, CLI loops, deactivation). */
+    public static function forget(): void
+    {
+        self::$memo = null;
+    }
+
     public function driver(): string
     {
         return 'licensify';
@@ -51,18 +57,21 @@ class LicenseManager
     public function licenseKey(): string
     {
         $env = trim((string) config('licensing.license_key', ''));
-        if ($env !== '') {
-            return $env;
-        }
-        try {
-            $f = storage_path('app/license.key');
-            if (is_file($f)) {
-                return trim((string) file_get_contents($f));
+        if ($env === '') {
+            try {
+                $f = storage_path('app/license.key');
+                if (is_file($f)) {
+                    $env = trim((string) file_get_contents($f));
+                }
+            } catch (\Throwable $e) {
             }
-        } catch (\Throwable $e) {
         }
+        // A key is a single line. Never let a storage file smuggle headers or
+        // extra lines into the signed API request.
+        $env = preg_replace('/[\r\n]+/', ' ', $env) ?? '';
+        $env = trim(preg_replace('/[\x00-\x1F\x7F]/', '', $env) ?? '');
 
-        return '';
+        return substr($env, 0, 200);
     }
 
     public function serverHost(): string
@@ -74,16 +83,61 @@ class LicenseManager
 
     public function domain(): string
     {
+        $hosts = $this->domainsForBinding();
+
+        return $hosts[0] ?? '';
+    }
+
+    /**
+     * Hosts a certificate may legitimately bind to.
+     *
+     * On HTTP the current Host header wins. In CLI (cron, artisan) APP_URL is
+     * the only host: reading the domain out of the cached certificate would
+     * let a copied certificate name its own acceptable host and defeat the
+     * binding check. Keep APP_URL set to the licensed domain on cron hosts.
+     */
+    public function domainsForBinding(): array
+    {
+        $hosts = [];
         try {
-            $host = request()->getHost();
+            if (! app()->runningInConsole() && request()) {
+                $hosts[] = request()->getHost();
+            }
         } catch (\Throwable $e) {
-            $host = '';
         }
-        if (! $host) {
-            $host = (string) parse_url((string) config('app.url'), PHP_URL_HOST);
+        foreach ([(string) parse_url((string) config('app.url'), PHP_URL_HOST)] as $h) {
+            if (is_string($h) && $h !== '') {
+                $hosts[] = $h;
+            }
+        }
+        $out = [];
+        foreach ($hosts as $h) {
+            $n = TrustRoot::normalizeDomain($h);
+            if ($n !== '' && ! in_array($n, $out, true)) {
+                $out[] = $n;
+            }
         }
 
-        return strtolower(trim((string) $host));
+        return $out;
+    }
+
+    /** Read one claim from the cached (signature-verified) certificate, if any. */
+    public function cachedClaim(string $key): ?string
+    {
+        try {
+            $state = $this->readState();
+            if (empty($state['token'])) {
+                return null;
+            }
+            [$ok, $claims] = LicenseCertificate::verify(
+                (string) $state['token'], $this->loadKeyring(), TrustRoot::product(), null, null, 300,
+                ['max_offline_seconds' => TrustRoot::maxOfflineSeconds(), 'issuers' => TrustRoot::issuers()]
+            );
+
+            return $ok && is_array($claims) && isset($claims[$key]) ? (string) $claims[$key] : null;
+        } catch (\Throwable $e) {
+            return null;
+        }
     }
 
     protected function client(): LicensifyClient
@@ -101,7 +155,7 @@ class LicenseManager
 
         return [
             'license_key' => $this->licenseKey(),
-            'product_code' => (string) config('licensing.product_code'),
+            'product_code' => TrustRoot::product(),
             'domain' => $this->domain(),
             'installation_id' => $this->installationId(),
             'version' => (string) $version,
@@ -206,17 +260,20 @@ class LicenseManager
     public function refreshKeyring(): array
     {
         try {
-            $data = $this->client()->publicKey((string) config('licensing.product_code'));
+            $data = $this->client()->publicKey(TrustRoot::product());
         } catch (LicensifyException $e) {
             return [false, $this->humanError($e)];
         }
-        $keys = LicenseCertificate::normalizeKeyring(is_array($data) && isset($data['data']) ? $data['data'] : $data);
+        $fetched = LicenseCertificate::normalizeKeyring(is_array($data) && isset($data['data']) ? $data['data'] : $data);
+        // The server is only a transport for keys. Only bytes pinned in code
+        // are accepted, so a replaced keyring file cannot mint certificates.
+        $keys = $this->pinnedFrom($fetched);
         if (! $keys) {
-            return [false, 'The server returned no usable signing keys.'];
+            return [false, 'The server returned no signing keys pinned by this release — install the latest app version to trust them.'];
         }
         $this->saveKeyring($keys);
 
-        return [true, 'Keyring refreshed ('.count($keys).' key'.(count($keys) === 1 ? '' : 's').').'];
+        return [true, 'Keyring refreshed ('.count($keys).' trusted key'.(count($keys) === 1 ? '' : 's').', '.count($fetched).' offered).'];
     }
 
     /**
@@ -239,6 +296,17 @@ class LicenseManager
         return $s;
     }
 
+    /** Everything a certificate is bound to at runtime (never read from state). */
+    protected function verifyContext(): array
+    {
+        return [
+            'domains' => $this->domainsForBinding(),
+            'installation_id' => $this->installationId(),
+            'max_offline_seconds' => TrustRoot::maxOfflineSeconds(),
+            'issuers' => TrustRoot::issuers(),
+        ];
+    }
+
     protected function check(bool $force): array
     {
         if ($this->licenseKey() === '') {
@@ -250,14 +318,14 @@ class LicenseManager
         }
         $state = $this->readState();
         $keys = $this->loadKeyring();
+        $context = $this->verifyContext();
         // License binding uses the server-issued license id (responses carry
         // it; claims carry it as lid). The raw key never appears in claims.
         $bindId = $state['license_id'] ?? null;
         $cached = null;
         if (! empty($state['token'])) {
             [$ok, $claimsOrReason] = LicenseCertificate::verify(
-                $state['token'], $keys,
-                (string) config('licensing.product_code'), $bindId
+                $state['token'], $keys, TrustRoot::product(), $bindId, null, 300, $context
             );
             if ($ok && is_array($claimsOrReason)) {
                 $rev = LicenseCertificate::revOf($claimsOrReason);
@@ -270,15 +338,16 @@ class LicenseManager
                 $this->refreshKeyring();
                 $keys = $this->loadKeyring();
                 [$ok2, $claims2] = LicenseCertificate::verify(
-                    $state['token'], $keys,
-                    (string) config('licensing.product_code'), $bindId
+                    $state['token'], $keys, TrustRoot::product(), $bindId, null, 300, $context
                 );
                 if ($ok2 && is_array($claims2) && LicenseCertificate::revOf($claims2) >= (int) ($state['rev'] ?? 0)) {
                     $cached = $claims2;
                 }
             }
         }
-        $minutes = max(1, (int) config('licensing.revalidate_minutes', 60));
+        // Bound the schedule: a buyer cannot set "revalidate_minutes=999999"
+        // in .env and turn a 7-day offline grace into a permanent offline mode.
+        $minutes = max(5, min(240, (int) config('licensing.revalidate_minutes', 60)));
         $due = $force || empty($state['checked_at']) || (time() - (int) $state['checked_at']) >= $minutes * 60;
         if ($cached !== null && ! $due) {
             return $this->fromClaims($cached, true, (int) ($state['checked_at'] ?? time()));
@@ -291,7 +360,8 @@ class LicenseManager
                 // Bounded offline: serve from the still-valid certificate.
                 $s = $this->fromClaims($cached, true, (int) ($state['checked_at'] ?? time()));
                 $s['stale'] = true;
-                $s['reason'] = 'License server unreachable — running on cached certificate until '.date('j M Y H:i', (int) ($s['grace_until'] ?? time())).'.';
+                $until = LicenseCertificate::toTs($s['grace_until'] ?? time()) ?: time();
+                $s['reason'] = 'License server unreachable — running on cached certificate until '.date('j M Y H:i', $until).'.';
 
                 return $s;
             }
@@ -324,27 +394,35 @@ class LicenseManager
             $claims = ($split && is_array($split[1])) ? $split[1] : [];
         }
 
+        $graceUntil = $res['offline_until'] ?? null;
+        $cap = time() + TrustRoot::maxOfflineSeconds();
+        if ($graceUntil !== null && ($t = LicenseCertificate::toTs($graceUntil)) > $cap) {
+            $graceUntil = date('c', $cap);
+        }
+
         return $this->out(true, '', null, $res['meta']['request_id'] ?? null) + [
             'mode' => 'licensify',
             'plan' => $res['license_type'] ?? $claims['type'] ?? $claims['plan'] ?? 'licensed',
             'license_type' => $res['license_type'] ?? null,
             'status' => $res['status'] ?? 'active',
             'expires_at' => $res['expires_at'] ?? $claims['expires_at'] ?? null,
-            'grace_until' => $res['offline_until'] ?? null,
+            'grace_until' => $graceUntil,
             'grace_expires_in' => $res['grace_expires_in'] ?? null,
             'update_available' => $res['update_available'] ?? false,
             'latest_version' => $res['latest_version'] ?? null,
             'installation_id' => $res['installation_id'] ?? $this->installationId(),
             'domain' => $res['domain'] ?? $this->domain(),
-            'modules' => ['*'],
-            'user_limit' => null,
+            'modules' => $res['modules'] ?? $claims['modules'] ?? ['*'],
+            'user_limit' => $res['user_limit'] ?? $claims['user_limit'] ?? null,
+            'bound_domain' => $claims['dom'] ?? null,
+            'bound_installation' => $claims['inst'] ?? null,
         ];
     }
 
     /** Build the active verdict from verified cached claims (offline path). */
     protected function fromClaims(array $claims, bool $cached, int $checkedAt): array
     {
-        $exp = LicenseCertificate::expOf($claims);
+        $exp = LicenseCertificate::expOf($claims, TrustRoot::maxOfflineSeconds());
 
         return $this->out(true, '', null, null) + [
             'mode' => 'licensify',
@@ -357,8 +435,10 @@ class LicenseManager
             'checked_at' => $checkedAt,
             'installation_id' => $this->installationId(),
             'domain' => $this->domain(),
-            'modules' => ['*'],
-            'user_limit' => null,
+            'modules' => $claims['modules'] ?? ['*'],
+            'user_limit' => $claims['user_limit'] ?? null,
+            'bound_domain' => $claims['dom'] ?? null,
+            'bound_installation' => $claims['inst'] ?? null,
         ];
     }
 
@@ -385,7 +465,18 @@ class LicenseManager
     public function moduleAllowed(string $module): bool
     {
         try {
-            return (bool) $this->status()['active'];
+            $status = $this->status();
+            if (! ($status['active'] ?? false)) {
+                return false;
+            }
+            $allowed = $status['modules'] ?? ['*'];
+            if (! is_array($allowed)) {
+                $allowed = ['*'];
+            }
+
+            // A live response can carry a restricted module list. Older
+            // certificates omit it and keep the historical all-modules behaviour.
+            return in_array('*', $allowed, true) || in_array($module, $allowed, true);
         } catch (\Throwable $e) {
             return false;
         }
@@ -474,10 +565,11 @@ class LicenseManager
         }
         $keys = $this->loadKeyring();
         $bindId = $this->readState()['license_id'] ?? null;
-        [$ok, $claims] = LicenseCertificate::verify($token, $keys, (string) config('licensing.product_code'), $bindId);
+        $context = $this->verifyContext();
+        [$ok, $claims] = LicenseCertificate::verify($token, $keys, TrustRoot::product(), $bindId, null, 300, $context);
         if (! $ok && $claims === 'Unknown signing key — refresh the keyring.') {
             $this->refreshKeyring();
-            [$ok, $claims] = LicenseCertificate::verify($token, $this->loadKeyring(), (string) config('licensing.product_code'), $bindId);
+            [$ok, $claims] = LicenseCertificate::verify($token, $this->loadKeyring(), TrustRoot::product(), $bindId, null, 300, $context);
         }
         if (! $ok || ! is_array($claims)) {
             return false;
@@ -502,29 +594,62 @@ class LicenseManager
         }
     }
 
+    /**
+     * Keyring from disk, filtered against the pins in code.
+     *
+     * The file is only a cache of the server's answer: a key whose bytes are
+     * not pinned is dropped. That makes "write your own public key to
+     * storage/app/.license_keyring.json and mint a certificate" impossible
+     * without editing the application code itself.
+     */
     protected function loadKeyring(): array
     {
+        $pinned = TrustRoot::certKeys();
+        $fetched = [];
         try {
             $path = (string) config('licensing.keyring_file');
             if (is_file($path)) {
                 $d = json_decode((string) file_get_contents($path), true);
                 if (is_array($d) && isset($d['keys']) && is_array($d['keys'])) {
-                    $out = [];
                     foreach ($d['keys'] as $kid => $b64) {
                         $raw = base64_decode((string) $b64, true);
                         if (is_string($raw) && strlen($raw) === 32) {
-                            $out[$kid] = $raw;
+                            $fetched[(string) $kid] = $raw;
                         }
-                    }
-                    if ($out) {
-                        return $out;
                     }
                 }
             }
         } catch (\Throwable $e) {
         }
 
-        return [];
+        // Keep the file's key ids (so certificates keep verifying) but only
+        // with pinned bytes, and always retain the pins themselves as a
+        // fallback when the cache has been deleted.
+        $trusted = $this->pinnedFrom($fetched);
+        foreach ($pinned as $kid => $raw) {
+            if (! isset($trusted[$kid])) {
+                $trusted[$kid] = $raw;
+            }
+        }
+
+        return $trusted;
+    }
+
+    /** Keep only fetched keys whose raw bytes match a pinned key. */
+    protected function pinnedFrom(array $fetched): array
+    {
+        $pinnedBytes = [];
+        foreach (TrustRoot::certKeys() as $raw) {
+            $pinnedBytes[base64_encode($raw)] = true;
+        }
+        $out = [];
+        foreach ($fetched as $kid => $raw) {
+            if (is_string($raw) && isset($pinnedBytes[base64_encode($raw)])) {
+                $out[(string) $kid] = $raw;
+            }
+        }
+
+        return $out;
     }
 
     protected function saveKeyring(array $keys): void

@@ -100,7 +100,6 @@ class BootstrapInstallerEnv
                     'LICENSE_SERVER_URL=https://license.shaishad.com',
                     'LICENSE_PRODUCT_CODE=SSCCRM1000V1',
                     'LICENSE_TIMEOUT=10',
-                    'LICENSE_VERIFY_SSL=true',
                     'LICENSE_REVALIDATE_MINUTES=60',
                     'APP_VERSION='.config('version.version', '1.0.0'),
                     'UPDATE_BACKUP_BEFORE_UPDATE=true',

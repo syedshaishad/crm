@@ -60,10 +60,13 @@ invoice prefix/footer/logo, mail sender, login heading. Nothing is hard-coded.
   it (PHP/Laravel minimums, major-series cover). *Download & install* fetches a
   short-lived URL, verifies the SHA-256, backs up the database + uploads, then
   applies. Needs `LICENSE_KEY`, `LICENSE_API_KEY` and `LICENSE_API_SECRET`.
-- **Manual:** drop `update-*.zip` (with `update.php` + `files/` + `migrations/`)
-  into `storage/app/updates/`, or upload it on the same page, and click Apply:
-  auto DB+file backup → extract → migrate → bump `app.version`.
-  See `storage/app/updates/update.php.example`.
+- **Manual:** drop an official `update-*.zip` (with `manifest.json`,
+  `signature.json`, `files/` and `migrations/`) into `storage/app/updates/`, or
+  upload it on the same page, and click Apply. The Ed25519 signature and all
+  file hashes are checked first; unsigned or modified packages are refused.
+  Then: auto DB+file backup → extract → migrate → bump `app.version`.
+  The public signing key is pinned in `config/trust_root.php`; no `.env` switch
+  can disable that check.
 
 ## 6. Module toggles
 `config/modules.php` lists the bundled modules (Clients/Projects/Tasks/Leads/

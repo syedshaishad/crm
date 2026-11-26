@@ -52,6 +52,16 @@
     <b class="ix-metric-val st-metric-code">{{ $installation }}</b>
     <span class="ix-metric-sub">{{ $domain }}</span>
   </div>
+  <div class="ix-metric">
+    <span class="ix-metric-lbl">Certificate bound to</span>
+    <b class="ix-metric-val">{{ $license['bound_domain'] ?? '—' }}</b>
+    <span class="ix-metric-sub">{{ !empty($license['bound_installation']) ? 'installation + domain checked on every use' : 'server-managed' }}</span>
+  </div>
+  <div class="ix-metric">
+    <span class="ix-metric-lbl">Build</span>
+    <b class="ix-metric-val">v{{ $build['version'] ?? config('version.version', '1.0.0') }}</b>
+    <span class="ix-metric-sub">{{ ($build['licensee'] ?? '') ?: ($licensee ?: 'unbranded') }} · {{ $build['signer'] ?? 'install package' }}</span>
+  </div>
 </div>
 
 <div class="st-grid">
@@ -92,8 +102,8 @@
       <div><h2>How enforcement works</h2><span class="hint">What happens when the server is unreachable.</span></div>
       <span class="ix-tag">Security</span>
     </div>
-    <p class="hint st-note">Every install reports its key, domain, installation id and version to the license server and obeys the answer. Successful checks return a signed certificate that covers a server-decided offline window; while it verifies, the app runs without network.</p>
-    <p class="hint st-note">When it lapses and the server is unreachable, the app blocks — it never fails open. Report a lost key or a moved server to your reseller (quote the installation id above).</p>
+    <p class="hint st-note">Every install reports its key, domain, installation id and version to the license server and obeys the answer. Successful checks return a signed certificate bound to this domain and installation, with a capped offline window (at most 7 days) — while it verifies, the app runs without network.</p>
+    <p class="hint st-note">Signing keys are pinned in the app code: a certificate written into storage cannot grant access, and copied license files fail the domain/installation check. When the window lapses the app blocks — it never fails open. Report a lost key or a moved server to your reseller (quote the installation id above).</p>
   </div>
 </div>
 @endsection

@@ -4,6 +4,7 @@ namespace Modules\Updater;
 
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
+use Modules\Licensing\TrustRoot;
 
 class UpdateManager
 {
@@ -61,23 +62,16 @@ class UpdateManager
 
         // Tolerate zips wrapped in a single top-level folder.
         $root = $this->packageRoot($tmp);
-        // Signed releases: verify the whole tree before touching anything.
-        $key = (string) config('version.release_key', '');
-        if ($key !== '') {
-            $sigFile = $root.'/signature.txt';
-            $want = is_file($sigFile) ? trim((string) file_get_contents($sigFile)) : '';
-            if ($want === '' || ! hash_equals($this->packageSignature($root, $key), $want)) {
-                $this->cleanup($tmp);
-
-                return ['ok' => false, 'error' => 'Bad package: signature missing or invalid (not an official release).'];
-            }
-        }
-        // Validate: update.php with a version is mandatory.
-        $meta = is_file($root.'/update.php') ? include $root.'/update.php' : [];
-        if (empty($meta) || ! is_array($meta) || empty($meta['version'])) {
+        // Verify BEFORE any backup is taken and before a single file is read
+        // for execution. Unsigned packages are refused, full stop.
+        $verified = $this->verifyPackage($root);
+        if (! $verified['ok']) {
             $this->cleanup($tmp);
-            return ['ok' => false, 'error' => 'Bad package: update.php returning [\'version\' => \'x.y.z\'] is required at the zip root.'];
+
+            return ['ok' => false, 'error' => 'Bad package: '.$verified['reason']];
         }
+        $meta = $verified['meta'];
+        $signer = $verified['signer'] ?? 'unknown';
 
         $backupDir = storage_path('app/backups/'.date('Y-m-d_H-i-s'));
         $dbBackup = null;
@@ -167,8 +161,9 @@ class UpdateManager
                     throw new \RuntimeException('Migrations failed (exit '.$code.'): '.substr($migOut, -500));
                 }
             }
-            // 5. Bump version
+            // 5. Bump version + keep an auditable, verified build stamp.
             VersionTracker::set($meta['version']);
+            $this->recordBuild($meta, $signer);
             $this->cleanup($tmp);
 
             $parts = ['Updated to '.$meta['version']];
@@ -196,18 +191,105 @@ class UpdateManager
     /** Descend into a lone top-level folder so wrapped zips still apply. */
     protected function packageRoot(string $tmp): string
     {
-        if (is_file($tmp.'/update.php') || is_dir($tmp.'/files') || is_dir($tmp.'/migrations')) {
+        $marker = function (string $dir): bool {
+            return is_file($dir.'/'.PackageSigner::MANIFEST) || is_file($dir.'/update.php')
+                || is_dir($dir.'/files') || is_dir($dir.'/migrations');
+        };
+        if ($marker($tmp)) {
             return $tmp;
         }
         $subs = array_values(array_filter(glob($tmp.'/*') ?: [], 'is_dir'));
-        if (count($subs) === 1) {
-            $inner = $subs[0];
-            if (is_file($inner.'/update.php') || is_dir($inner.'/files') || is_dir($inner.'/migrations')) {
-                return $inner;
-            }
+        if (count($subs) === 1 && $marker($subs[0])) {
+            return $subs[0];
         }
 
         return $tmp;
+    }
+
+    /**
+     * Verify a package tree before trusting anything inside it.
+     *
+     * New format: Ed25519-signed manifest.json + exact file allowlist.
+     * Legacy format: HMAC signature.txt, accepted only when the seller has
+     * explicitly configured UPDATE_RELEASE_KEY (never by default). PHP in a
+     * package is never included/eval'd.
+     */
+    public function verifyPackage(string $root): array
+    {
+        $manifestFile = $root.'/'.PackageSigner::MANIFEST;
+        $signatureFile = $root.'/'.PackageSigner::SIGNATURE;
+        if (is_file($manifestFile)) {
+            if (! extension_loaded('sodium')) {
+                return ['ok' => false, 'reason' => 'PHP ext-sodium is required to verify update packages.'];
+            }
+            $result = PackageSigner::verify(
+                (string) file_get_contents($manifestFile),
+                is_file($signatureFile) ? (string) file_get_contents($signatureFile) : '',
+                TrustRoot::updateKeys()
+            );
+            if (! $result['ok']) {
+                return $result;
+            }
+            $tree = PackageSigner::verifyTree($root, $result['manifest']);
+            if (! $tree['ok']) {
+                return $tree;
+            }
+
+            return [
+                'ok' => true,
+                'meta' => $result['manifest'],
+                'signer' => $result['kid'],
+                'legacy' => false,
+            ];
+        }
+
+        // Legacy HMAC path for packages built before the signed manifest.
+        // An empty key must never mean "accept anything".
+        $key = (string) config('version.release_key', '');
+        if (! config('version.allow_legacy_signed_packages', false) || $key === '' || ! is_file($root.'/signature.txt')) {
+            return ['ok' => false, 'reason' => 'Unsigned package — no signed manifest and no configured release key. Refusing to apply it.'];
+        }
+        $want = trim((string) file_get_contents($root.'/signature.txt'));
+        if (! hash_equals($this->packageSignature($root, $key), $want)) {
+            return ['ok' => false, 'reason' => 'Legacy package signature does not verify.'];
+        }
+        $meta = is_file($root.'/update.php') ? $this->parseLegacyMeta((string) file_get_contents($root.'/update.php')) : [];
+        if (empty($meta['version'])) {
+            return ['ok' => false, 'reason' => 'Legacy package has no readable version.'];
+        }
+
+        return ['ok' => true, 'meta' => $meta, 'signer' => 'legacy-hmac', 'legacy' => true];
+    }
+
+    /** Read metadata text from a legacy update.php WITHOUT executing it. */
+    protected function parseLegacyMeta(string $code): array
+    {
+        $meta = [];
+        foreach (['version', 'requires', 'notes'] as $key) {
+            if (preg_match("/['\"]{$key}['\"]\s*=>\s*'((?:\\\\.|[^'\\\\])*)'/", $code, $m)) {
+                $meta[$key] = stripcslashes($m[1]);
+            } elseif (preg_match("/['\"]{$key}['\"]\s*=>\s*\"((?:\\\\.|[^\"\\\\])*)\"/", $code, $m)) {
+                $meta[$key] = stripcslashes($m[1]);
+            }
+        }
+
+        return $meta;
+    }
+
+    /** Verified build stamp, shown in Settings → License for traceability. */
+    protected function recordBuild(array $meta, string $signer): void
+    {
+        try {
+            @file_put_contents(storage_path('app/.build.json'), json_encode([
+                'version' => $meta['version'] ?? null,
+                'licensee' => $meta['licensee'] ?? null,
+                'signer' => $signer,
+                'files' => is_array($meta['files'] ?? null) ? count($meta['files']) : null,
+                'applied_at' => time(),
+                'by' => auth()->id(),
+            ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)."\n");
+        } catch (\Throwable $e) {
+        }
     }
 
     /**
@@ -494,8 +576,9 @@ class UpdateManager
     }
 
     /**
-     * Read update.php metadata without extracting (root + one wrapper level).
-     * Returns [] when unreadable — apply() still performs full validation.
+     * Read package metadata without extracting — and without executing any
+     * code from the package. Signed manifests are verified against the pinned
+     * public key; legacy update.php is treated as inert text.
      */
     public function peekMeta(string $zipPath): array
     {
@@ -504,28 +587,84 @@ class UpdateManager
             if ($zip->open($zipPath) !== true) {
                 return [];
             }
-            $code = $zip->getFromName('update.php');
-            if ($code === false) {
+            $find = function (string $name) use ($zip) {
+                $data = $zip->getFromName($name);
+                if ($data !== false) {
+                    return $data;
+                }
                 for ($i = 0; $i < $zip->numFiles; $i++) {
-                    $name = $zip->getNameIndex($i);
-                    if (substr_count($name, '/') === 1 && str_ends_with($name, '/update.php')) {
-                        $code = $zip->getFromName($name);
+                    $entry = (string) $zip->getNameIndex($i);
+                    if (substr_count($entry, '/') === 1 && str_ends_with($entry, '/'.$name)) {
+                        return $zip->getFromIndex($i);
+                    }
+                }
+
+                return false;
+            };
+            $manifestJson = $find(PackageSigner::MANIFEST);
+            $signatureJson = $find(PackageSigner::SIGNATURE);
+            if ($manifestJson !== false && $signatureJson !== false && extension_loaded('sodium')) {
+                $verified = PackageSigner::verify((string) $manifestJson, (string) $signatureJson, TrustRoot::updateKeys());
+                $zip->close();
+
+                return $verified['ok'] ? $verified['manifest'] : [];
+            }
+            $code = $find('update.php');
+            $zip->close();
+            if ($code !== false) {
+                return $this->parseLegacyMeta((string) $code);
+            }
+
+            return [];
+        } catch (\Throwable $e) {
+            return [];
+        }
+    }
+
+    /** Verify the manifest signature of a zip without extracting the payload. */
+    public function peekSignature(string $zipPath): array
+    {
+        $manifest = $this->zipText($zipPath, PackageSigner::MANIFEST);
+        $signature = $this->zipText($zipPath, PackageSigner::SIGNATURE);
+        if ($manifest !== null && $signature !== null) {
+            $verified = PackageSigner::verify($manifest, $signature, TrustRoot::updateKeys());
+
+            return $verified['ok']
+                ? ['ok' => true, 'detail' => 'Ed25519 key '.$verified['kid']]
+                : ['ok' => false, 'detail' => $verified['reason']];
+        }
+        $legacy = $this->zipText($zipPath, 'signature.txt');
+        if ($legacy !== null && config('version.allow_legacy_signed_packages', false)
+            && (string) config('version.release_key', '') !== '') {
+            return ['ok' => true, 'detail' => 'legacy HMAC signature (deprecated)'];
+        }
+
+        return ['ok' => false, 'detail' => 'no signed manifest — unsigned packages are refused'];
+    }
+
+    /** Read one entry (or one level-wrapped entry) from a zip as text. */
+    protected function zipText(string $zipPath, string $name): ?string
+    {
+        try {
+            $zip = new \ZipArchive;
+            if ($zip->open($zipPath) !== true) {
+                return null;
+            }
+            $data = $zip->getFromName($name);
+            if ($data === false) {
+                for ($i = 0; $i < $zip->numFiles; $i++) {
+                    $entry = (string) $zip->getNameIndex($i);
+                    if (substr_count($entry, '/') === 1 && str_ends_with($entry, '/'.$name)) {
+                        $data = $zip->getFromIndex($i);
                         break;
                     }
                 }
             }
             $zip->close();
-            if ($code === false) {
-                return [];
-            }
-            $fn = function () use ($code) {
-                return eval('?>'.$code);
-            };
-            $meta = $fn();
 
-            return is_array($meta) ? $meta : [];
+            return $data === false ? null : (string) $data;
         } catch (\Throwable $e) {
-            return [];
+            return null;
         }
     }
 
@@ -594,12 +733,14 @@ class UpdateManager
                     : $mb.' MB package vs '.ini_get('upload_max_filesize').' upload limit'.($uploaded ? '' : ' — does not apply to a package already on disk'),
                 $uploaded && ! $fits
             );
+            $signature = $this->peekSignature($zipPath);
+            $add('signature', 'Official release signature', $signature['ok'], $signature['detail'], true);
             $meta = $this->peekMeta($zipPath);
             if (! empty($meta['version'])) {
                 $cmp = version_compare($this->normalizeVersion($meta['version']), $this->normalizeVersion($current), '<');
                 $add('version', 'Version path', ! $cmp, 'package '.$meta['version'].' vs installed '.$current.($cmp ? ' — DOWNGRADE, will be refused' : ''), $cmp);
             } else {
-                $add('version', 'Version path', false, 'update.php unreadable — apply will validate fully', true);
+                $add('version', 'Version path', false, 'signed manifest unreadable — apply will validate fully', true);
             }
         } else {
             $add('version', 'Installed version', true, $current);

@@ -35,7 +35,6 @@ class LicensifyClient
         private readonly string $apiKey,
         private readonly string $apiSecret,
         private readonly int $timeout = 10,
-        private readonly bool $verifySsl = true,
     ) {}
 
     public static function fromConfig(): self
@@ -45,7 +44,6 @@ class LicensifyClient
             (string) config('licensing.api_key'),
             (string) config('licensing.api_secret'),
             (int) config('licensing.timeout', 10),
-            (bool) config('licensing.verify_ssl', true),
         );
     }
 
@@ -138,6 +136,8 @@ class LicensifyClient
         $canonical = $this->canonical($method, '/api/v1'.$path, $qs, hash('sha256', $json), $ts, $nonce);
         $url = $base.$path.($qs !== '' ? '?'.$qs : '');
         try {
+            // TLS verification is always on (Laravel's default). No env
+            // switch can downgrade this channel.
             $pending = Http::timeout($this->timeout)
                 ->withHeaders([
                     'X-License-Key' => $this->apiKey,
@@ -146,9 +146,6 @@ class LicensifyClient
                     'X-License-Signature' => $this->signature($canonical),
                     'Accept' => 'application/json',
                 ]);
-            if (! $this->verifySsl) {
-                $pending = $pending->withoutVerifying();
-            }
             $res = $method === 'GET' ? $pending->get($url) : $pending->withBody($json, 'application/json')->post($url);
         } catch (\Throwable $e) {
             throw new LicensifyException('License server unreachable: '.$e->getMessage());

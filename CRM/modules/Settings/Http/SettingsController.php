@@ -402,6 +402,19 @@ class SettingsController extends Controller
         return back()->with('ok', 'Tax settings saved.');
     }
 
+    /** Build stamp written only after a signed update was verified. */
+    private function verifiedBuild(): array
+    {
+        try {
+            $f = storage_path('app/.build.json');
+            $data = is_file($f) ? json_decode((string) file_get_contents($f), true) : null;
+
+            return is_array($data) ? $data : [];
+        } catch (\Throwable $e) {
+            return [];
+        }
+    }
+
     public function updates(UpdateManager $updater, ReleaseFeed $feed)
     {
         $backups = collect(glob(storage_path('app/backups/crm-backup-*.zip') ?: []))
@@ -562,6 +575,8 @@ class SettingsController extends Controller
             'domain' => $lm->domain(),
             'hasKey' => $lm->licenseKey() !== '',
             'keyFromEnv' => trim((string) config('licensing.license_key', '')) !== '',
+            'licensee' => trim((string) config('licensee.customer', '')),
+            'build' => $this->verifiedBuild(),
         ]);
     }
 

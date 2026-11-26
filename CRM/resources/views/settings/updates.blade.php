@@ -116,7 +116,7 @@
       <div><h2>Upload &amp; apply package</h2><span class="hint">A database and file backup is taken before anything changes.</span></div>
       <span class="ix-tag">Update</span>
     </div>
-    <p class="fhint">Upload a <code class="st-code">.zip</code> containing <code class="st-code">update.php</code> (returning <code class="st-code">['version' =&gt; 'x.y.z']</code>) plus optional <code class="st-code">files/</code> and <code class="st-code">migrations/</code> at the zip root.</p>
+    <p class="fhint">Upload an official <code class="st-code">.zip</code> with <code class="st-code">manifest.json</code>, <code class="st-code">signature.json</code>, <code class="st-code">files/</code> and <code class="st-code">migrations/</code> at the zip root. The Ed25519 signature and every listed file hash are verified before anything is installed — unsigned or tampered packages are refused.</p>
     <form method="POST" action="{{ route('settings.updates.apply') }}" enctype="multipart/form-data">@csrf
       <label class="f" for="upd-package">Package file</label>
       <input class="in" id="upd-package" type="file" name="package_file" accept=".zip">

@@ -3,10 +3,13 @@
 /**
  * Build the CRM release, replacement and update packages.
  *
- *   php deploy/build-package.php                          # version from config/version.php
- *   php deploy/build-package.php --version=1.0.1          # explicit version
+ *   php deploy/build-package.php --sign-key-file=deploy/keys/update-signing.key
+ *   php deploy/build-package.php --version=1.0.1 --licensee="Acme / ORD-123"
  *   php deploy/build-package.php --out="D:/releases"      # copy the zips somewhere else
- *   php deploy/build-package.php --sign-key=SECRET        # sign update-*.zip (HMAC)
+ *
+ * Signing is MANDATORY: an unsigned update package is refused by every
+ * install. The private key never ships (deploy/keys/*.key is gitignored);
+ * installs verify with the public key pinned in config/trust_root.php.
  *
  * Artifacts are copied to releases/<version>/ by default (plus SHA256SUMS.txt),
  * so a build never lives only in the OS temp directory.
@@ -14,7 +17,7 @@
  * Produces three files:
  *   crm-v<version>.zip             fresh-install package (vendor bundled)
  *   update-replace-v<version>.zip  byte-identical copy of the release zip
- *   update-v<version>.zip          update.php + migrations/ + files/ (in-app updater)
+ *   update-v<version>.zip          manifest.json + signature.json + migrations/ + files/
  *
  * Never ships install or licence identity: no .env, no database, no
  * storage/app/.installation_id / licence files, no logs, caches, symlinks,
@@ -25,6 +28,7 @@
  */
 
 $root = dirname(__DIR__);
+require $root.'/vendor/autoload.php';
 $options = parseOptions($argv);
 
 $version = $options['version'] ?? defaultVersion($root);
@@ -164,6 +168,10 @@ $skip = function (string $rel, SplFileInfo $item): bool {
     if (str_starts_with($rel, 'public/storage') || str_starts_with($rel, 'public/_preview')) {
         return true;
     }
+    // Never ship the private release key (or any private key material).
+    if (str_starts_with($rel, 'deploy/keys/') || preg_match('/\.key$/i', $base)) {
+        return true;
+    }
     if ($rel === 'public/hot' || str_starts_with($rel, 'bootstrap/cache/')) {
         return true;
     }
@@ -215,6 +223,14 @@ foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($stage, Fi
 }
 echo 'staged '.number_format($files).' files, '.number_format($bytes / 1048576, 1)." MB\n";
 
+// Per-order watermark. It is code, not env, so it survives updates and can
+// identify a leaked build without exposing any credential.
+$licensee = trim((string) ($options['licensee'] ?? ''));
+file_put_contents($stage.'/config/licensee.php', "<?php\n\n// Written by deploy/build-package.php. Do not edit by hand.\nreturn [\n"
+    ."    'customer' => ".var_export($licensee, true).",\n"
+    ."    'version' => ".var_export($version, true).",\n"
+    ."];\n");
+
 // ---------------------------------------------------------------------------
 // Release zip (+ byte-identical replacement copy)
 // ---------------------------------------------------------------------------
@@ -231,32 +247,59 @@ $zip->close();
 copy($crmZip, $work.'/out/update-replace-v'.$version.'.zip');
 
 // ---------------------------------------------------------------------------
-// Update zip: update.php + migrations/ + files/<tree>
+// Update zip: signed manifest + migrations/ + files/<tree>
 // ---------------------------------------------------------------------------
 
 $notes = $options['notes'] ?? 'Baseline release package. Apply via Settings -> Updates. A database + uploads backup is taken automatically before files/ is overlaid and migrations run.';
-$updatePhp = $work.'/update.php';
-file_put_contents($updatePhp, "<?php\n"
-    ."// CRM {$version} update package. Upload via Settings -> Updates.\n"
-    ."// A database + uploads backup is taken automatically before anything changes.\n"
-    ."return [\n"
-    ."    'version' => '{$version}',\n"
-    ."    'requires' => '{$version}',\n"
-    ."    'notes' => ".var_export($notes, true).",\n"
-    ."];\n");
-
 $updateZip = $work.'/out/update-v'.$version.'.zip';
 $zip = new ZipArchive();
 if ($zip->open($updateZip, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== true) {
     fwrite(STDERR, "Cannot create {$updateZip}\n");
     exit(1);
 }
-$zip->addFile($updatePhp, 'update.php');
 $zip->addEmptyDir('files');
 zipAddTree($zip, $stage, 'files');
 $zip->addEmptyDir('migrations');
 zipAddTree($zip, $root.'/database/migrations', 'migrations');
 $zip->close();
+
+// Mandatory signing. A release without a valid signature cannot be installed.
+$kid = (string) ($options['kid'] ?? array_key_first(\Modules\Licensing\TrustRoot::updateKeys()));
+$pinned = \Modules\Licensing\TrustRoot::updateKeys();
+if (! isset($pinned[$kid])) {
+    fwrite(STDERR, "Unknown signing key id {$kid}; pin its public key in config/trust_root.php.\n");
+    exit(1);
+}
+$keyFile = (string) ($options['sign-key-file'] ?? 'deploy/keys/update-signing.key');
+$rawKey = (string) ($options['sign-key'] ?? '');
+if ($rawKey === '' && is_file($root.'/'.$keyFile)) {
+    $rawKey = trim((string) file_get_contents($root.'/'.$keyFile));
+}
+if ($rawKey === '') {
+    fwrite(STDERR, "No signing key. Pass --sign-key=<hex seed> or --sign-key-file=<path> (default deploy/keys/update-signing.key).\n");
+    exit(1);
+}
+try {
+    $derived = \Modules\Updater\PackageSigner::publicFromSecret($rawKey);
+} catch (\Throwable $e) {
+    fwrite(STDERR, 'Bad signing key: '.$e->getMessage()."\n");
+    exit(1);
+}
+if (! hash_equals($pinned[$kid], $derived)) {
+    fwrite(STDERR, "The signing key does not match the pinned public key {$kid}.\n");
+    exit(1);
+}
+$signed = \Modules\Updater\PackageSigner::signZip($updateZip, $rawKey, $kid, [
+    'version' => $version,
+    'requires' => $version,
+    'notes' => $notes,
+    'licensee' => $licensee,
+]);
+if (! $signed['ok']) {
+    fwrite(STDERR, 'Signing failed: '.$signed['reason']."\n");
+    exit(1);
+}
+echo 'signed update: '.$kid.' ('.number_format(count($signed['manifest']['files']))." files)\n";
 
 // ---------------------------------------------------------------------------
 // Verify
@@ -268,13 +311,14 @@ $mustHave = [
     'release' => ['artisan', 'composer.json', 'vendor/autoload.php', 'public/index.php', 'public/sw.js',
         'public/assets/css/app.css', 'resources/views/layouts/app.blade.php',
         'storage/app/license.json.example', 'storage/app/updates/update.php.example', 'database/migrations'],
-    'update' => ['update.php', 'files/artisan', 'files/vendor/autoload.php',
-        'files/public/assets/css/app.css', 'migrations'],
+    'update' => ['manifest.json', 'signature.json', 'files/artisan', 'files/vendor/autoload.php',
+        'files/public/assets/css/app.css', 'files/config/licensee.php', 'migrations'],
 ];
 $mustNotHave = ['.env', 'database/database.sqlite', 'storage/app/.installation_id',
     'storage/app/.license_certificate.json', 'storage/app/.license_keyring.json',
     'storage/app/.license_secret', 'storage/app/license.key', 'storage/app/webpush_vapid.json',
-    'storage/logs/laravel.log', 'bootstrap/cache/config.php', 'public/storage', 'node_modules'];
+    'storage/logs/laravel.log', 'bootstrap/cache/config.php', 'public/storage', 'node_modules',
+    'deploy/keys/update-signing.key'];
 
 foreach (['release' => $crmZip, 'update' => $updateZip] as $label => $path) {
     $z = new ZipArchive();
@@ -333,21 +377,8 @@ if ($problems) {
 }
 
 // ---------------------------------------------------------------------------
-// Sign (optional) and deliver
+// Deliver
 // ---------------------------------------------------------------------------
-
-if (! empty($options['sign-key'])) {
-    $key = (string) $options['sign-key'];
-    $cwd = getcwd();
-    chdir($root);
-    exec(escapeshellarg(PHP_BINARY).' artisan update:sign --zip='.escapeshellarg($updateZip).' --key='.escapeshellarg($key).' 2>&1', $signOut, $signCode);
-    chdir($cwd);
-    if ($signCode !== 0) {
-        fwrite(STDERR, "Signing failed: ".implode("\n", $signOut)."\n");
-        exit(1);
-    }
-    echo 'signed: '.trim(implode(' ', $signOut))."\n";
-}
 
 $names = ['crm-v'.$version.'.zip', 'update-replace-v'.$version.'.zip', 'update-v'.$version.'.zip'];
 if (! is_dir($out)) {
@@ -364,5 +395,5 @@ file_put_contents($out.'/SHA256SUMS.txt', implode("\n", $sums)."\n");
 
 echo "\nArtifacts are in {$out}\n";
 
-echo "\nDone. Reminder: an install with UPDATE_RELEASE_KEY set rejects an unsigned update zip.\n";
+echo "\nDone. Every install verifies the Ed25519 manifest; unsigned packages are refused.\n";
 rrmdir($stage);

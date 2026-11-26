@@ -3,81 +3,76 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use Modules\Updater\UpdateManager;
+use Modules\Licensing\TrustRoot;
+use Modules\Updater\PackageSigner;
 
 /**
- * Seller-side: sign an update package so buyer installs with
- * UPDATE_RELEASE_KEY set refuse tampered/forged zips.
+ * Seller-side: sign an update package with the Ed25519 private key.
  *
- *   php artisan update:sign --zip=update-v1.0.2.zip --key=SECRET
+ *   php artisan update:sign --zip=update-v1.0.2.zip --private-key=deploy/keys/update-signing.key
  *
- * Writes signature.txt into the zip (the signature covers everything else).
+ * Adds manifest.json (version, notes, per-file SHA-256) and signature.json to
+ * the zip root. Buyer installs verify both against the public key pinned in
+ * config/trust_root.php; no code from the package is ever executed.
  */
 class SignUpdate extends Command
 {
     protected $signature = 'update:sign
         {--zip= : Update package to sign}
-        {--key= : Release key (HMAC secret)}';
+        {--private-key= : Path to the Ed25519 private key (seed), or the key itself}
+        {--kid= : Key id from config/trust_root.php}
+        {--licensee= : Optional customer/order watermark embedded in the manifest}';
 
-    protected $description = 'Sign an update package for verified installs.';
+    protected $description = 'Sign an update package with the release Ed25519 key.';
 
-    public function handle(UpdateManager $updater): int
+    public function handle(): int
     {
-        $zipPath = (string) $this->option('zip');
-        $key = (string) $this->option('key');
-        if (! is_file($zipPath)) {
-            $this->error('Zip not found: '.$zipPath);
+        $zip = (string) $this->option('zip');
+        $rawKey = (string) $this->option('private-key');
+        $kid = (string) $this->option('kid');
+        if ($kid === '') {
+            $kid = array_key_first(TrustRoot::updateKeys()) ?: '';
+        }
+        if (! is_file($zip)) {
+            $this->error('Zip not found: '.$zip);
 
             return self::FAILURE;
         }
-        if (strlen($key) < 16) {
-            $this->error('Key too short (min 16 chars).');
+        if ($rawKey === '') {
+            $this->error('Pass --private-key=<file> (never commit that file).');
 
             return self::FAILURE;
         }
-        $tmp = storage_path('app/updates_tmp/sign-'.uniqid());
-        @mkdir($tmp, 0755, true);
-        $zip = new \ZipArchive;
-        if ($zip->open($zipPath) !== true) {
-            $this->error('Cannot open zip.');
+        $key = is_file($rawKey) ? trim((string) file_get_contents($rawKey)) : $rawKey;
+        if (! isset(TrustRoot::updateKeys()[$kid])) {
+            $this->error('Unknown key id '.$kid.' — pin its public key in config/trust_root.php first.');
 
             return self::FAILURE;
         }
-        $zip->extractTo($tmp);
-        $zip->close();
-        // Reuse the same root/signature logic the installer verifies.
-        $ref = new \ReflectionMethod($updater, 'packageRoot');
-        $ref->setAccessible(true);
-        $root = $ref->invoke($updater, $tmp);
-        $sig = $updater->packageSignature($root, $key);
-        file_put_contents($tmp.'/signature.txt', $sig."\n");
-        // If the tree lives in a wrapper folder, the signature belongs there.
-        if ($root !== $tmp) {
-            file_put_contents($root.'/signature.txt', $sig."\n");
-            @unlink($tmp.'/signature.txt');
-        }
-        $zip = new \ZipArchive;
-        if ($zip->open($zipPath) !== true) {
-            $this->error('Cannot rewrite zip.');
+        try {
+            $public = PackageSigner::publicFromSecret($key);
+        } catch (\Throwable $e) {
+            $this->error($e->getMessage());
 
             return self::FAILURE;
         }
-        $zip->deleteName('signature.txt');
-        $base = $root !== $tmp ? basename($root).'/' : '';
-        $zip->addFromString($base.'signature.txt', $sig."\n");
-        $zip->close();
-        $this->cleanupDir($tmp);
-        $this->info('Signed '.$zipPath.' ('.substr($sig, 0, 12).'…).');
+        if (! hash_equals(TrustRoot::updateKeys()[$kid], $public)) {
+            $this->error('Private key does not match the pinned public key '.$kid.'.');
+
+            return self::FAILURE;
+        }
+        $meta = ['product' => TrustRoot::product()];
+        if (($licensee = (string) $this->option('licensee')) !== '') {
+            $meta['licensee'] = $licensee;
+        }
+        $result = PackageSigner::signZip($zip, $key, $kid, $meta);
+        if (! $result['ok']) {
+            $this->error($result['reason']);
+
+            return self::FAILURE;
+        }
+        $this->info('Signed '.$zip.' (kid '.$kid.', '.count($result['manifest']['files']).' files).');
 
         return self::SUCCESS;
-    }
-
-    protected function cleanupDir(string $dir): void
-    {
-        $it = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($dir, \FilesystemIterator::SKIP_DOTS), \RecursiveIteratorIterator::CHILD_FIRST);
-        foreach ($it as $f) {
-            $f->isDir() ? @rmdir($f->getPathname()) : @unlink($f->getPathname());
-        }
-        @rmdir($dir);
     }
 }

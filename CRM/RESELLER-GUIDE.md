@@ -104,30 +104,36 @@ The build never includes `.env`, a database, uploads, logs, caches,
 `public/storage`, identity/licence files, or any `.bat/.exe/.sh/.cmd/.ps1/.dll/.so`
 (the licence server's package validator rejects executables).
 
-**Signing.** An install that has `UPDATE_RELEASE_KEY` set refuses any package
-whose `signature.txt` does not verify, so buyers cannot be tricked into
-installing a tampered zip:
+**Signing is mandatory.** Every update zip carries `manifest.json` (version,
+notes and a SHA-256 for every payload file) and `signature.json` (an Ed25519
+signature over the manifest bytes). Installs verify both against the public
+key pinned in `config/trust_root.php` **before** taking a backup or writing a
+single file. Unsigned or tampered packages are refused, and nothing inside a
+package is ever `include`d or `eval`d.
 
 ```bash
-# once, per release line: generate a key and keep it in your password manager
-php -r "echo bin2hex(random_bytes(32)), PHP_EOL;"
+# The private key is gitignored at deploy/keys/update-signing.key.
+# Normal build: signs automatically and copies artifacts to releases/<version>/.
+php deploy/build-package.php
 
-# every build (or pass --sign-key=... to build-package.php)
-php artisan update:sign --zip=update-vX.Y.Z.zip --key=<key>
+# Re-sign an existing update zip:
+php artisan update:sign --zip=update-vX.Y.Z.zip \
+  --private-key=deploy/keys/update-signing.key
+
+# Per-order watermark (shown in Settings → License on the installed copy):
+php deploy/build-package.php --licensee="Acme / ORD-123"
 ```
 
-Then put the same key in each install's `.env`:
-
-```
-UPDATE_RELEASE_KEY=<key>
-```
-
-- Installs **without** the key accept unsigned packages — that is the
-  self-hosting default, so only set it where you control the deployment.
-- Rotate by re-signing and updating every install in the same window;
-  a mismatched key rejects the update with *"not an official release"*.
-- Never commit the key. Sign `update-*.zip` only: the updater checks
-  signatures on the update path, not on a fresh install.
+- Never put the private key in `.env`, a zip, Git or a support ticket. If it
+  leaks, generate a new keypair, pin the new public key under a new kid in
+  `config/trust_root.php`, ship that release, then retire the old pin.
+- `UPDATE_RELEASE_KEY` no longer exists: an empty value used to mean "accept
+  anything". Legacy HMAC packages are accepted only if that value is set
+  explicitly, and only until the next release line.
+- Per-order API credentials: issue `LICENSE_API_KEY` / `LICENSE_API_SECRET`
+  unique to each order and scope them server-side to that order's key and
+  domain. A shared reseller secret in every zip gives every buyer the whole
+  product's API access.
 
 **Before any update** the app now writes `storage/app/backups/crm-backup-<stamp>.zip`
 (database + uploaded files) and aborts if that backup fails. Hosts that cannot

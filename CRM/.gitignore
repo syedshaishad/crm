@@ -22,3 +22,4 @@ yarn-error.log
 /.fleet
 /.vscode
 /releases
+/deploy/keys/*.key

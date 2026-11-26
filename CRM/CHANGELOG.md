@@ -6,6 +6,41 @@
 
 ## Unreleased
 
+- Licensing and update trust hardening (the "realistic verdict" pass):
+  - certificate signing keys are **pinned in code** (`config/trust_root.php`,
+    no `env()`), and `storage/app/.license_keyring.json` is only a cache of
+    pinned bytes. Writing your own public key there and self-signing a
+    certificate no longer grants access; key rotation ships with an app release;
+  - certificates are now checked against the **runtime** domain and installation
+    id (`dom` / `inst` claims the server already signs), plus a pinned issuer.
+    Copying an activated install's `storage/app` files to another server or
+    domain fails; live re-validation is required instead. CLI/cron binds to
+    `APP_URL`, so that must match the licensed domain;
+  - offline validity is the earliest of every expiry claim, the server's grace
+    and a hard 7-day cap. `LICENSE_REVALIDATE_MINUTES` is clamped to 5..240, so
+    `.env` can no longer turn a short offline window into permanent offline use;
+  - module and user-limit claims are honoured instead of hardcoded to `*`;
+    the licence middleware is deny-by-default — an unnamed route no longer
+    skips the gate (the PATCH proposals alias was one);
+  - update packages now carry a signed `manifest.json` (per-file SHA-256) and
+    `signature.json` (Ed25519 over the exact manifest bytes). Verification
+    happens before backup or file writes, requires an exact file-set match,
+    and rejects unsigned, tampered or unpinned packages. Package `update.php`
+    is never included or evaluated — metadata is parsed as inert text (this
+    removes an admin-upload → arbitrary-PHP path);
+  - the private signing key lives in gitignored
+    `deploy/keys/update-signing.key` and is excluded from every release zip.
+    Builds must be signed; `--licensee="Customer / Order"` embeds a per-order
+    watermark shown in `Settings → License`. `UPDATE_RELEASE_KEY` is deprecated
+    and legacy HMAC packages require an explicit second opt-in;
+  - TLS verification for the licence and download channels is mandatory — no
+    `LICENSE_VERIFY_SSL` env switch. Per-order API credentials are documented
+    as the required reseller process;
+  - added ten more PHPUnit tests (28 total / 111 assertions) covering forged
+    keyrings, domain/installation binding, the grace cap, module claims, the
+    unnamed-route gate, signed/unsigned/tampered/smuggled packages, unpinned
+    signers and the no-PHP-execution guarantee.
+
 - AiSensy WhatsApp integration:
   - the existing Meta Cloud API sender is now a dispatcher with two providers.
     `Settings → Integrations` has an **Active provider** switch; only the

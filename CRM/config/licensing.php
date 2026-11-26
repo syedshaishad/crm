@@ -17,8 +17,11 @@ return [
     'api_key' => (string) env('LICENSE_API_KEY', ''),
     'api_secret' => (string) env('LICENSE_API_SECRET', ''),
     'timeout' => (int) env('LICENSE_TIMEOUT', 10),
-    'verify_ssl' => (bool) env('LICENSE_VERIFY_SSL', true),
+    // TLS verification is mandatory. There is no env switch to disable it:
+    // a buyer cannot "accidentally" turn the licence channel into plaintext.
     // At most one server re-validation per N minutes while serving from cache.
+    // LicenseManager clamps this to 5..240 so the offline grace cannot be
+    // extended indefinitely through .env.
     'revalidate_minutes' => (int) env('LICENSE_REVALIDATE_MINUTES', 60),
     // Installation id file (auto-generated, stable across restarts).
     'installation_file' => storage_path('app/.installation_id'),

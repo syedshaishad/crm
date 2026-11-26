@@ -39,7 +39,7 @@ class LicenseCertificate
      * mints certificates whose nbf is still in our future, and every
      * revalidation fails even though the license is valid.
      */
-    public static function verify(string $token, array $keys, ?string $productCode = null, ?string $licenseKey = null, ?int $now = null, int $leeway = 300): array
+    public static function verify(string $token, array $keys, ?string $productCode = null, ?string $licenseKey = null, ?int $now = null, int $leeway = 300, array $context = []): array
     {
         if (! function_exists('sodium_crypto_sign_verify_detached') || ! extension_loaded('sodium')) {
             return [false, 'PHP ext-sodium is missing — certificates cannot be verified on this server.'];
@@ -71,16 +71,60 @@ class LicenseCertificate
         }
         $now = $now ?? time();
         $leeway = max(0, $leeway);
+
+        // The offline window is the EARLIEST of every expiry claim, the
+        // server's "grace" seconds, and our own hard cap. A certificate can
+        // never grant more offline time than the pinned policy allows.
+        $expiry = [];
         foreach (['exp', 'offline_until', 'expires_at'] as $k) {
-            if (isset($claims[$k]) && is_numeric($t = self::toTs($claims[$k])) && $t > 0 && $now > $t + $leeway) {
-                return [false, 'Certificate window has closed.'];
+            if (isset($claims[$k]) && is_numeric($t = self::toTs($claims[$k])) && $t > 0) {
+                $expiry[] = $t;
             }
+        }
+        $issued = isset($claims['iat']) && is_numeric($t = self::toTs($claims['iat'])) && $t > 0 ? (int) $t : null;
+        foreach (['grace', 'offline_grace_seconds'] as $k) {
+            if ($issued !== null && isset($claims[$k]) && is_numeric($claims[$k]) && (int) $claims[$k] > 0) {
+                $expiry[] = $issued + (int) $claims[$k];
+            }
+        }
+        $cap = (int) ($context['max_offline_seconds'] ?? 0);
+        if ($issued !== null && $cap > 0) {
+            $expiry[] = $issued + $cap;
+        }
+        if ($expiry !== [] && $now > min($expiry) + $leeway) {
+            return [false, 'Certificate window has closed.'];
         }
         foreach (['nbf', 'not_before'] as $k) {
             if (isset($claims[$k]) && is_numeric($t = self::toTs($claims[$k])) && $t > 0 && $now < $t - $leeway) {
                 return [false, 'Certificate is not yet valid (clock skew?).'];
             }
         }
+
+        // Issuer pin: a certificate signed by a trusted key still has to come
+        // from the product's licence server, not a look-alike endpoint.
+        $issuers = (array) ($context['issuers'] ?? []);
+        if ($issuers !== [] && isset($claims['iss'])) {
+            $host = TrustRoot::normalizeDomain($claims['iss']);
+            if (! in_array($host, array_map([TrustRoot::class, 'normalizeDomain'], $issuers), true)) {
+                return [false, 'Certificate was issued by an untrusted host.'];
+            }
+        }
+
+        // Installation binding: the server already signs "dom" and "inst".
+        // Honouring them is what stops one activated install being copied to
+        // another domain / server by copying its state files.
+        if (TrustRoot::requireBinding()) {
+            if (isset($claims['dom']) && ($context['domains'] ?? null) !== null) {
+                if (! TrustRoot::domainMatches((string) $claims['dom'], (array) $context['domains'])) {
+                    return [false, 'Certificate is for a different domain — re-validate this installation.'];
+                }
+            }
+            $install = (string) ($context['installation_id'] ?? '');
+            if ($install !== '' && isset($claims['inst']) && ! hash_equals((string) $claims['inst'], $install)) {
+                return [false, 'Certificate is for a different installation — re-validate this installation.'];
+            }
+        }
+
         if ($productCode !== null) {
             $p = $claims['product'] ?? $claims['product_code'] ?? $claims['pcode'] ?? $claims['pid'] ?? null;
             if ($p !== null && (string) $p !== (string) $productCode) {
@@ -111,15 +155,27 @@ class LicenseCertificate
         return 0;
     }
 
-    public static function expOf(array $claims): ?int
+    public static function expOf(array $claims, int $maxOfflineSeconds = 0): ?int
     {
+        $candidates = [];
         foreach (['exp', 'offline_until', 'expires_at'] as $k) {
             if (isset($claims[$k]) && is_numeric($t = self::toTs($claims[$k])) && $t > 0) {
-                return $t;
+                $candidates[] = (int) $t;
+            }
+        }
+        $issued = isset($claims['iat']) && is_numeric($t = self::toTs($claims['iat'])) && $t > 0 ? (int) $t : null;
+        if ($issued !== null) {
+            foreach (['grace', 'offline_grace_seconds'] as $k) {
+                if (isset($claims[$k]) && is_numeric($claims[$k]) && (int) $claims[$k] > 0) {
+                    $candidates[] = $issued + (int) $claims[$k];
+                }
+            }
+            if ($maxOfflineSeconds > 0) {
+                $candidates[] = $issued + $maxOfflineSeconds;
             }
         }
 
-        return null;
+        return $candidates === [] ? null : min($candidates);
     }
 
     /** Normalize a timestamp-ish claim (unix int or date string) to unix. */

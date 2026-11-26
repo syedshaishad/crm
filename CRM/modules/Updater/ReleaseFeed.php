@@ -158,11 +158,8 @@ class ReleaseFeed
         @unlink($part);
 
         try {
-            $request = Http::timeout(600)->connectTimeout(15);
-            if (! (bool) config('licensing.verify_ssl', true)) {
-                $request = $request->withoutVerifying();
-            }
-            $response = $request->sink($part)->get($url);
+            // TLS verification is mandatory; no env switch can disable it.
+            $response = Http::timeout(600)->connectTimeout(15)->sink($part)->get($url);
         } catch (\Throwable $e) {
             @unlink($part);
 
