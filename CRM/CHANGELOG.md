@@ -8,9 +8,11 @@
 
 - AiSensy WhatsApp integration:
   - the existing Meta Cloud API sender is now a dispatcher with two providers.
-    `Settings → Integrations` has an **Active provider** switch; invoice nudges,
-    nightly auto-reminders, scheduled report messages and the test send all
-    follow it without changing their call sites;
+    `Settings → Integrations` has an **Active provider** switch; only the
+    selected provider's credential fields are shown, and changing the switch
+    swaps the panel instantly. Invoice nudges, nightly auto-reminders,
+    scheduled report messages and the test send all follow the saved provider
+    without changing their call sites;
   - AiSensy uses its API-campaign endpoint
     (`https://backend.aisensy.com/campaign/t1/api/v2`) with a campaign per
     message type (reminder, report, test). The API key is encrypted at rest
@@ -26,7 +28,7 @@
   - fixed a pre-existing bug found while testing: `last_whatsapp_at` was not
     mass-assignable, so the one-a-day manual throttle never recorded a send.
     It is now fillable and the throttle works;
-  - added nine PHPUnit tests with `Http::fake()` covering the AiSensy payload,
+  - added ten PHPUnit tests with `Http::fake()` covering the AiSensy payload,
     success/failure journaling, invoice routing and the daily timestamp, the
     Meta fallback path, encrypted key storage and the clear-key flow.
 

@@ -7,6 +7,7 @@
   $rzpTone = $rzpState === 'live' ? 'is-green' : ($rzpState === 'test' ? 'is-amber' : ($rzpState === 'off' ? 'is-grey' : 'is-blue'));
   $mailHost = config('mail.mailers.smtp.host');
   $waProvider = \Modules\Core\WhatsApp\WhatsAppSender::provider($s);
+  $waSelected = old('WHATSAPP_PROVIDER', $waProvider);
   $waProviderLabel = $waProvider === 'aisensy' ? 'AiSensy' : 'Meta Cloud API';
   $waOn = \Modules\Core\WhatsApp\WhatsAppSender::configured($s);
   $waEnabled = setting('whatsapp.enabled','0') === '1';
@@ -125,8 +126,8 @@
         <div>
           <label class="f" for="int-wa-provider">Active provider</label>
           <select class="in" id="int-wa-provider" name="WHATSAPP_PROVIDER">
-            <option value="meta" @selected(old('WHATSAPP_PROVIDER', $waProvider) === 'meta')>Meta Cloud API</option>
-            <option value="aisensy" @selected(old('WHATSAPP_PROVIDER', $waProvider) === 'aisensy')>AiSensy</option>
+            <option value="meta" @selected($waSelected === 'meta')>Meta Cloud API</option>
+            <option value="aisensy" @selected($waSelected === 'aisensy')>AiSensy</option>
           </select>
         </div>
         <div>
@@ -136,34 +137,39 @@
       </div>
       <p class="fhint">The selected provider handles invoice nudges, scheduled report messages and the test send.</p>
 
-      <div class="fsec">Meta Cloud API <span class="ix-state {{ $metaReady ? 'is-green' : 'is-grey' }}"><i></i>{{ $metaReady ? 'Credentials saved' : 'Not configured' }}</span></div>
-      <label class="f" for="int-wa-phone">Phone number ID</label>
-      <input class="in" id="int-wa-phone" name="WHATSAPP_PHONE_NUMBER_ID" value="{{ old('WHATSAPP_PHONE_NUMBER_ID', config('whatsapp.phone_number_id')) }}" autocomplete="off">
-      <label class="f" for="int-wa-token">Access token</label>
-      <input class="in" id="int-wa-token" type="password" name="WHATSAPP_TOKEN" value="{{ config('whatsapp.token') ? '••••••••' : '' }}" autocomplete="new-password" placeholder="EAAG…">
-      <p class="fhint">Leave masked to keep the saved token.</p>
-      <div class="form-grid">
-        <div><label class="f" for="int-wa-template">Reminder template</label><input class="in" id="int-wa-template" name="WHATSAPP_TEMPLATE" value="{{ old('WHATSAPP_TEMPLATE', setting('whatsapp.template','payment_reminder')) }}"></div>
-        <div><label class="f" for="int-wa-report-template">Report template</label><input class="in" id="int-wa-report-template" name="WHATSAPP_REPORT_TEMPLATE" value="{{ old('WHATSAPP_REPORT_TEMPLATE', setting('whatsapp.report_template','report_ready')) }}"></div>
-        <div><label class="f" for="int-wa-lang">Language</label><input class="in" id="int-wa-lang" name="WHATSAPP_LANG" value="{{ old('WHATSAPP_LANG', setting('whatsapp.lang','en')) }}"></div>
+      <div class="wa-provider-panel" data-wa-provider="meta" @if($waSelected !== 'meta') hidden @endif>
+        <div class="fsec">Meta Cloud API <span class="ix-state {{ $metaReady ? 'is-green' : 'is-grey' }}"><i></i>{{ $metaReady ? 'Credentials saved' : 'Not configured' }}</span></div>
+        <label class="f" for="int-wa-phone">Phone number ID</label>
+        <input class="in" id="int-wa-phone" name="WHATSAPP_PHONE_NUMBER_ID" value="{{ old('WHATSAPP_PHONE_NUMBER_ID', config('whatsapp.phone_number_id')) }}" autocomplete="off">
+        <label class="f" for="int-wa-token">Access token</label>
+        <input class="in" id="int-wa-token" type="password" name="WHATSAPP_TOKEN" value="{{ config('whatsapp.token') ? '••••••••' : '' }}" autocomplete="new-password" placeholder="EAAG…">
+        <p class="fhint">Leave masked to keep the saved token.</p>
+        <div class="form-grid">
+          <div><label class="f" for="int-wa-template">Reminder template</label><input class="in" id="int-wa-template" name="WHATSAPP_TEMPLATE" value="{{ old('WHATSAPP_TEMPLATE', setting('whatsapp.template','payment_reminder')) }}"></div>
+          <div><label class="f" for="int-wa-report-template">Report template</label><input class="in" id="int-wa-report-template" name="WHATSAPP_REPORT_TEMPLATE" value="{{ old('WHATSAPP_REPORT_TEMPLATE', setting('whatsapp.report_template','report_ready')) }}"></div>
+          <div><label class="f" for="int-wa-lang">Language</label><input class="in" id="int-wa-lang" name="WHATSAPP_LANG" value="{{ old('WHATSAPP_LANG', setting('whatsapp.lang','en')) }}"></div>
+        </div>
+        <p class="fhint">Reminder template body order: client name, invoice number, balance, due date. Create it in WhatsApp Manager first.</p>
       </div>
-      <p class="fhint">Reminder template body order: client name, invoice number, balance, due date. Create it in WhatsApp Manager first.</p>
 
-      <div class="fsec">AiSensy <span class="ix-state {{ $aisensyKeySet ? 'is-green' : 'is-grey' }}"><i></i>{{ $aisensyKeySet ? 'Key saved' : 'No key' }}</span></div>
-      <label class="f" for="int-aisensy-key">API key</label>
-      <input class="in" id="int-aisensy-key" type="password" name="AISENSY_API_KEY" value="{{ $aisensyKeySet ? '••••••••' : '' }}" autocomplete="new-password" placeholder="AiSensy API campaign key">
-      <p class="fhint">Developer → API Campaign key in AiSensy. Stored encrypted; leave masked to keep the saved key.</p>
-      <label class="st-check" style="margin-top:8px">
-        <input type="checkbox" name="AISENSY_CLEAR" value="1">
-        <span><b>Remove the saved AiSensy key</b><br>Only needed when rotating or disabling AiSensy.</span>
-      </label>
-      <div class="form-grid">
-        <div><label class="f" for="int-aisensy-reminder">Reminder campaign</label><input class="in" id="int-aisensy-reminder" name="AISENSY_CAMPAIGN_REMINDER" value="{{ old('AISENSY_CAMPAIGN_REMINDER', $aisensyCampaigns['reminder']) }}" placeholder="payment_reminder_api"></div>
-        <div><label class="f" for="int-aisensy-report">Report campaign</label><input class="in" id="int-aisensy-report" name="AISENSY_CAMPAIGN_REPORT" value="{{ old('AISENSY_CAMPAIGN_REPORT', $aisensyCampaigns['report']) }}" placeholder="report_ready_api"></div>
-        <div><label class="f" for="int-aisensy-test">Test campaign</label><input class="in" id="int-aisensy-test" name="AISENSY_CAMPAIGN_TEST" value="{{ old('AISENSY_CAMPAIGN_TEST', $aisensyCampaigns['test']) }}" placeholder="crm_test_api"></div>
-        <div><label class="f" for="int-aisensy-source">Source label</label><input class="in" id="int-aisensy-source" name="AISENSY_SOURCE" value="{{ old('AISENSY_SOURCE', setting('aisensy.source','CRM')) }}" placeholder="CRM"></div>
+      <div class="wa-provider-panel" data-wa-provider="aisensy" @if($waSelected !== 'aisensy') hidden @endif>
+        <div class="fsec">AiSensy <span class="ix-state {{ $aisensyKeySet ? 'is-green' : 'is-grey' }}"><i></i>{{ $aisensyKeySet ? 'Key saved' : 'No key' }}</span></div>
+        <label class="f" for="int-aisensy-key">API key</label>
+        <input class="in" id="int-aisensy-key" type="password" name="AISENSY_API_KEY" value="{{ $aisensyKeySet ? '••••••••' : '' }}" autocomplete="new-password" placeholder="AiSensy API campaign key">
+        <p class="fhint">Developer → API Campaign key in AiSensy. Stored encrypted; leave masked to keep the saved key.</p>
+        <label class="st-check" style="margin-top:8px">
+          <input type="checkbox" name="AISENSY_CLEAR" value="1">
+          <span><b>Remove the saved AiSensy key</b><br>Only needed when rotating or disabling AiSensy.</span>
+        </label>
+        <div class="form-grid">
+          <div><label class="f" for="int-aisensy-reminder">Reminder campaign</label><input class="in" id="int-aisensy-reminder" name="AISENSY_CAMPAIGN_REMINDER" value="{{ old('AISENSY_CAMPAIGN_REMINDER', $aisensyCampaigns['reminder']) }}" placeholder="payment_reminder_api"></div>
+          <div><label class="f" for="int-aisensy-report">Report campaign</label><input class="in" id="int-aisensy-report" name="AISENSY_CAMPAIGN_REPORT" value="{{ old('AISENSY_CAMPAIGN_REPORT', $aisensyCampaigns['report']) }}" placeholder="report_ready_api"></div>
+          <div><label class="f" for="int-aisensy-test">Test campaign</label><input class="in" id="int-aisensy-test" name="AISENSY_CAMPAIGN_TEST" value="{{ old('AISENSY_CAMPAIGN_TEST', $aisensyCampaigns['test']) }}" placeholder="crm_test_api"></div>
+          <div><label class="f" for="int-aisensy-source">Source label</label><input class="in" id="int-aisensy-source" name="AISENSY_SOURCE" value="{{ old('AISENSY_SOURCE', setting('aisensy.source','CRM')) }}" placeholder="CRM"></div>
+        </div>
+        <p class="fhint">Campaigns must be <b>Live</b> in AiSensy. Template parameters: reminder = client name, invoice number, balance, due date; report = report name, subject, headline. Set the test campaign too if you want to send a test message.</p>
       </div>
-      <p class="fhint">Campaigns must be <b>Live</b> in AiSensy. Template parameters: reminder = client name, invoice number, balance, due date; report = report name, subject, headline. Set the test campaign too if you want to send a test message.</p>
+
       <div class="st-actions-inline">
         <button class="btn" type="submit">Save WhatsApp</button>
       </div>
@@ -173,7 +179,7 @@
     <form method="POST" action="{{ route('settings.whatsapp.test') }}" class="st-test-row">@csrf
       <div>
         <strong>Send a test template</strong>
-        <span class="hint">Uses {{ $waProviderLabel }}. Meta’s stock reminder template takes four sample values; AiSensy uses your campaign’s template. Separate multiple params with semicolons so commas inside values are kept.</span>
+        <span class="hint">Uses the saved provider ({{ $waProviderLabel }}) — save changes before testing. Meta’s stock reminder template takes four sample values; AiSensy uses your campaign’s template. Separate multiple params with semicolons so commas inside values are kept.</span>
       </div>
       <div class="st-test-actions">
         <input class="in" name="to" placeholder="98765 43210" required aria-label="Test mobile">
@@ -183,4 +189,21 @@
     </form>
   </div>
 </div>
+<script>
+(function () {
+  var select = document.getElementById('int-wa-provider');
+  if (!select) return;
+  var panels = document.querySelectorAll('[data-wa-provider]');
+  var clearKey = document.querySelector('input[name="AISENSY_CLEAR"]');
+  function sync() {
+    for (var i = 0; i < panels.length; i++) {
+      panels[i].hidden = panels[i].getAttribute('data-wa-provider') !== select.value;
+    }
+    // Never submit a destructive clear from a hidden panel.
+    if (clearKey) clearKey.disabled = select.value !== 'aisensy';
+  }
+  select.addEventListener('change', sync);
+  sync();
+})();
+</script>
 @endsection

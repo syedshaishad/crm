@@ -212,6 +212,28 @@ class AiSensyTest extends TestCase
         });
     }
 
+    public function test_integrations_page_renders_only_the_selected_provider_panel(): void
+    {
+        $this->actingAs($this->admin());
+        $this->configureAiSensy();
+
+        $html = $this->get('/settings/integrations')->assertOk()->getContent();
+        preg_match('/data-wa-provider="aisensy"[^>]*>/', $html, $aisensy);
+        preg_match('/data-wa-provider="meta"[^>]*>/', $html, $meta);
+        $this->assertStringNotContainsString('hidden', $aisensy[0]);
+        $this->assertStringContainsString('hidden', $meta[0]);
+
+        $store = app(SettingStore::class);
+        $store->set('whatsapp.provider', 'meta', 'whatsapp');
+        $store->flush();
+
+        $html = $this->get('/settings/integrations')->assertOk()->getContent();
+        preg_match('/data-wa-provider="aisensy"[^>]*>/', $html, $aisensy);
+        preg_match('/data-wa-provider="meta"[^>]*>/', $html, $meta);
+        $this->assertStringContainsString('hidden', $aisensy[0]);
+        $this->assertStringNotContainsString('hidden', $meta[0]);
+    }
+
     public function test_settings_save_encrypts_the_aisensy_key_and_stores_campaigns(): void
     {
         $this->actingAs($this->admin());
