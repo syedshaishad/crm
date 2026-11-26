@@ -145,7 +145,7 @@
               <span class="ix-avatar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7a8.5 8.5 0 1 1 16.1-3.8z"/><path d="M8.5 9.5c0 3 2 5 5 5"/></svg></span>
               <div class="ix-main-txt">
                 <span class="ix-name">{{ $g->recipient ? '+'.$g->recipient : 'No number' }}</span>
-                <span class="ix-sub">{{ $g->template ?: 'payment nudge' }} · {{ $g->source === 'auto' ? 'automatic' : 'manual' }}</span>
+                <span class="ix-sub">{{ $g->template ?: 'payment nudge' }} · {{ ($g->provider ?? 'meta') === 'aisensy' ? 'AiSensy' : 'Meta' }} · {{ $g->source === 'auto' ? 'automatic' : ($g->source === 'test' ? 'test' : 'manual') }}</span>
               </div>
             </div>
           </td>

@@ -3,7 +3,6 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use Modules\Branding\Brand;
 use Modules\Core\WhatsApp\WhatsAppSender;
@@ -63,8 +62,8 @@ class SendScheduledReports extends Command
     }
 
     /**
-     * WhatsApp reports ride the approved template (Cloud API is
-     * template-only): name, period and the headline figure.
+     * WhatsApp reports ride the approved template/campaign: name, period and
+     * the headline figure. The dispatcher picks Meta or AiSensy.
      */
     protected function sendWhatsapp(ReportSchedule $s, string $subject, array $lines): void
     {
@@ -74,7 +73,6 @@ class SendScheduledReports extends Command
 
             return;
         }
-        $template = $store->get('whatsapp.report_template', 'report_ready');
         foreach (collect(preg_split('/[\s,;]+/', $s->recipients))->map(fn ($e) => trim($e))->filter() as $phone) {
             $to = WhatsAppSender::waId($phone, $store->get('whatsapp.country_code', '91'));
             if (! $to) {
@@ -82,18 +80,10 @@ class SendScheduledReports extends Command
 
                 continue;
             }
-            try {
-                $res = Http::timeout(25)->withToken(config('whatsapp.token'))->post(
-                    'https://graph.facebook.com/v21.0/'.config('whatsapp.phone_number_id').'/messages',
-                    ['messaging_product' => 'whatsapp', 'to' => $to, 'type' => 'template',
-                        'template' => ['name' => $template, 'language' => ['code' => $store->get('whatsapp.lang', 'en')],
-                            'components' => [['type' => 'body', 'parameters' => array_map(fn ($t) => ['type' => 'text', 'text' => mb_substr((string) $t, 0, 200)], [$s->name, $subject, $lines[0] ?? ''])]]]
-                    ]
-                );
-                $res->successful() ? $this->info('WhatsApped "'.$s->name.'" to +'.$to.'.') : $this->error('WhatsApp rejected for +'.$to.': '.($res->json('error.message') ?? 'HTTP '.$res->status()));
-            } catch (\Throwable $e) {
-                $this->error('WhatsApp failed for +'.$to.': '.$e->getMessage());
-            }
+            $res = WhatsAppSender::sendReport($to, $s->name, $subject, $lines);
+            $res['ok']
+                ? $this->info('WhatsApped "'.$s->name.'" to +'.$to.'.')
+                : $this->error('WhatsApp failed for +'.$to.': '.$res['message']);
         }
     }
 }

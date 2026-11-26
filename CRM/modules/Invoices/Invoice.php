@@ -17,7 +17,7 @@ class Invoice extends Model
 {
     use DocumentNumber, SoftDeletes;
 
-    protected $fillable = ['number', 'client_id', 'assigned_to', 'created_by', 'project_id', 'issue_date', 'due_date', 'status', 'subtotal', 'discount', 'taxable_value', 'gst_rate', 'gst_amount', 'cgst_amount', 'sgst_amount', 'igst_amount', 'total', 'paid_amount', 'writeoff_amount', 'dunning_level', 'currency', 'exchange_rate', 'place_of_supply', 'reverse_charge', 'notes', 'public_token', 'last_nudged_at', 'late_fee_on', 'eway_bill_no'];
+    protected $fillable = ['number', 'client_id', 'assigned_to', 'created_by', 'project_id', 'issue_date', 'due_date', 'status', 'subtotal', 'discount', 'taxable_value', 'gst_rate', 'gst_amount', 'cgst_amount', 'sgst_amount', 'igst_amount', 'total', 'paid_amount', 'writeoff_amount', 'dunning_level', 'currency', 'exchange_rate', 'place_of_supply', 'reverse_charge', 'notes', 'public_token', 'last_nudged_at', 'last_whatsapp_at', 'late_fee_on', 'eway_bill_no'];
 
     protected $casts = ['issue_date' => 'date', 'due_date' => 'date', 'reverse_charge' => 'boolean', 'last_nudged_at' => 'datetime', 'last_whatsapp_at' => 'datetime', 'late_fee_on' => 'date'];
 

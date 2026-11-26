@@ -44,7 +44,7 @@ class SmokeTest extends TestCase
     {
         $this->actingAs($this->admin());
 
-        foreach (['/', '/work', '/cashflow', '/clients', '/invoices', '/reports', '/reports/pnl', '/settings/general', '/expenses', '/tasks'] as $url) {
+        foreach (['/', '/work', '/cashflow', '/clients', '/invoices', '/reports', '/reports/pnl', '/settings/general', '/settings/integrations', '/expenses', '/tasks'] as $url) {
             $response = $this->get($url);
             $response->assertOk();
             $response->assertSee('<h1', false);

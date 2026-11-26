@@ -4,8 +4,11 @@ namespace Modules\Settings\Http;
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
+use Modules\Core\WhatsApp\WhatsAppSender;
 use Modules\Installer\EnvWriter;
 use Modules\Licensing\LicenseManager;
 use Modules\Settings\SettingStore;
@@ -265,15 +268,29 @@ class SettingsController extends Controller
         return back()->with('ok', 'Test email sent to '.$to.'. Check the inbox (and spam).');
     }
 
-    /** WhatsApp Cloud API credentials (.env) + template/toggles (settings). */
+    /**
+     * WhatsApp provider settings.
+     *
+     * Meta credentials go to .env (existing behaviour); AiSensy's API key is
+     * encrypted in the settings table because it is a bearer credential and
+     * should never sit in a readable column.
+     */
     public function whatsappStore(Request $r, SettingStore $s)
     {
         $data = $r->validate([
             'WHATSAPP_ENABLED' => 'nullable|boolean', 'WHATSAPP_AUTO' => 'nullable|boolean',
+            'WHATSAPP_PROVIDER' => 'nullable|in:meta,aisensy',
             'WHATSAPP_PHONE_NUMBER_ID' => 'nullable|string|max:60',
             'WHATSAPP_TOKEN' => 'nullable|string|max:500',
             'WHATSAPP_TEMPLATE' => 'nullable|string|max:100', 'WHATSAPP_LANG' => 'nullable|string|max:10',
+            'WHATSAPP_REPORT_TEMPLATE' => 'nullable|string|max:100',
             'WHATSAPP_COUNTRY_CODE' => 'nullable|string|max:5',
+            'AISENSY_API_KEY' => 'nullable|string|max:500',
+            'AISENSY_CLEAR' => 'nullable|boolean',
+            'AISENSY_CAMPAIGN_REMINDER' => 'nullable|string|max:100',
+            'AISENSY_CAMPAIGN_REPORT' => 'nullable|string|max:100',
+            'AISENSY_CAMPAIGN_TEST' => 'nullable|string|max:100',
+            'AISENSY_SOURCE' => 'nullable|string|max:100',
         ]);
         $env = [];
         if (! empty($data['WHATSAPP_PHONE_NUMBER_ID'])) {
@@ -288,47 +305,51 @@ class SettingsController extends Controller
         }
         $s->set('whatsapp.enabled', isset($data['WHATSAPP_ENABLED']) ? '1' : '0', 'whatsapp');
         $s->set('whatsapp.auto', isset($data['WHATSAPP_AUTO']) ? '1' : '0', 'whatsapp');
+        $s->set('whatsapp.provider', $data['WHATSAPP_PROVIDER'] ?? 'meta', 'whatsapp');
         $s->set('whatsapp.template', $data['WHATSAPP_TEMPLATE'] ?? 'payment_reminder', 'whatsapp');
+        $s->set('whatsapp.report_template', $data['WHATSAPP_REPORT_TEMPLATE'] ?? 'report_ready', 'whatsapp');
         $s->set('whatsapp.lang', $data['WHATSAPP_LANG'] ?? 'en', 'whatsapp');
         $s->set('whatsapp.country_code', preg_replace('/\D+/', '', $data['WHATSAPP_COUNTRY_CODE'] ?? '91') ?: '91', 'whatsapp');
+
+        // Explicit clear wins; otherwise a masked/blank field keeps the key.
+        if (! empty($data['AISENSY_CLEAR'])) {
+            DB::table('settings')->where('key', 'aisensy.api_key')->delete();
+            $s->flush();
+        } elseif (! empty($data['AISENSY_API_KEY']) && $data['AISENSY_API_KEY'] !== '••••••••') {
+            $s->set('aisensy.api_key', Crypt::encryptString($data['AISENSY_API_KEY']), 'aisensy');
+        }
+        $s->set('aisensy.campaign.reminder', trim($data['AISENSY_CAMPAIGN_REMINDER'] ?? ''), 'aisensy');
+        $s->set('aisensy.campaign.report', trim($data['AISENSY_CAMPAIGN_REPORT'] ?? ''), 'aisensy');
+        $s->set('aisensy.campaign.test', trim($data['AISENSY_CAMPAIGN_TEST'] ?? ''), 'aisensy');
+        $s->set('aisensy.source', trim($data['AISENSY_SOURCE'] ?? '') ?: 'CRM', 'aisensy');
 
         return back()->with('ok', 'WhatsApp saved. Config cache refreshes on next request.');
     }
 
-    /** Fire the configured template at any mobile to prove the credentials. */
+    /** Fire the active provider's template/campaign at any mobile. */
     public function whatsappTest(Request $r, SettingStore $s)
     {
-        $data = $r->validate(['to' => 'required|string|max:20']);
-        $to = \Modules\Core\WhatsApp\WhatsAppSender::waId($data['to'], $s->get('whatsapp.country_code', '91'));
+        $data = $r->validate(['to' => 'required|string|max:20', 'params' => 'nullable|string|max:500']);
+        $to = WhatsAppSender::waId($data['to'], $s->get('whatsapp.country_code', '91'));
         if (! $to) {
             return back()->withErrors(['to' => 'That does not look like a valid mobile number.']);
         }
-        if (! \Modules\Core\WhatsApp\WhatsAppSender::configured($s)) {
+        if (! WhatsAppSender::configured($s)) {
             return back()->withErrors(['to' => 'Save credentials first — WhatsApp is not configured.']);
         }
-        try {
-            $res = \Illuminate\Support\Facades\Http::timeout(25)->withToken(config('whatsapp.token'))->post(
-                'https://graph.facebook.com/v21.0/'.config('whatsapp.phone_number_id').'/messages',
-                [
-                    'messaging_product' => 'whatsapp', 'to' => $to, 'type' => 'template',
-                    'template' => [
-                        'name' => $s->get('whatsapp.template', 'payment_reminder'),
-                        'language' => ['code' => $s->get('whatsapp.lang', 'en')],
-                        'components' => [[
-                            'type' => 'body',
-                            'parameters' => array_map(fn ($t) => ['type' => 'text', 'text' => (string) $t], ['CRM test', 'oka', 'ok', 'ok']),
-                        ]],
-                    ],
-                ]
-            );
-        } catch (\Throwable $e) {
-            return back()->withErrors(['to' => 'WhatsApp failed: '.$e->getMessage()]);
+        $params = [];
+        if (trim((string) ($data['params'] ?? '')) !== '') {
+            $params = array_values(array_filter(
+                array_map('trim', preg_split('/[,;\n]+/', (string) $data['params'])),
+                fn ($v) => $v !== ''
+            ));
         }
-        if (! $res->successful()) {
-            return back()->withErrors(['to' => 'WhatsApp rejected the message: '.($res->json('error.message') ?? 'HTTP '.$res->status())]);
+        $res = WhatsAppSender::sendTest($to, $params);
+        if (! $res['ok']) {
+            return back()->withErrors(['to' => $res['message']]);
         }
 
-        return back()->with('ok', 'Test template sent to +'.$to.'.');
+        return back()->with('ok', $res['message'].'.');
     }
 
     public function tax(SettingStore $s)
